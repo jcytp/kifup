@@ -1,0 +1,186 @@
+openapi: 3.0.0
+info:
+  title: Kifup API
+  description: API for Shogi game record management service
+  version: 1.0.0
+
+servers:
+  - url: http://192.168.11.12:8080/
+    description: 開発サーバー
+
+paths:
+  /api/account:
+    post:
+      summary: アカウント作成
+      tags: [Account]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          description: Invalid request parameters
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          description: Server error
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      summary: アカウント削除
+      tags: [Account]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          description: Server error
+          $ref: '#/components/responses/ErrorResponse'
+  /api/account/password:
+    put:
+      summary: パスワード変更
+      tags: [Account]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          description: Invalid request parameters
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          description: Server error
+          $ref: '#/components/responses/ErrorResponse'
+  /api/session/login:
+    post:
+      summary: ログイン（セッショントークン取得）
+      tags: [Session]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/TokenResponse'
+        '400':
+          description: Invalid request parameters
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          description: Invalid credentials
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          description: Server error
+          $ref: '#/components/responses/ErrorResponse'
+  /api/session/refresh:
+    post:
+      summary: トークンリフレッシュ
+      tags: [Session]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/TokenResponse'
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          description: Server error
+          $ref: '#/components/responses/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    SuccessResponse:
+      description: 成功レスポンス
+      content:
+        application/json:
+          schema:
+          type: object
+          properties:
+            result:
+              type: string
+              example: OK
+    ErrorResponse:
+      description: エラーレスポンス
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: string
+                example: "Error"
+              data:
+                type: string
+                example: "some error occurred"
+    TokenResponse:
+      description: トークン取得成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              result:
+                type: string
+                example: "OK"
+              data:
+                type: string
+                example: "eyJhbGciOiJIUzI1NiIs..."
+  schemas:
+    CreateAccountRequest:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+          minLength: 2
+          example: "曹操オッキマラ"
+        email:
+          type: string
+          format: email
+          example: "caocao@example.com"
+        password:
+          type: string
+          format:  password
+          example: "password123"
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "caocao@example.com"
+        password:
+          type: string
+          format:  password
+          example: "password123"
+    ChangePasswordRequest:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+          format:  password
+          example: "newPassword456"

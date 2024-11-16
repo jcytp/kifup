@@ -1,0 +1,52 @@
+/* src/lib/styles/reset.css */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+	margin: 0;
+	padding: 0;
+	border: none;
+	outline: none;
+	line-height: inherit;
+	vertical-align: baseline;
+	font-size: 100%;
+	font-weight: inherit;
+	color: inherit;
+	font-family: inherit;
+	text-decoration: none;
+	list-style-type: none;
+	background-color: transparent;
+	cursor: inherit;
+}
+html:focus-within {
+	scroll-behavior: smooth;
+}
+body {
+	min-height: 100vh;
+	text-rendering: optimizeSpeed;
+	line-height: 1.5;
+	cursor: default;
+}
+ul,
+ol {
+	list-style: none;
+}
+img,
+picture {
+	max-width: 100%;
+	display: block;
+}
+@media (prefers-reduced-motion: reduce) {
+	html:focus-within {
+		scroll-behavior: auto;
+	}
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
