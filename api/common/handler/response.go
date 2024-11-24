@@ -12,17 +12,17 @@ import (
 
 func ResponseOKPagination(c *gin.Context, data any, paginatedResponse *PaginatedResponse) {
 	if data == nil {
-		c.JSON(http.StatusOK, gin.H{"result": "OK"})
+		c.JSON(http.StatusOK, gin.H{"ok": true})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"result": "OK", "data": data, "pagination": paginatedResponse})
+		c.JSON(http.StatusOK, gin.H{"ok": true, "data": data, "pagination": paginatedResponse})
 	}
 }
 
 func ResponseOK(c *gin.Context, data any) {
 	if data == nil {
-		c.JSON(http.StatusOK, gin.H{"result": "OK"})
+		c.JSON(http.StatusOK, gin.H{"ok": true})
 	} else {
-		c.JSON(http.StatusOK, gin.H{"result": "OK", "data": data})
+		c.JSON(http.StatusOK, gin.H{"ok": true, "data": data})
 	}
 }
 
@@ -40,7 +40,7 @@ func ResponseError(c *gin.Context, status int, msg string, err error) {
 	}
 	slog.WarnContext(c, msg)
 
-	c.JSON(status, gin.H{"result": "Error", "data": msg})
+	c.JSON(status, gin.H{"ok": false, "data": msg})
 }
 
 func ResponseNotFound(c *gin.Context, msg string, err error) {

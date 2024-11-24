@@ -49,7 +49,7 @@ func InsertAccount(account *model.Account) (string, error) {
 			id, name, email, pass_hash,
 			icon_id, introduction,
 			created_at, last_login_at
-		) VALUES (?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	_, err := db.Exec(
 		query,
