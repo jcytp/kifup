@@ -1,6 +1,6 @@
 // src/lib/classes/API.ts
 
-import { token } from "$lib/stores/session";
+import { sessionToken } from "$lib/stores/session";
 import { get } from 'svelte/store';
 
 export interface ApiResult {
@@ -15,7 +15,7 @@ export class API {
         const url = this.server + path;
         const headers: any = {};
         if (withToken) {
-            const currentToken = get(token);
+            const currentToken = get(sessionToken);
             if (currentToken) {
                 headers['Authorization'] = `Bearer ${currentToken}`;
             } else {
@@ -43,7 +43,7 @@ export class API {
             'Content-Type': 'application/json',
         };
         if (withToken) {
-            const currentToken = get(token);
+            const currentToken = get(sessionToken);
             if (currentToken) {
                 headers['Authorization'] = `Bearer ${currentToken}`;
             } else {

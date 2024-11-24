@@ -2,8 +2,8 @@
 
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { Register } from '$lib/api/account';
-	import { Login } from '$lib/api/session';
+	import { register } from '$lib/apis/account';
+	import { login } from '$lib/apis/session';
   import { account } from '$lib/stores/session';
 
   // ログイン済みの場合はホームへ遷移する
@@ -45,7 +45,7 @@
 	};
 
 	const handleLogin = async () => {
-		const result = await Login(loginForm.email, loginForm.password);
+		const result = await login(loginForm.email, loginForm.password);
 		if (!result.ok) {
 			errorMessage = 'ログイン処理中にエラーが発生しました';
 			return;
@@ -57,15 +57,14 @@
 		console.debug('handleRegister');
 		if (registerForm.password !== registerForm.passwordConfirm) {
 			errorMessage = 'パスワードが一致していません';
-			console.debug(errorMessage);
 			return;
 		}
-		const result = await Register(registerForm.name, registerForm.email, registerForm.password);
+		const result = await register(registerForm.name, registerForm.email, registerForm.password);
 		if (!result.ok) {
 			errorMessage = '新規登録処理中にエラーが発生しました';
 			return;
 		}
-		const result_login = await Login(registerForm.email, registerForm.password);
+		const result_login = await login(registerForm.email, registerForm.password);
 		if (!result_login.ok) {
 			errorMessage = 'ログイン処理中にエラーが発生しました';
 			return;
@@ -220,7 +219,7 @@
 			</div>
 			<div class="feature">
 				<h3>棋譜の共有</h3>
-				<p>棋譜にコメントを付けて、共有リンクで公開できます。</p>
+				<p>アップロードした棋譜を、共有リンクで公開できます。</p>
 			</div>
 		</div>
 	</section>
