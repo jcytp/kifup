@@ -1,8 +1,10 @@
-import { API, type ApiResult } from '$lib/classes/API';
+// src/lib/apis/account.ts
+
+import { API, type ApiResult } from '$lib/types/API';
 import { account } from '$lib/stores/session';
 import type { Account } from '$lib/types/Account';
 
-export const Register = async (
+export const register = async (
 	name: string,
 	email: string,
 	password: string
@@ -16,7 +18,7 @@ export const Register = async (
 	return result;
 };
 
-export const GetAccount = async (): Promise<ApiResult> => {
+export const getAccount = async (): Promise<ApiResult> => {
 	const result = await API.get('/api/account', null, true);
 	if (!result.data) {
 		console.error('get account error: no data');

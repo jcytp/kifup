@@ -3,32 +3,64 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { Account } from '$lib/types/Account';
+import { refreshSession } from '$lib/apis/session';
+import { getAccount } from '$lib/apis/account';
 
-const createTokenStore = () => {
-    const initialValue = browser ? localStorage.getItem('token') : null;
-    const { subscribe, set } = writable<string | null>(initialValue);
+const createSessionTokenStore = () => {
+    const { subscribe, set } = writable<string | null>(null);
     const token = {
         subscribe,
-        set: (token: string | null) => {
-            // if (browser) {
-                if (token) {
-                    localStorage.setItem('token', token);
-                } else {
-                    localStorage.removeItem('token');
-                }
-            // }
-            set(token);
-        },
-        clear: () => {
-            // if (browser) {
+        set: (value: string | null) => {
+            set(value);
+            if (value) { // ログイン or トークン更新
+                localStorage.setItem('token', value);
+                update();
+            } else { // ログアウト
                 localStorage.removeItem('token');
-            // }
-            set(null);
+                logout();
+            }
+        },
+        initialize: () => {
+            const value = browser ? localStorage.getItem('token') : null;
+            if (value) {
+                set(value);
+                localStorage.setItem('token', value);
+                update();
+            }
         }
     };
     return token;
 }
 
-export const token = createTokenStore();
-
+let sessionRefreshTimer: ReturnType<typeof setInterval> | null = null;
+export const sessionToken = createSessionTokenStore();
 export const account = writable<Account | null>(null);
+
+const update = async () => {
+    // リフレッシュタイマーを開始
+    if (!sessionRefreshTimer) {
+        sessionRefreshTimer = setInterval(async () => {
+            await refreshSession();
+        }, 30 * 60 * 1000) // 30分
+    }
+
+    // アカウント情報を更新
+    const result = await getAccount()
+    if (result.ok) {
+        const new_account = result.data as Account;
+        account.set(new_account);
+    } else {
+        sessionToken.set(null); // アカウント取得失敗のため、ログアウト
+    }
+}
+
+const logout = () => {
+    // リフレッシュタイマーを停止
+    if (sessionRefreshTimer) {
+        clearInterval(sessionRefreshTimer);
+        sessionRefreshTimer = null;
+    }
+
+    // アカウント情報を削除
+    account.set(null);
+}
