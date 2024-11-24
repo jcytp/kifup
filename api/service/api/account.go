@@ -36,6 +36,15 @@ func CreateAccount(c *gin.Context, req requestCreateAccount) (string, error) {
 	return "", nil
 }
 
+func GetAccount(c *gin.Context) (*model.AccountResponse, string, error) {
+	aid := handler.GetAccountID(c)
+	account, err := dao.GetAccountByID(aid)
+	if err != nil {
+		return nil, "Failed to get account", err
+	}
+	return account.ToResponse(), "", nil
+}
+
 func DeleteAccount(c *gin.Context) (string, error) {
 	aid := handler.GetAccountID(c)
 

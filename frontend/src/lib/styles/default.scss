@@ -3,33 +3,24 @@
 @import './reset.scss';
 
 :root {
-  --primary-color: #2c5282;
-  --secondary-color: #4299e1;
-  --background-color: #f7fafc;
-  --text-color: #2d3748;
-  --border-color: #e2e8f0;
+  // main color
+  --primary-color: #557153;    /* 深い抹茶色：ヘッダー、重要ボタン */
+  --secondary-color: #7D8F69;  /* 明るい抹茶色：ナビゲーション、セクション見出し */
+
+  // functional color
+  --background-color: #F8FFF2; /* 淡い若葉色：背景 */
+  --text-color: #1F2A1B;      /* 濃い緑：テキスト */
+  --border-color: #C8D4BC;    /* 柔らかい抹茶色：ボーダー */
+
+  --z-index-header: 100;
+  --z-index-nav: 90;
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Kosugi Maru', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
-}
-
-.app {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-main {
-  flex: 1;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 auto;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 button {

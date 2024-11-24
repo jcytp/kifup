@@ -28,6 +28,20 @@ paths:
         '500':
           description: Server error
           $ref: '#/components/responses/ErrorResponse'
+    get:
+      summary: アカウント情報の取得
+      tags: [Account]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountResponse'
+        '401':
+          description: Unauthorized
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          description: Server error
+          $ref: '#/components/responses/ErrorResponse'
     delete:
       summary: アカウント削除
       tags: [Account]
@@ -116,11 +130,11 @@ components:
       content:
         application/json:
           schema:
-          type: object
-          properties:
-            result:
-              type: string
-              example: OK
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: true
     ErrorResponse:
       description: エラーレスポンス
       content:
@@ -128,9 +142,9 @@ components:
           schema:
             type: object
             properties:
-              result:
-                type: string
-                example: "Error"
+              ok:
+                type: boolean
+                example: false
               data:
                 type: string
                 example: "some error occurred"
@@ -141,12 +155,39 @@ components:
           schema:
             type: object
             properties:
-              result:
-                type: string
-                example: "OK"
+              ok:
+                type: boolean
+                example: false
               data:
                 type: string
                 example: "eyJhbGciOiJIUzI1NiIs..."
+    AccountResponse:
+      description: アカウント情報取得成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: false
+              data:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  name:
+                    type: string
+                  icon_id:
+                    type: string
+                  introduction:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  last_login_at:
+                    type: string
+                    format: date-time
   schemas:
     CreateAccountRequest:
       type: object

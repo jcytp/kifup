@@ -26,7 +26,7 @@ type AccountResponse struct {
 	IconID       string    `json:"icon_id"`
 	Introduction string    `json:"introduction"`
 	CreatedAt    time.Time `json:"created_at"`
-	LastLoginAt  time.Time `db:"last_login_at"`
+	LastLoginAt  time.Time `json:"last_login_at"`
 }
 
 func (t *Account) ToResponse() *AccountResponse {
