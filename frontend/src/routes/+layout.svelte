@@ -3,16 +3,19 @@
 <script lang="ts">
 	import '$lib/styles/default.scss';
 	import { account, sessionToken } from '$lib/stores/session';
-	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 
-	// セッション管理
+	// セッション初期化
 	onMount(() => {
 		sessionToken.initialize();
+
+		const visitor_urls = ["/", "/kifu/search/", "/kifu/view/", "/account/*"];
+		if (!$sessionToken) {
+			// ToDo: pageのurlがvisitor_urlsに一致しない場合、"/"に遷移する
+			console.debug("no session");
+		}
 	});
-	$: if (!$sessionToken) {
-		goto('/'); // トップページへ遷移
-	}
 	$: isLoggedIn = !!$account;
 
   // ログアウト
@@ -23,7 +26,7 @@
 
 <div class="app">
 	<header>
-		<h1><a href="/" class="logo">kifup</a></h1>
+		<h1><a href="/" class="logo">棋譜UP</a></h1>
 	</header>
 	<nav>
 		<ul>
@@ -56,7 +59,7 @@
 		header {
 			background-color: var(--background-color);
 			border-bottom: 0.3rem var(--primary-color) solid;
-			padding: 0.5rem 0 0rem 11rem;
+			padding: 0.5rem 0 0 11rem;
 			z-index: var(--z-index-header);
 
 			.logo {
@@ -111,8 +114,8 @@
 
 		main {
 			flex: 1;
-			padding: 2rem 0 2rem 10rem;
-			max-width: 1200px;
+			padding: 1.5rem 0 2rem 10rem;
+			max-width: 72rem;
 			width: 100%;
 			box-sizing: border-box;
 		}

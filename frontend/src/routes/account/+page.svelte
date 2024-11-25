@@ -8,8 +8,10 @@
   // URLからアカウントIDを取得
   const accountId = $page.url.searchParams.get('id');
 
+  const image_url_base = 'http://example.com/icon/';
+
   // アカウント情報の状態管理
-  let account: Account | null = null;
+  let accountInfo: Account | null = null;
   let kifuList: Kifu[] = [];
   let isLoading = true;
   let error: string | null = null;
@@ -26,10 +28,12 @@
       // TODO: API実装後に実際のデータ取得に置き換え
       await new Promise(resolve => setTimeout(resolve, 500)); // ローディング表示確認用
       
-      account = {
+      accountInfo = {
         id: accountId || '',
         name: 'サンプルユーザー',
-        email: 'sample@example.com'
+        introduction: '自己紹介～～～～～～～～～～～～～～',
+        created_at: new Date(),
+        last_login_at: new Date(),
       };
 
       kifuList = Array(itemsPerPage).fill(null).map((_, i) => ({
@@ -68,50 +72,48 @@
   }
 </script>
 
-<div class="container">
+<div class="page">
   {#if isLoading}
     <div class="loading">
       <p>アカウント情報を読み込んでいます...</p>
-      <a href="/kifu/view" class="back-button">棋譜詳細に戻る</a>
     </div>
   {:else if error}
     <div class="error">
       <p>{error}</p>
-      <a href="/kifu/view" class="back-button">棋譜詳細に戻る</a>
     </div>
-  {:else if account}
-    <div class="account-profile">
-      <div class="profile-header">
-        <div class="profile-image">
-          <!-- TODO: プロフィール画像の実装 -->
-          <div class="placeholder-image">
-            {account.name[0]}
+  {:else if accountInfo}
+    <section class="basic">
+      <h2>ユーザー情報</h2>
+      <div class="card account-profile">
+        <div class="profile-header">
+          <div class="profile-image">
+            {#if accountInfo.icon_id}
+              <img src={`${image_url_base}${accountInfo.icon_id}`} alt="プロフィール画像" />
+            {:else}
+              <div class="placeholder-image">
+                {accountInfo.name[0]}
+              </div>
+            {/if}
           </div>
-        </div>
-        <div class="profile-info">
-          <h1>{account.name}</h1>
-          <div class="profile-meta">
-            <p>ID: {account.id}</p>
+          <div class="profile-info">
+            <p>{accountInfo.name}</p>
+            <p>{accountInfo.introduction}</p>
           </div>
         </div>
       </div>
+    </section>
 
-      <div class="profile-bio">
-        <h2>自己紹介</h2>
-        <p>
-          <!-- TODO: 自己紹介文の実装 -->
-          自己紹介文がまだ設定されていません。
-        </p>
-      </div>
-    </div>
+    <hr />
 
-    <div class="kifu-section">
+    <section class="basic">
       <h2>公開棋譜</h2>
-      
-      <div class="kifu-list">
+
+      <div class="kifu-list-container">
         {#each kifuList as kifu}
-          <a href={`/kifu/view?id=${kifu.id}`} class="kifu-card">
-            <h3>{kifu.title}</h3>
+          <a href={`/kifu/view?id=${kifu.id}`} class="card kifu-card">
+            <div class="kifu-header">
+              <h3>{kifu.title}</h3>
+            </div>
             <div class="kifu-info">
               <span>対局日: {kifu.matchInfo.date}</span>
               <span>対局者: {kifu.matchInfo.black} vs {kifu.matchInfo.white}</span>
@@ -152,142 +154,88 @@
           次へ
         </button>
       </div>
-    </div>
+    </section>
   {/if}
 </div>
 
 <style lang="scss">
-  .container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
-
-  .loading, .error {
-    text-align: center;
-    padding: 2rem;
-
-    .back-button {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
-      background-color: var(--primary-color);
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-
-      &:hover {
-        opacity: 0.9;
-      }
-    }
-  }
-
   .account-profile {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-
     .profile-header {
       display: flex;
       gap: 2rem;
-      margin-bottom: 2rem;
+      align-items: flex-start;
 
       .profile-image {
-        flex: 0 0 120px;
-        height: 120px;
+        flex: 0 0 6rem;
+        height: 6rem;
+        overflow: hidden;
+        border-radius: 50%;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
 
         .placeholder-image {
           width: 100%;
           height: 100%;
           background-color: var(--secondary-color);
           color: white;
-          font-size: 3rem;
+          font-size: 4rem;
           display: flex;
           align-items: center;
           justify-content: center;
-          border-radius: 50%;
         }
       }
 
       .profile-info {
-        flex: 1;
-
-        h1 {
-          margin-bottom: 0.5rem;
-          color: var(--primary-color);
-        }
-
-        .profile-meta {
-          color: var(--text-color);
-          opacity: 0.8;
-        }
-      }
-    }
-
-    .profile-bio {
-      h2 {
-        color: var(--primary-color);
-        margin-bottom: 1rem;
-        font-size: 1.2rem;
-      }
-
-      p {
-        color: var(--text-color);
-        opacity: 0.8;
-        font-style: italic;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
       }
     }
   }
 
-  .kifu-section {
-    h2 {
-      color: var(--primary-color);
-      margin-bottom: 1.5rem;
-    }
-  }
-
-  .kifu-list {
-    display: grid;
+  .kifu-list-container {
+    display: flex;
+    flex-direction: column;
     gap: 1rem;
-  }
 
-  .kifu-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-    cursor: pointer;
+    .kifu-card {
+      display: block;
+      width: 100%;
+      padding: 1rem 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
 
-    &:hover {
-      transform: translateY(-2px);
-    }
+      .kifu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
 
-    h3 {
-      margin-bottom: 0.5rem;
-      color: var(--primary-color);
-    }
-
-    .kifu-info {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--text-color);
-      font-size: 0.9rem;
-    }
-
-    .kifu-tags {
-      display: flex;
-      gap: 0.5rem;
-
-      .tag {
-        background-color: var(--secondary-color);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
+      .kifu-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 0.3rem;
         font-size: 0.9rem;
+        color: #666;
+      }
+
+      .kifu-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: end;
+
+        .tag {
+          background-color: var(--secondary-color);
+          color: white;
+          padding: 0.2rem 0.4rem;
+          border-radius: 0.2rem;
+          font-size: 0.8rem;
+        }
       }
     }
   }

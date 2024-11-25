@@ -71,12 +71,12 @@
   });
 </script>
 
-<div class="container">
-  <section class="search-section">
+<div class="page">
+  <section class="basic">
     <h2>棋譜検索</h2>
-    <form on:submit|preventDefault={handleSearch} class="search-form">
+    <form on:submit|preventDefault={handleSearch} class="basic search-form">
       <div class="form-group">
-        <h3 class="search-label">キーワード</h3>
+        <h3 class="label">キーワード</h3>
         <input
           type="text"
           id="keyword"
@@ -86,7 +86,7 @@
       </div>
 
       <div class="form-group">
-        <h3 class="search-label">投稿アカウント</h3>
+        <h3 class="label">投稿アカウント</h3>
         <input
           type="text"
           id="accountId"
@@ -96,7 +96,7 @@
       </div>
 
       <div class="form-group">
-        <h3 class="search-label">タグ</h3>
+        <h3 class="label">タグ</h3>
         <div class="tag-input-container">
           <input
             type="text"
@@ -116,27 +116,29 @@
         </div>
       </div>
 
-      <div class="form-group date-range">
-        <h3 class="search-label">対局日</h3>
-        <div class="date-inputs">
+      <div class="form-group">
+        <h3 class="label">対局日</h3>
+        <div class="match-date-inputs">
           <input type="date" bind:value={startDate} />
           <span>～</span>
           <input type="date" bind:value={endDate} />
         </div>
       </div>
 
-      <button type="submit" class="search-button">検索</button>
+      <button type="submit" class="submit search-button">検索</button>
     </form>
   </section>
 
-  <section class="results-section">
+  <section class="basic kifu-list">
     {#if isLoading}
       <div class="loading">検索中...</div>
     {:else}
-      <div class="kifu-list">
+      <div class="kifu-list-container">
         {#each kifuList as kifu}
-          <a href={`/kifu/view?id=${kifu.id}`} class="kifu-card">
-            <h3>{kifu.title}</h3>
+          <a href={`/kifu/view?id=${kifu.id}`} class="card kifu-card">
+            <div class="kifu-header">
+              <h3>{kifu.title}</h3>
+            </div>
             <div class="kifu-info">
               <span>対局日: {kifu.matchInfo.date}</span>
               <span>対局者: {kifu.matchInfo.black} vs {kifu.matchInfo.white}</span>
@@ -150,6 +152,7 @@
         {/each}
       </div>
 
+      <!-- ページネーション -->
       <div class="pagination">
         <button
           class="page-button"
@@ -182,188 +185,111 @@
 </div>
 
 <style lang="scss">
-  .container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
-
-  .search-section {
-    margin-bottom: 2rem;
-
-    h2 {
-      margin-bottom: 1rem;
-      color: var(--primary-color);
-    }
-  }
-
-  .search-form {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
   .form-group {
-    margin-bottom: 1rem;
+    .tag-input-container {
+      display: flex;
+      gap: 0.5rem;
 
-    .search-label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: bold;
-    }
+      input {
+        flex: 1;
+      }
 
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      cursor: text;
+      button {
+        padding: 0.4rem 1rem;
+        border: 1px solid var(--primary-color);
+        border-radius: 0.4rem;
+        background-color: var(--primary-color);
+        color: white;
 
-      &:focus {
-        border-color: var(--secondary-color);
+        &:hover, &:focus {
+          border-color: var(--secondary-color);
+          background-color: var(--secondary-color);
+        }
       }
     }
-  }
 
-  .date-range {
-    .date-inputs {
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+
+      .tag {
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 0.3rem 0.4rem 0.3rem 0.6rem;
+        border-radius: 0.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+        line-height: 1.4rem;
+
+        .remove-tag {
+          background: none;
+          border: none;
+          color: white;
+          cursor: pointer;
+        }
+      }
+    }
+
+    .match-date-inputs {
       display: flex;
       gap: 1rem;
       align-items: center;
-
-      input {
-        width: calc(50% - 1rem);
-      }
     }
   }
 
-  .tag-input-container {
-    display: flex;
-    gap: 0.5rem;
+  section.kifu-list {
+    border-top: 0.2rem solid var(--primary-color);
 
-    input {
-      flex: 1;
-    }
-  }
-
-  .add-tag-btn {
-    padding: 0.5rem 1rem;
-    background-color: var(--secondary-color);
-    color: white;
-    border-radius: 4px;
-  }
-
-  .tags-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin-top: 0.5rem;
-  }
-
-  .tag {
-    background-color: var(--secondary-color);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-
-    .remove-tag {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: 0 0.25rem;
-    }
-  }
-
-  .search-button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--primary-color);
-    color: white;
-    border-radius: 4px;
-    font-weight: bold;
-    margin-top: 1rem;
-
-    &:hover {
-      opacity: 0.9;
-    }
-  }
-
-  .results-section {
     .loading {
       text-align: center;
       padding: 2rem;
       color: var(--text-color);
     }
-  }
 
-  .kifu-list {
-    display: grid;
-    gap: 1rem;
-  }
-
-  .kifu-card {
-    background: white;
-    padding: 1rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s;
-    cursor: pointer;
-
-    &:hover {
-      transform: translateY(-2px);
-    }
-
-    h3 {
-      margin-bottom: 0.5rem;
-      color: var(--primary-color);
-    }
-
-    .kifu-info {
+    .kifu-list-container {
       display: flex;
+      flex-direction: column;
       gap: 1rem;
-      margin-bottom: 0.5rem;
-      color: var(--text-color);
-      font-size: 0.9rem;
-    }
 
-    .kifu-tags {
-      display: flex;
-      gap: 0.5rem;
-    }
-  }
+      .kifu-card {
+        display: block;
+        width: 100%;
+        padding: 1rem 1.5rem;
+        transition: transform 0.2s, box-shadow 0.2s;
 
-  .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
+        .kifu-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
 
-    .page-button {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: white;
+        .kifu-info {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          margin-bottom: 0.3rem;
+          font-size: 0.9rem;
+          color: #666;
+        }
 
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
+        .kifu-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          justify-content: end;
 
-      &.active {
-        background-color: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-      }
-
-      &:not(:disabled):hover {
-        background-color: var(--secondary-color);
-        color: white;
-        border-color: var(--secondary-color);
+          .tag {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.2rem;
+            font-size: 0.8rem;
+          }
+        }
       }
     }
   }
