@@ -1,8 +1,10 @@
 <!-- src/routes/home/+page.svelte -->
 
 <script lang="ts">
+	import { account } from '$lib/stores/session';
   import { onMount } from 'svelte';
   import type { Kifu } from '$lib/types/Kifu';
+	import { goto } from '$app/navigation';
 
   // モック通知データ
   interface Notification {
@@ -130,14 +132,14 @@
   onMount(fetchData);
 </script>
 
-<div class="container">
+<div class="page">
   <!-- 通知セクション -->
   {#if notifications.length > 0}
-    <section class="notifications">
+    <section class="basic notification">
       <h2>通知 {#if unreadCount > 0}<span class="unread-count">{unreadCount}</span>{/if}</h2>
       <div class="notification-list">
         {#each notifications as notification}
-          <div class="notification-item" class:unread={!notification.read}>
+          <div class="card notification-item" class:unread={!notification.read}>
             <div class="notification-content">
               <span class="user-name">{notification.userName}</span>
               さんが
@@ -167,7 +169,7 @@
   {/if}
 
   <!-- 棋譜リストセクション -->
-  <section class="kifu-list">
+  <section class="basic kifu-list">
     <h2>自分の棋譜</h2>
     {#if isLoading}
       <div class="loading">読み込み中...</div>
@@ -177,7 +179,7 @@
           <div class="kifu-list-item">
             <button
               type="button"
-              class="kifu-card"
+              class="card kifu-card"
               class:selected={selectedKifuId === kifu.id}
               on:click={(e) => handleCardClick(e, kifu.id)}
               on:keydown={(e) => {
@@ -236,7 +238,6 @@
         {/each}
       </div>
 
-
       <!-- ページネーション -->
       <div class="pagination">
         <button
@@ -270,268 +271,182 @@
 </div>
 
 <style lang="scss">
-  .container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  section {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
+  section.notification {
     h2 {
-      margin-bottom: 1.5rem;
-      color: var(--primary-color);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        .unread-count {
+          display: inline-block;
+          background-color: var(--primary-color);
+          color: white;
+          border-radius: 0.8rem;
+          padding: 0.4rem;
+          min-width: 1.6rem;
+          font-size: 0.8rem;
+          line-height: 0.8rem;
+          text-align: center;
+        }
     }
-  }
 
-  .unread-count {
-    background-color: var(--primary-color);
-    color: white;
-    padding: 0.2rem 0.6rem;
-    border-radius: 12px;
-    font-size: 0.8rem;
-  }
-
-  .notifications {
     .notification-list {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-    }
+      
+      .notification-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-left: 1.5rem;
+        gap: 1rem;
 
-    .notification-item {
-      padding: 1rem;
-      border-radius: 4px;
-      background-color: #f8f8f8;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 1rem;
-
-      &.unread {
-        background-color: #f0f7ff;
-        border-left: 4px solid var(--primary-color);
-      }
-
-      .notification-content {
-        flex: 1;
-
-        .user-name {
-          font-weight: bold;
-          color: var(--primary-color);
+        &.unread {
+          background-color: var(--pickup-color);
+          border-left: 0.5rem solid var(--primary-color);
+          padding-left: 1rem;
         }
 
-        .kifu-link {
-          color: var(--secondary-color);
-          text-decoration: underline;
+        .notification-content {
+          flex: 1;
 
-          &:hover {
-            opacity: 0.8;
+          .user-name {
+            font-weight: bold;
+            color: var(--primary-color);
+          }
+
+          .kifu-link {
+            color: var(--secondary-color);
+            text-decoration: underline;
+
+            &:hover {
+              opacity: 0.8;
+            }
+          }
+
+          .notification-date {
+            margin-left: 1rem;
+            color: #666;
+            font-size: 0.9rem;
           }
         }
 
-        .notification-date {
-          margin-left: 1rem;
-          color: #666;
+        .mark-read-button {
+          padding: 0.25rem 0.5rem;
+          background-color: transparent;
+          border: 1px solid var(--primary-color);
+          color: var(--primary-color);
+          border-radius: 4px;
           font-size: 0.9rem;
-        }
-      }
 
-      .mark-read-button {
-        padding: 0.25rem 0.5rem;
-        background-color: transparent;
-        border: 1px solid var(--primary-color);
-        color: var(--primary-color);
-        border-radius: 4px;
-        font-size: 0.9rem;
-
-        &:hover {
-          background-color: var(--primary-color);
-          color: white;
+          &:hover {
+            background-color: var(--primary-color);
+            color: white;
+          }
         }
       }
     }
   }
 
-  .kifu-list-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-  }
+  section.kifu-list {
+    border-top: 0.2rem solid var(--primary-color);
 
-  .kifu-list-item {
-    position: relative;
-    display: block;
-  }
-
-  .kifu-card {
-    width: 100%;
-    text-align: left;
-    display: block;
-    font-family: inherit;
-    cursor: pointer;
-    padding: 1.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    background: white;
-    transition: transform 0.2s, box-shadow 0.2s;
-
-    &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    &:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 2px rgba(44, 82, 130, 0.2);
-    }
-
-    &.selected {
-      border-color: var(--primary-color);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .kifu-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.75rem;
-
-      h3 {
-        margin: 0;
-        color: var(--primary-color);
-      }
-
-      .kifu-status {
-        font-size: 0.8rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        
-        &.public {
-          background-color: #C6F6D5;
-          color: #2F855A;
-        }
-        
-        &.private {
-          background-color: #E2E8F0;
-          color: #4A5568;
-        }
-      }
-    }
-
-    .kifu-info {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 0.75rem;
-      font-size: 0.9rem;
+    .loading {
+      text-align: center;
+      padding: 2rem;
       color: #666;
-
-      span:not(:last-child)::after {
-        content: "•";
-        margin-left: 1rem;
-        color: #CBD5E0;
-      }
     }
 
-    .kifu-tags {
+    .kifu-list-container {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
+      flex-direction: column;
+      gap: 1rem;
 
-      .tag {
-        background-color: var(--secondary-color);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-      }
-    }
-  }
+      .kifu-list-item {
+        position: relative;
 
-  .popup-menu {
-    position: absolute;
-    top: 0;
-    right: -200px;
-    background: white;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    z-index: 10;
-    min-width: 180px;
+        .kifu-card {
+          display: block;
+          width: 100%;
+          padding: 1rem 1.5rem;
+          transition: transform 0.2s, box-shadow 0.2s;
 
-    .menu-item {
-      display: block;
-      padding: 0.75rem 1rem;
-      color: var(--text-color);
-      text-decoration: none;
-      cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-      font-size: inherit;
+          .kifu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
 
-      &:hover {
-        background-color: #f8f8f8;
-      }
+            .kifu-status {
+              font-size: 0.8rem;
+              padding: 0.25rem 0.5rem;
+              border-radius: 0.2rem;
+              
+              &.public {
+                background-color: var(--public-icon-background-color);
+                color: var(--public-icon-text-color);
+              }
+              
+              &.private {
+                background-color: var(--private-icon-background-color);
+                color: var(--private-icon-text-color);
+              }
+            }
+          }
 
-      &.delete {
-        color: #e53e3e;
-        border-top: 1px solid var(--border-color);
+          .kifu-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+            color: #666;
+          }
 
-        &:hover {
-          background-color: #fff5f5;
+          .kifu-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: end;
+
+            .tag {
+              background-color: var(--secondary-color);
+              color: white;
+              padding: 0.2rem 0.4rem;
+              border-radius: 0.2rem;
+              font-size: 0.8rem;
+            }
+          }
+        }
+
+        .popup-menu {
+          position: absolute;
+          top: -1rem;
+          right: 1rem;
+          background: var(--pickup-color);
+          border-radius: 0.4rem;
+          box-shadow: 0 0 0.8rem #696;
+          z-index: var(--z-index-popup);
+          min-width: 12rem;
+
+          .menu-item {
+            display: block;
+            padding: 0.4rem 0.8rem;
+            width: 100%;
+            text-align: left;
+            font-size: 1rem;
+
+            &:hover {
+              background-color: var(--pickup-strong-color);
+            }
+
+            &.delete {
+              color: #e53e3e;
+              border-top: 1px solid var(--border-color);
+            }
+          }
         }
       }
     }
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-
-    .page-button {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: white;
-      cursor: pointer;
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      &.active {
-        background-color: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-      }
-
-      &:not(:disabled):hover {
-        background-color: var(--secondary-color);
-        color: white;
-        border-color: var(--secondary-color);
-      }
-    }
-  }
-
-  .loading {
-    text-align: center;
-    padding: 2rem;
-    color: #666;
   }
 </style>

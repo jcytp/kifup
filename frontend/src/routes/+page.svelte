@@ -79,6 +79,7 @@
 </script>
 
 <div class="top">
+  <!-- ログインセクション -->
 	{#if activeSection === 'login'}
 		<section class="form-section">
 			<form on:submit|preventDefault={handleLogin}>
@@ -117,6 +118,7 @@
 		</section>
 	{/if}
 
+  <!-- 新規登録セクション -->
 	{#if activeSection === 'register'}
 		<section class="form-section">
 			<form on:submit|preventDefault={handleRegister}>
@@ -174,6 +176,7 @@
 		</section>
 	{/if}
 
+  <!-- パスワードリセットセクション -->
 	{#if activeSection === 'reset'}
 		<section class="form-section">
 			<form on:submit|preventDefault={handleReset}>
@@ -202,6 +205,7 @@
 		</section>
 	{/if}
 
+  <!-- 機能説明セクション -->
 	<section class="feature-section">
 		<h2>kifupとは？</h2>
 		<p>
@@ -235,6 +239,7 @@
 
 		.form-section {
 			display: flex;
+			padding: 1rem;
 
 			form {
 				width: 70%;
@@ -318,7 +323,6 @@
 		}
 
 		.feature-section {
-			margin-top: 1rem;
 			border-top: 0.2rem solid var(--primary-color);
 			padding: 1rem;
 
