@@ -10,25 +10,24 @@
   // セッション初期化
   onMount(async () => {
     await sessionToken.initialize();
-
-    if (!$sessionToken) {
-      // pageのurlがvisitorUrlsに一致しない場合、"/"に遷移する
-      const visitorUrls = ['/', '/kifu/search/', '/kifu/view/', '/account/*'];
-      const currentPath = $page.url.pathname;
-      const isVisitorUrl = visitorUrls.some((pattern) => {
-        if (pattern.endsWith('*')) {
-          const basePattern = pattern.slice(0, -1);
-          return currentPath.startsWith(basePattern);
-        }
-        return currentPath === pattern;
-      });
-      if (!isVisitorUrl) {
-        console.debug('unauthorized access');
-        goto('/');
-      }
-    }
   });
   $: isLoggedIn = !!$account;
+  $: if (!isLoggedIn) {
+    // pageのurlがvisitorUrlsのいずれかに一致しない場合、"/"に遷移する
+    const visitorUrls = ['/', '/kifu/search/', '/kifu/view/', '/account/*'];
+    const currentPath = $page.url.pathname;
+    const isVisitorUrl = visitorUrls.some((pattern) => {
+      if (pattern.endsWith('*')) {
+        const basePattern = pattern.slice(0, -1);
+        return currentPath.startsWith(basePattern);
+      }
+      return currentPath === pattern;
+    });
+    if (!isVisitorUrl) {
+      console.debug('unauthorized access');
+      goto('/');
+    }
+  }
 
   // ログアウト
   const logout = () => {

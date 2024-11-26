@@ -17,6 +17,7 @@
       timeLimit: {
         initial: number;
         byoyomi: number;
+        increment: number;
       };
     };
     tags: string[];
@@ -43,6 +44,7 @@
       timeLimit: {
         initial: 0,
         byoyomi: 0,
+        increment: 0,
       },
     },
     tags: [],
@@ -66,6 +68,7 @@
       timeLimit: {
         initial: gameInfo.timeLimit?.initial || 0,
         byoyomi: gameInfo.timeLimit?.byoyomi || 0,
+        increment: gameInfo.timeLimit?.increment || 0,
       },
     };
   }
@@ -84,6 +87,7 @@
       gameInfo.timeLimit = {
         initial: formMatchInfo.timeLimit.initial,
         byoyomi: formMatchInfo.timeLimit.byoyomi,
+        increment: formMatchInfo.timeLimit.increment,
       };
     }
 
@@ -123,7 +127,7 @@
         matchInfo: {
           black: '先手太郎',
           white: '後手次郎',
-          date: '2024-01-01',
+          date: '2024-01-01T00:00',
           place: '対局場所',
           title: '大会名',
           timeLimit: {
@@ -182,6 +186,16 @@
     }
   }
 
+  // 棋譜情報の更新
+  async function updateKifuInfo() {
+    console.debug('update kifu info');
+  }
+
+  // 指し手の更新
+  async function updateKifuMoves() {
+    console.debug('update kifu moves');
+  }
+
   onMount(() => {
     if (kifuId) {
       fetchKifuData();
@@ -192,66 +206,45 @@
   });
 </script>
 
-<div class="container">
-  {#if isLoading}
-    <div class="loading">
-      <p>棋譜を読み込んでいます...</p>
-      <a href="/kifu/search" class="back-button">棋譜検索に戻る</a>
-    </div>
-  {:else if error}
-    <div class="error">
-      <p>{error}</p>
-      <a href="/kifu/search" class="back-button">棋譜検索に戻る</a>
-    </div>
-  {:else if kifu}
-    <div class="edit-form">
-      <header class="form-header">
-        <h1>棋譜の編集</h1>
-        <div class="header-actions">
-          <label class="public-toggle">
-            <input type="checkbox" bind:checked={formData.isPublic} />
-            公開する
-          </label>
-          <button class="save-button" on:click={handleSave}>保存</button>
-        </div>
-      </header>
-
-      <section class="basic-info">
+<div class="page">
+  {#if kifu}
+    <section class="basic">
+      <h2>棋譜の編集</h2>
+      <form on:submit|preventDefault={updateKifuInfo} class="basic">
         <div class="form-group">
           <label for="title">タイトル</label>
           <input
             type="text"
             id="title"
             bind:value={formData.title}
-            placeholder="棋譜のタイトルを入力"
+            placeholder="棋譜のタイトル"
+            required
           />
         </div>
-
-        <div class="form-row">
+        <div class="flex-arrange">
           <div class="form-group">
-            <label for="black">先手</label>
+            <label for="black-player">先手</label>
             <input
               type="text"
-              id="black"
+              id="black-player"
               bind:value={formData.matchInfo.black}
               placeholder="先手の対局者名"
             />
           </div>
           <div class="form-group">
-            <label for="white">後手</label>
+            <label for="white-player">後手</label>
             <input
               type="text"
-              id="white"
+              id="white-player"
               bind:value={formData.matchInfo.white}
               placeholder="後手の対局者名"
             />
           </div>
         </div>
-
-        <div class="form-row">
+        <div class="flex-arrange">
           <div class="form-group">
-            <label for="match-date">対局日</label>
-            <input type="date" id="match-date" bind:value={formData.matchInfo.date} />
+            <label for="start-date">対局日時</label>
+            <input type="datetime-local" id="start-date" bind:value={formData.matchInfo.date} />
           </div>
           <div class="form-group">
             <label for="place">対局場所</label>
@@ -263,20 +256,7 @@
             />
           </div>
         </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="match-title">大会名</label>
-            <input
-              type="text"
-              id="match-title"
-              bind:value={formData.matchInfo.title}
-              placeholder="大会名や対局タイトル"
-            />
-          </div>
-        </div>
-
-        <div class="form-row">
+        <div class="flex-arrange">
           <div class="form-group">
             <label for="initial-time">持ち時間（分）</label>
             <input
@@ -295,10 +275,18 @@
               min="0"
             />
           </div>
+          <div class="form-group">
+            <label for="increment">加算（秒）</label>
+            <input
+              type="number"
+              id="increment"
+              bind:value={formData.matchInfo.timeLimit.increment}
+              min="0"
+            />
+          </div>
         </div>
-
         <div class="form-group">
-          <h3 class="form-heading">タグ</h3>
+          <h3 class="label">タグ</h3>
           <div class="tag-input-container">
             <input
               type="text"
@@ -317,193 +305,68 @@
             {/each}
           </div>
         </div>
-      </section>
-
-      <section class="kifu-editor">
-        <h2>棋譜の編集</h2>
-        <div class="editor-container">
-          <KifuPlayer {kifu} />
+        <div class="form-group">
+          <h3 class="label">公開設定</h3>
+          <label class="checkbox-label">
+            <input type="checkbox" bind:checked={formData.isPublic} />
+            公開する
+          </label>
         </div>
-      </section>
-    </div>
+        <button type="submit" class="submit">棋譜情報を更新</button>
+      </form>
+
+      <KifuPlayer {kifu} />
+      <button on:click={updateKifuMoves} class="submit">棋譜の指し手を更新</button>
+    </section>
   {/if}
 </div>
 
 <style lang="scss">
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
+  .tag-input-container {
+    display: flex;
+    gap: 0.5rem;
 
-  .loading,
-  .error {
-    text-align: center;
-    padding: 2rem;
+    input {
+      flex: 1;
+    }
 
-    .back-button {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
+    button {
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--primary-color);
+      border-radius: 0.4rem;
       background-color: var(--primary-color);
       color: white;
-      border-radius: 4px;
-      cursor: pointer;
 
-      &:hover {
-        opacity: 0.9;
+      &:hover,
+      &:focus {
+        border-color: var(--secondary-color);
+        background-color: var(--secondary-color);
       }
     }
   }
 
-  .edit-form {
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 2rem;
+  .tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
 
-    .form-header {
+    .tag {
+      background-color: var(--secondary-color);
+      color: white;
+      padding: 0.3rem 0.4rem 0.3rem 0.6rem;
+      border-radius: 0.3rem;
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 2rem;
+      gap: 0.4rem;
+      font-size: 0.9rem;
+      line-height: 1.4rem;
 
-      h1 {
-        margin: 0;
-        color: var(--primary-color);
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-
-        .public-toggle {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          cursor: pointer;
-
-          input[type='checkbox'] {
-            cursor: pointer;
-          }
-        }
-
-        .save-button {
-          padding: 0.5rem 1.5rem;
-          background-color: var(--primary-color);
-          color: white;
-          border-radius: 4px;
-          cursor: pointer;
-
-          &:hover {
-            opacity: 0.9;
-          }
-        }
-      }
-    }
-
-    .basic-info {
-      margin-bottom: 2rem;
-    }
-
-    .form-heading {
-      margin-bottom: 0.5rem;
-      color: var(--text-color);
-      font-weight: bold;
-      font-size: 1rem; // 他のラベルと同じサイズに合わせる
-    }
-
-    .form-group {
-      margin-bottom: 1rem;
-
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        color: var(--text-color);
-        font-weight: bold;
-      }
-
-      input {
-        width: 100%;
-        padding: 0.5rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        cursor: text;
-
-        &:focus {
-          border-color: var(--secondary-color);
-        }
-      }
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1rem;
-    }
-
-    .tag-input-container {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 0.5rem;
-
-      input {
-        flex: 1;
-      }
-
-      .add-tag-btn {
-        padding: 0.5rem 1rem;
-        background-color: var(--secondary-color);
+      .remove-tag {
+        background: none;
+        border: none;
         color: white;
-        border-radius: 4px;
         cursor: pointer;
-
-        &:hover {
-          opacity: 0.9;
-        }
-      }
-    }
-
-    .tags-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-
-      .tag {
-        background-color: var(--secondary-color);
-        color: white;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
-
-        .remove-tag {
-          background: none;
-          border: none;
-          color: white;
-          cursor: pointer;
-          padding: 0 0.25rem;
-
-          &:hover {
-            opacity: 0.8;
-          }
-        }
-      }
-    }
-
-    .kifu-editor {
-      h2 {
-        margin-bottom: 1rem;
-        color: var(--primary-color);
-      }
-
-      .editor-container {
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        padding: 1rem;
       }
     }
   }

@@ -6,7 +6,7 @@
   import { readTextFile } from '$lib/utils/textEncoding';
 
   // 許可する拡張子のリスト
-  const ALLOWED_EXTENSIONS = ['.txt', '.kif', '.kifu', '.ki2', '.csa'];
+  const ALLOWED_EXTENSIONS = ['.txt', '.kif', '.csa'];
 
   // 棋譜データの状態管理
   let kifuContent = '';
@@ -79,159 +79,67 @@
   }
 </script>
 
-<div class="container">
-  <h1>新規棋譜作成</h1>
-
-  <div class="create-methods">
-    <!-- 棋譜データから作成 -->
-    <section class="create-section">
-      <h2>棋譜データから作成</h2>
-      <div class="kifu-input-layout">
-        <div class="file-input-container">
+<div class="page">
+  <section class="basic">
+    <h2>棋譜を作成 - データから作成</h2>
+    <form on:submit|preventDefault={createFromKifu} class="basic">
+      <div class="form-group kifu-input-layout">
+        <textarea
+          id="kifu-textarea"
+          bind:value={kifuContent}
+          placeholder={'棋譜データを入力してください。\rファイルから読み込むか、直接テキストを貼り付けることができます。'}
+        ></textarea>
+        <div class="kifu-file-container">
           <input
+            class="kifu-file-input"
             type="file"
             accept={ALLOWED_EXTENSIONS.join(',')}
             on:change={handleFileSelect}
-            class="file-input"
           />
-          <p class="hint">
-            対応形式: {ALLOWED_EXTENSIONS.join(', ')}
-          </p>
-        </div>
-
-        <div class="textarea-container">
-          <textarea
-            bind:value={kifuContent}
-            placeholder="棋譜データを入力してください。ファイルから読み込むか、テキストを直接貼り付けることができます。"
-            class="kifu-textarea"
-          ></textarea>
+          <p>対応形式： {ALLOWED_EXTENSIONS.join(', ')}</p>
         </div>
       </div>
+      <button type="submit" class="submit">棋譜データから作成</button>
+    </form>
+  </section>
 
-      <button on:click={createFromKifu} disabled={!kifuContent.trim()} class="create-button">
-        棋譜データから作成
-      </button>
-    </section>
+  <hr />
 
-    <!-- 初期局面から作成 -->
-    <section class="create-section">
-      <h2>初期局面から作成</h2>
-      <div class="position-editor-container">
-        <InitialPositionEditor change={handlePositionChange} />
-      </div>
-
-      <button on:click={createFromPosition} class="create-button"> 初期局面から作成 </button>
-    </section>
-  </div>
+  <section class="basic">
+    <h2>棋譜を作成 - 局面から作成</h2>
+    <InitialPositionEditor change={handlePositionChange} />
+    <button on:click={createFromPosition} class="submit">この局面から作成</button>
+  </section>
 </div>
 
 <style lang="scss">
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
-
-    h1 {
-      color: var(--primary-color);
-      margin-bottom: 2rem;
-    }
-  }
-
-  .create-methods {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-  }
-
-  .create-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-
-    h2 {
-      color: var(--primary-color);
-      margin-bottom: 1.5rem;
-      font-size: 1.25rem;
-    }
-  }
-
   .kifu-input-layout {
     display: flex;
     gap: 1.5rem;
-    margin-bottom: 1rem;
-  }
 
-  .file-input-container {
-    flex: 0 0 200px;
-
-    .hint {
-      margin-top: 0.5rem;
-      font-size: 0.9rem;
-      color: #666;
-    }
-  }
-
-  .file-input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .textarea-container {
-    flex: 1;
-  }
-
-  .kifu-textarea {
-    width: 100%;
-    height: 120px;
-    padding: 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    resize: vertical;
-    font-family: monospace;
-    line-height: 1.4;
-
-    &:focus {
-      border-color: var(--secondary-color);
-      outline: none;
-    }
-  }
-
-  .position-editor-container {
-    margin-bottom: 1rem;
-  }
-
-  .create-button {
-    width: 100%;
-    padding: 0.75rem;
-    background-color: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: bold;
-    transition: opacity 0.2s;
-
-    &:hover:not(:disabled) {
-      opacity: 0.9;
+    #kifu-textarea {
+      flex: 1;
+      height: calc(1.2rem * 8 + 0.8rem + 2px);
     }
 
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-  }
-
-  @media (max-width: 768px) {
-    .kifu-input-layout {
+    .kifu-file-container {
+      width: 30%;
+      display: flex;
       flex-direction: column;
-    }
+      justify-content: end;
 
-    .file-input-container {
-      flex: none;
+      input.kifu-file-input {
+        padding: 0;
+        border: none;
+        border-radius: 0;
+        background: none;
+        font-size: 0.9rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+        color: #666;
+      }
     }
   }
 </style>

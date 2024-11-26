@@ -87,12 +87,19 @@ a {
   form.basic {
     width: 100%;
     background: white;
+    margin-top: 1rem;
     border: 0.1rem solid var(--secondary-color);
     padding: 1rem 2rem 2rem 2rem;
     border-radius: 1rem;
 
+    .flex-arrange {
+      display: flex;
+      gap: 1rem;
+    }
+
     .form-group {
       margin-top: 1rem;
+      width: 100%;
 
       label,
       h3.label {
@@ -106,7 +113,6 @@ a {
         padding: 0.4rem 0.5rem;
         border: 1px solid var(--border-color);
         border-radius: 0.5rem;
-        box-sizing: border-box;
         background: var(--background-color);
         line-height: 1.2rem;
 
@@ -132,19 +138,19 @@ a {
         }
       }
     }
+  }
 
-    button.submit {
-      margin-top: 1.5rem;
-      background-color: var(--primary-color);
-      color: var(--background-color);
-      padding: 0.5rem 1rem;
-      border: none;
-      border-radius: 0.5rem;
-      width: 100%;
+  button.submit {
+    margin-top: 1.5rem;
+    background-color: var(--primary-color);
+    color: var(--background-color);
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    width: 100%;
 
-      &:hover {
-        background-color: var(--secondary-color);
-      }
+    &:hover {
+      background-color: var(--secondary-color);
     }
   }
 
