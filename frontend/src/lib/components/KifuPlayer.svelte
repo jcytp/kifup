@@ -6,15 +6,17 @@
   import { generatePosition } from '$lib/utils/positionControl';
 
   export let kifu: Kifu;
-  
+
   // 現在の手数
-  let currentMoveIndex = -1;  // -1は初期局面を表す
+  let currentMoveIndex = -1; // -1は初期局面を表す
 
   // 現在の手の情報を取得
   $: currentMove = currentMoveIndex >= 0 ? kifu.moves[currentMoveIndex] : null;
-  
+
   // 現在の局面を生成
-  $: currentPosition = kifu.initialPosition ? generatePosition(kifu.initialPosition, kifu.moves, currentMoveIndex) : undefined;
+  $: currentPosition = kifu.initialPosition
+    ? generatePosition(kifu.initialPosition, kifu.moves, currentMoveIndex)
+    : undefined;
 
   // 操作関数
   function goToFirst() {
@@ -47,10 +49,10 @@
 <div class="kifu-player">
   <!-- 左側：指し手リスト -->
   <div class="moves-list">
-    <div 
-      class="move-item initial" 
+    <div
+      class="move-item initial"
       class:current={currentMoveIndex === -1}
-      on:click={() => currentMoveIndex = -1}
+      on:click={() => (currentMoveIndex = -1)}
       on:keydown={(e) => e.key === 'Enter' && (currentMoveIndex = -1)}
       tabindex="0"
       role="button"
@@ -58,10 +60,10 @@
       開始局面
     </div>
     {#each kifu.moves as move, index}
-      <div 
-        class="move-item" 
+      <div
+        class="move-item"
         class:current={currentMoveIndex === index}
-        on:click={() => currentMoveIndex = index}
+        on:click={() => (currentMoveIndex = index)}
         on:keydown={(e) => e.key === 'Enter' && (currentMoveIndex = index)}
         tabindex="0"
         role="button"
@@ -91,28 +93,20 @@
 
     <!-- 操作ボタン -->
     <div class="control-buttons">
-      <button 
-        on:click={goToFirst} 
-        disabled={currentMoveIndex === -1}
-        class="control-button"
-      >
+      <button on:click={goToFirst} disabled={currentMoveIndex === -1} class="control-button">
         |◀
       </button>
-      <button 
-        on:click={goToPrev}
-        disabled={currentMoveIndex === -1}
-        class="control-button"
-      >
+      <button on:click={goToPrev} disabled={currentMoveIndex === -1} class="control-button">
         ◀
       </button>
-      <button 
+      <button
         on:click={goToNext}
         disabled={currentMoveIndex === kifu.moves.length - 1}
         class="control-button"
       >
         ▶
       </button>
-      <button 
+      <button
         on:click={goToLast}
         disabled={currentMoveIndex === kifu.moves.length - 1}
         class="control-button"

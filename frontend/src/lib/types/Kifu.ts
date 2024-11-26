@@ -1,76 +1,76 @@
 // src/lib/types/Kifu.ts
 
 export interface Kifu {
-	id: string;
-	ownerId: string;
-	title: string;
-	matchInfo: GameInfo;
-	tags: string[];
-	isPublic: boolean;
-	initialPosition?: BoardPosition;
-	moves: Move[]; // メインラインの指し手リスト
-	createdAt?: string; // 棋譜の作成日時
-	updatedAt?: string; // 最終更新日時
+  id: string;
+  ownerId: string;
+  title: string;
+  matchInfo: GameInfo;
+  tags: string[];
+  isPublic: boolean;
+  initialPosition?: BoardPosition;
+  moves: Move[]; // メインラインの指し手リスト
+  createdAt?: string; // 棋譜の作成日時
+  updatedAt?: string; // 最終更新日時
 }
 
 export interface GameInfo {
-	black: string; // 先手の対局者名
-	white: string; // 後手の対局者名
-	date: string; // 対局日
-	title?: string; // 大会名や対局タイトル
-	place?: string; // 対局場所
-	timeLimit?: {
-		// 持ち時間
-		initial: number; // 初期時間（分）
-		byoyomi?: number; // 秒読み（秒）
-	};
+  black: string; // 先手の対局者名
+  white: string; // 後手の対局者名
+  date: string; // 対局日
+  title?: string; // 大会名や対局タイトル
+  place?: string; // 対局場所
+  timeLimit?: {
+    // 持ち時間
+    initial: number; // 初期時間（分）
+    byoyomi?: number; // 秒読み（秒）
+  };
 }
 
 export interface BoardPosition {
-	pieces: {
-		position: CellPosition;
-		piece: PieceType;
-		isBlack: boolean; // true: 先手の駒, false: 後手の駒
-	}[];
-	hands?: {
-		// 初期状態での持ち駒
-		black: { [K in PieceType]?: number };
-		white: { [K in PieceType]?: number };
-	};
+  pieces: {
+    position: CellPosition;
+    piece: PieceType;
+    isBlack: boolean; // true: 先手の駒, false: 後手の駒
+  }[];
+  hands?: {
+    // 初期状態での持ち駒
+    black: { [K in PieceType]?: number };
+    white: { [K in PieceType]?: number };
+  };
 }
 
 export interface Move {
-	moveNumber: number; // 手数
-	piece: PieceType; // 駒の種類
-	from?: CellPosition; // 移動元（持ち駒の場合はundefined）
-	to: CellPosition; // 移動先
-	isPromoted?: boolean; // 成りの有無
-	isCapture?: boolean; // 駒を取ったかどうか
-	captured?: PieceType; // 取った駒の種類（取った場合のみ）
-	comment?: string; // この手に対するコメント
-	variations?: Move[];    // この手の代わりとなる指し手（分岐）のリスト
+  moveNumber: number; // 手数
+  piece: PieceType; // 駒の種類
+  from?: CellPosition; // 移動元（持ち駒の場合はundefined）
+  to: CellPosition; // 移動先
+  isPromoted?: boolean; // 成りの有無
+  isCapture?: boolean; // 駒を取ったかどうか
+  captured?: PieceType; // 取った駒の種類（取った場合のみ）
+  comment?: string; // この手に対するコメント
+  variations?: Move[]; // この手の代わりとなる指し手（分岐）のリスト
 }
 
 export interface CellPosition {
-	x: number; // 1-9の横位置
-	y: number; // 1-9の縦位置
+  x: number; // 1-9の横位置
+  y: number; // 1-9の縦位置
 }
 
 export type PieceType =
-	| '歩'
-	| '香'
-	| '桂'
-	| '銀'
-	| '金'
-	| '角'
-	| '飛'
-	| 'と'
-	| '成香'
-	| '成桂'
-	| '成銀'
-	| '馬'
-	| '龍'
-	| '玉';
+  | '歩'
+  | '香'
+  | '桂'
+  | '銀'
+  | '金'
+  | '角'
+  | '飛'
+  | 'と'
+  | '成香'
+  | '成桂'
+  | '成銀'
+  | '馬'
+  | '龍'
+  | '玉';
 
 // 使用例：
 /*

@@ -1,10 +1,10 @@
 <!-- src/routes/settings/+page.svelte -->
 
 <script lang="ts">
-	import { account } from '$lib/stores/session';
+  import { account } from '$lib/stores/session';
   import type { Account } from '$lib/types/Account';
-	import { onMount } from 'svelte';
-	import { get } from 'svelte/store';
+  import { onMount } from 'svelte';
+  import { get } from 'svelte/store';
 
   const account_url_base = '/account/';
   const image_url_base = 'http://example.com/icon/';
@@ -14,7 +14,7 @@
   function handleImageChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const file = target.files?.[0];
-    
+
     if (file) {
       // プレビュー用URLを生成
       imagePreview = URL.createObjectURL(file);
@@ -26,13 +26,13 @@
     if (imagePreview) {
       URL.revokeObjectURL(imagePreview);
     }
-  }
+  };
 
   // 設定の保存
   const handleSubmit = async () => {
     // TODO: API実装後に実際の保存処理に置き換え
     console.log('Saving settings:', accountInfo);
-  }
+  };
 
   // コンポーネントのアンマウント時にプレビューをクリーンアップ
   onMount(() => {
@@ -47,7 +47,6 @@
   // ToDo: アカウント情報に追加が必要
   let likes_notification = true;
   let comments_notification = true;
-
 </script>
 
 <div class="page">
@@ -58,17 +57,16 @@
       <form on:submit|preventDefault={handleSubmit} class="basic settings-form">
         <div class="form-group">
           <label for="name">アカウントページ</label>
-          <p class="account-link"><a href={`${account_url_base}?id=${accountInfo.id}`}>{`${account_url_base}?id=${accountInfo.id}`}</a></p>
+          <p class="account-link">
+            <a href={`${account_url_base}?id=${accountInfo.id}`}
+              >{`${account_url_base}?id=${accountInfo.id}`}</a
+            >
+          </p>
         </div>
 
         <div class="form-group">
           <label for="name">名前</label>
-          <input
-            type="text"
-            id="name"
-            bind:value={accountInfo.name}
-            required
-          />
+          <input type="text" id="name" bind:value={accountInfo.name} required />
         </div>
 
         <div class="form-group">
@@ -86,9 +84,7 @@
               {/if}
             </div>
             <div class="image-upload">
-              <label for="profile-image" class="upload-button">
-                画像を選択
-              </label>
+              <label for="profile-image" class="upload-button"> 画像を選択 </label>
               <input
                 type="file"
                 id="profile-image"
@@ -96,9 +92,7 @@
                 on:change={handleImageChange}
                 class="hidden"
               />
-              <p class="upload-note">
-                推奨: 200x200px以上の正方形の画像
-              </p>
+              <p class="upload-note">推奨: 200x200px以上の正方形の画像</p>
             </div>
           </div>
         </div>
@@ -116,21 +110,15 @@
         <div class="form-group">
           <h3 class="label">通知設定</h3>
           <label class="checkbox-label">
-            <input
-              type="checkbox"
-              bind:checked={likes_notification}
-            />
+            <input type="checkbox" bind:checked={likes_notification} />
             いいねを通知する
           </label>
           <label class="checkbox-label">
-            <input
-              type="checkbox"
-              bind:checked={comments_notification}
-            />
+            <input type="checkbox" bind:checked={comments_notification} />
             コメントを通知する
           </label>
         </div>
-  
+
         <button type="submit" class="submit">設定を保存</button>
       </form>
     </section>
@@ -145,7 +133,8 @@
       color: #369;
       text-decoration: underline;
 
-      &:hover, &:focus {
+      &:hover,
+      &:focus {
         opacity: 0.9;
       }
     }
@@ -200,7 +189,8 @@
         text-align: center;
         cursor: pointer;
 
-        &:hover, &:focus {
+        &:hover,
+        &:focus {
           opacity: 0.9;
         }
       }

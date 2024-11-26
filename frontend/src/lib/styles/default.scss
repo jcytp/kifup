@@ -4,21 +4,21 @@
 
 :root {
   // main color
-  --primary-color: #557153;    /* 深い抹茶色：ヘッダー、重要ボタン */
-  --secondary-color: #7D8F69;  /* 明るい抹茶色：ナビゲーション、セクション見出し */
+  --primary-color: #557153; /* 深い抹茶色：ヘッダー、重要ボタン */
+  --secondary-color: #7d8f69; /* 明るい抹茶色：ナビゲーション、セクション見出し */
 
   // functional color
-  --background-color: #F8FFF2; /* 淡い若葉色：背景 */
-  --text-color: #1F2A1B;      /* 濃い緑：テキスト */
-  --border-color: #C8D4BC;    /* 柔らかい抹茶色：ボーダー */
+  --background-color: #f8fff2; /* 淡い若葉色：背景 */
+  --text-color: #1f2a1b; /* 濃い緑：テキスト */
+  --border-color: #c8d4bc; /* 柔らかい抹茶色：ボーダー */
 
   // utility color
   --pickup-color: #f0f7ff;
   --pickup-strong-color: #f0e7f0;
-  --public-icon-background-color: #C6F6D5;
-  --public-icon-text-color: #2F855A;
-  --private-icon-background-color: #E2E8F0;
-  --private-icon-text-color: #4A5568;
+  --public-icon-background-color: #c6f6d5;
+  --public-icon-text-color: #2f855a;
+  --private-icon-background-color: #e2e8f0;
+  --private-icon-text-color: #4a5568;
 
   // z-index
   --z-index-header: 100;
@@ -28,7 +28,13 @@
 
 body {
   margin: 0;
-  font-family: 'Kosugi Maru', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    'Kosugi Maru',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   background-color: var(--background-color);
   color: var(--text-color);
 }
@@ -46,7 +52,8 @@ a {
   flex-direction: column;
   gap: 2rem;
 
-  .loading, .error {
+  .loading,
+  .error {
     text-align: center;
     padding: 2rem;
   }
@@ -87,12 +94,14 @@ a {
     .form-group {
       margin-top: 1rem;
 
-      label, h3.label {
+      label,
+      h3.label {
         display: block;
         margin-bottom: 0.5rem;
       }
 
-      input, textarea {
+      input,
+      textarea {
         width: 100%;
         padding: 0.4rem 0.5rem;
         border: 1px solid var(--border-color);
@@ -117,7 +126,7 @@ a {
         padding-left: 0.5rem;
         cursor: pointer;
 
-        input[type="checkbox"] {
+        input[type='checkbox'] {
           width: 1.2rem;
           height: 1.2rem;
         }
@@ -140,7 +149,9 @@ a {
   }
 
   button.card {
-    transition: transform 0.2s, box-shadow 0.2s;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
 
     &:hover {
       transform: translateY(-2px);
@@ -190,4 +201,3 @@ a {
     }
   }
 }
-
