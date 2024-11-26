@@ -21,8 +21,9 @@ export interface GameInfo {
   place?: string; // 対局場所
   timeLimit?: {
     // 持ち時間
-    initial: number; // 初期時間（分）
+    initial?: number; // 初期時間（分）
     byoyomi?: number; // 秒読み（秒）
+    increment?: number; // 加算（秒）
   };
 }
 

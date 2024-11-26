@@ -155,277 +155,147 @@
   });
 </script>
 
-<div class="container">
-  {#if isLoading}
-    <div class="loading">
-      <p>棋譜を読み込んでいます...</p>
-      <a href="/kifu" class="back-button">棋譜検索に戻る</a>
-    </div>
-  {:else if error}
-    <div class="error">
-      <p>{error}</p>
-      <a href="/kifu" class="back-button">棋譜検索に戻る</a>
-    </div>
-  {:else if kifu}
-    <header class="kifu-header">
-      <div class="header-top">
-        <h1>{kifu.title}</h1>
-        {#if isOwner}
-          <a href={`/kifu/edit?id=${kifu.id}`} class="edit-button"> 編集する </a>
-        {/if}
-      </div>
-      <div class="kifu-meta">
-        <div class="match-info">
-          <p>対局日: {kifu.matchInfo.date}</p>
-          <p>対局者: {kifu.matchInfo.black} vs {kifu.matchInfo.white}</p>
-        </div>
-        <div class="tags">
+<div class="page">
+  {#if kifu}
+    <section class="basic">
+      <h2>{kifu.title}</h2>
+      <form class="basic kifu-info">
+        <p>先手： {kifu.matchInfo.black}</p>
+        <p>後手： {kifu.matchInfo.white}</p>
+        <p>対局日時： {kifu.matchInfo.date}</p>
+        <p>対局場所： {kifu.matchInfo.place}</p>
+        <p>
+          持ち時間： {kifu.matchInfo.timeLimit?.initial || 0}分, 秒読み {kifu.matchInfo.timeLimit
+            ?.byoyomi || 0}秒, 加算 {kifu.matchInfo.timeLimit?.increment || 0}秒
+        </p>
+        <p class="tags">
           {#each kifu.tags as tag}
             <span class="tag">{tag}</span>
           {/each}
-        </div>
-      </div>
-    </header>
+        </p>
+        <p>
+          アップロード： <a href={`/account?id=${kifu.ownerId}`} class="owner-link">ユーザー名</a>
+        </p>
+        {#if isOwner}
+          <p class="edit-link"><a href={`/kifu/edit?id=${kifu.id}`}>編集する</a></p>
+        {/if}
+      </form>
 
-    <div class="kifu-content">
-      <div class="kifu-view-placeholder">
-        {#if kifu}
-          <KifuPlayer {kifu} />
+      <KifuPlayer {kifu} />
+    </section>
+
+    <section class="basic">
+      <button class="like-button" class:liked={isLiked} on:click={toggleLike}>
+        {isLiked ? '★' : '☆'} いいね！ ({likeCount})
+      </button>
+
+      <div class="comments-list">
+        {#if comments.length === 0}
+          <p class="no-comments">コメントはまだありません。</p>
+        {:else}
+          {#each comments as comment}
+            <div class="card comment">
+              <div class="comment-header">
+                <span class="comment-author">{comment.userName}</span>
+                <span class="comment-date">{comment.createdAt}</span>
+              </div>
+              <p class="comment-content">{comment.content}</p>
+            </div>
+          {/each}
         {/if}
       </div>
 
-      <div class="action-buttons">
-        <button class="like-button" class:liked={isLiked} on:click={toggleLike}>
-          {isLiked ? '★' : '☆'} いいね！ ({likeCount})
-        </button>
-      </div>
-
-      <section class="comments-section">
-        <h2>コメント</h2>
-
-        <form class="comment-form" on:submit|preventDefault={handleCommentSubmit}>
-          <textarea bind:value={newComment} placeholder="コメントを入力..." rows="3"></textarea>
-          <button type="submit" disabled={!newComment.trim()}> コメントする </button>
-        </form>
-
-        <div class="comments-list">
-          {#if comments.length === 0}
-            <p class="no-comments">コメントはまだありません。</p>
-          {:else}
-            {#each comments as comment}
-              <div class="comment">
-                <div class="comment-header">
-                  <span class="comment-author">{comment.userName}</span>
-                  <span class="comment-date">{comment.createdAt}</span>
-                </div>
-                <p class="comment-content">{comment.content}</p>
-              </div>
-            {/each}
-          {/if}
+      <form class="basic">
+        <div class="form-group">
+          <label for="comment-input">コメント</label>
+          <textarea id="comment-input" bind:value={newComment} placeholder="コメントを入力..."
+          ></textarea>
         </div>
-      </section>
-    </div>
+        <button type="submit" class="submit">コメントを送信</button>
+      </form>
+    </section>
   {/if}
 </div>
 
 <style lang="scss">
-  .container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem;
+  .owner-link {
+    color: var(--secondary-color);
+    text-decoration: underline;
+
+    &:hover {
+      opacity: 0.8;
+    }
   }
 
-  .loading,
-  .error {
-    text-align: center;
-    padding: 2rem;
+  .edit-link {
+    margin-top: 1.5rem;
 
-    .back-button {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.5rem 1rem;
+    a {
+      display: block;
       background-color: var(--primary-color);
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
+      color: var(--background-color);
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      width: 100%;
+      text-align: center;
 
       &:hover {
-        opacity: 0.9;
-      }
-    }
-  }
-
-  .kifu-header {
-    margin-bottom: 2rem;
-
-    .header-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-
-      h1 {
-        margin-bottom: 0; // 既存のmarginを削除
-      }
-    }
-
-    .edit-button {
-      padding: 0.5rem 1rem;
-      background-color: var(--primary-color);
-      color: white;
-      border-radius: 4px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: opacity 0.2s;
-
-      &:hover {
-        opacity: 0.9;
-      }
-    }
-
-    .kifu-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-
-      .match-info {
-        color: var(--text-color);
-      }
-
-      .tags {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-
-        .tag {
-          background-color: var(--secondary-color);
-          color: white;
-          padding: 0.25rem 0.5rem;
-          border-radius: 4px;
-          font-size: 0.9rem;
-        }
-      }
-    }
-  }
-
-  .kifu-view-placeholder {
-    background: white;
-    border: 2px dashed var(--border-color);
-    border-radius: 8px;
-    padding: 4rem;
-    margin-bottom: 2rem;
-    text-align: center;
-    color: var(--text-color);
-  }
-
-  .action-buttons {
-    margin-bottom: 2rem;
-
-    .like-button {
-      padding: 0.5rem 1rem;
-      background-color: white;
-      border: 1px solid var(--secondary-color);
-      color: var(--secondary-color);
-      border-radius: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-
-      &.liked {
         background-color: var(--secondary-color);
-        color: white;
-      }
-
-      &:hover {
-        opacity: 0.8;
       }
     }
   }
 
-  .comments-section {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  .like-button {
+    padding: 0.4rem 1rem;
+    background-color: white;
+    border: 1px solid var(--secondary-color);
+    color: var(--secondary-color);
+    border-radius: 0.4rem;
+    line-height: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
 
-    h2 {
-      margin-bottom: 1.5rem;
-      color: var(--primary-color);
+    &.liked {
+      background-color: var(--secondary-color);
+      color: white;
     }
 
-    .comment-form {
-      margin-bottom: 2rem;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
 
-      textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        resize: vertical;
-        min-height: 100px;
-        margin-bottom: 1rem;
-        cursor: text;
+  .comments-list {
+    margin: 1rem 0;
 
-        &:focus {
-          border-color: var(--secondary-color);
-        }
-      }
-
-      button {
-        padding: 0.5rem 1.5rem;
-        background-color: var(--primary-color);
-        color: white;
-        border-radius: 4px;
-        cursor: pointer;
-
-        &:disabled {
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-
-        &:not(:disabled):hover {
-          opacity: 0.9;
-        }
-      }
+    .no-comments {
+      text-align: center;
+      color: var(--text-color);
+      font-style: italic;
     }
 
-    .comments-list {
-      .no-comments {
-        text-align: center;
-        color: var(--text-color);
-        font-style: italic;
-      }
+    .comment {
+      .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
 
-      .comment {
-        padding: 1rem;
-        border-bottom: 1px solid var(--border-color);
-
-        &:last-child {
-          border-bottom: none;
+        .comment-author {
+          font-weight: bold;
+          color: var(--primary-color);
         }
 
-        .comment-header {
-          display: flex;
-          justify-content: space-between;
-          margin-bottom: 0.5rem;
-          font-size: 0.9rem;
-
-          .comment-author {
-            font-weight: bold;
-            color: var(--primary-color);
-          }
-
-          .comment-date {
-            color: var(--text-color);
-            opacity: 0.8;
-          }
-        }
-
-        .comment-content {
+        .comment-date {
           color: var(--text-color);
-          white-space: pre-wrap;
+          opacity: 0.8;
         }
+      }
+
+      .comment-content {
+        color: var(--text-color);
+        white-space: pre-wrap;
       }
     }
   }

@@ -161,6 +161,8 @@
         {/each}
       </div>
     </section>
+
+    <hr />
   {/if}
 
   <!-- 棋譜リストセクション -->
@@ -168,6 +170,8 @@
     <h2>自分の棋譜</h2>
     {#if isLoading}
       <div class="loading">読み込み中...</div>
+    {:else if currentPage == 1 && paginatedKifuList.length === 0}
+      <div class="loading">棋譜はまだありません。</div>
     {:else}
       <div class="kifu-list-container">
         {#each paginatedKifuList as kifu}
@@ -349,8 +353,6 @@
   }
 
   section.kifu-list {
-    border-top: 0.2rem solid var(--primary-color);
-
     .loading {
       text-align: center;
       padding: 2rem;
