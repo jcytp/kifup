@@ -47,8 +47,8 @@ export const initialPosition: BoardPosition = {
     { position: { x: 6, y: 9 }, piece: '金', isBlack: true },
     { position: { x: 7, y: 9 }, piece: '銀', isBlack: true },
     { position: { x: 8, y: 9 }, piece: '桂', isBlack: true },
-    { position: { x: 9, y: 9 }, piece: '香', isBlack: true }
-  ]
+    { position: { x: 9, y: 9 }, piece: '香', isBlack: true },
+  ],
 };
 
 // 途中の局面（四間飛車vs角換わりの例）
@@ -91,15 +91,15 @@ export const middlePosition: BoardPosition = {
     { position: { x: 6, y: 9 }, piece: '金', isBlack: true },
     { position: { x: 7, y: 9 }, piece: '銀', isBlack: true },
     { position: { x: 8, y: 9 }, piece: '桂', isBlack: true },
-    { position: { x: 9, y: 9 }, piece: '香', isBlack: true }
+    { position: { x: 9, y: 9 }, piece: '香', isBlack: true },
   ],
   hands: {
     black: {
-      '歩': 2
+      歩: 2,
     },
     white: {
-      '角': 1,
-      '歩': 1
-    }
-  }
+      角: 1,
+      歩: 1,
+    },
+  },
 };

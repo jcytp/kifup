@@ -5,22 +5,24 @@ import type { BoardPosition, Move, PieceType, CellPosition } from '$lib/types/Ki
 // 局面を複製する
 export function clonePosition(pos: BoardPosition): BoardPosition {
   return {
-    pieces: [...pos.pieces.map(p => ({ ...p, position: { ...p.position } }))],
-    hands: pos.hands ? {
-      black: { ...pos.hands.black },
-      white: { ...pos.hands.white }
-    } : undefined
+    pieces: [...pos.pieces.map((p) => ({ ...p, position: { ...p.position } }))],
+    hands: pos.hands
+      ? {
+          black: { ...pos.hands.black },
+          white: { ...pos.hands.white },
+        }
+      : undefined,
   };
 }
 
 // 指し手を適用して新しい局面を生成する
 export function applyMove(currentPosition: BoardPosition, move: Move): BoardPosition {
   const newPosition = clonePosition(currentPosition);
-  
+
   // 1. 移動元の駒を削除
   if (move.from) {
     const moveIndex = newPosition.pieces.findIndex(
-      p => p.position.x === move.from?.x && p.position.y === move.from?.y
+      (p) => p.position.x === move.from?.x && p.position.y === move.from?.y
     );
     if (moveIndex >= 0) {
       newPosition.pieces.splice(moveIndex, 1);
@@ -29,7 +31,7 @@ export function applyMove(currentPosition: BoardPosition, move: Move): BoardPosi
 
   // 2. 移動先に駒があれば取る（持ち駒に加える）
   const captureIndex = newPosition.pieces.findIndex(
-    p => p.position.x === move.to.x && p.position.y === move.to.y
+    (p) => p.position.x === move.to.x && p.position.y === move.to.y
   );
   if (captureIndex >= 0) {
     const capturedPiece = newPosition.pieces[captureIndex];
@@ -51,7 +53,7 @@ export function applyMove(currentPosition: BoardPosition, move: Move): BoardPosi
     newPosition.pieces.push({
       position: move.to,
       piece: move.isPromoted ? getPromotedPiece(move.piece) : move.piece,
-      isBlack: move.moveNumber % 2 === 1  // 奇数手は先手
+      isBlack: move.moveNumber % 2 === 1, // 奇数手は先手
     });
   } else {
     // 持ち駒を打つ場合
@@ -64,7 +66,7 @@ export function applyMove(currentPosition: BoardPosition, move: Move): BoardPosi
       newPosition.pieces.push({
         position: move.to,
         piece: move.piece,
-        isBlack
+        isBlack,
       });
     }
   }
@@ -79,23 +81,23 @@ export function generatePosition(
   moveIndex: number
 ): BoardPosition {
   let currentPosition = clonePosition(initialPosition);
-  
+
   for (let i = 0; i <= moveIndex && i < moves.length; i++) {
     currentPosition = applyMove(currentPosition, moves[i]);
   }
-  
+
   return currentPosition;
 }
 
 // 成り駒の元の駒を取得
 function getOriginalPiece(piece: PieceType): PieceType {
   const mapping: { [K in PieceType]?: PieceType } = {
-    'と': '歩',
-    '成香': '香',
-    '成桂': '桂',
-    '成銀': '銀',
-    '馬': '角',
-    '龍': '飛'
+    と: '歩',
+    成香: '香',
+    成桂: '桂',
+    成銀: '銀',
+    馬: '角',
+    龍: '飛',
   };
   return mapping[piece] || piece;
 }
@@ -103,12 +105,12 @@ function getOriginalPiece(piece: PieceType): PieceType {
 // 駒の成りを取得
 function getPromotedPiece(piece: PieceType): PieceType {
   const mapping: { [K in PieceType]?: PieceType } = {
-    '歩': 'と',
-    '香': '成香',
-    '桂': '成桂',
-    '銀': '成銀',
-    '角': '馬',
-    '飛': '龍'
+    歩: 'と',
+    香: '成香',
+    桂: '成桂',
+    銀: '成銀',
+    角: '馬',
+    飛: '龍',
   };
   return mapping[piece] || piece;
 }

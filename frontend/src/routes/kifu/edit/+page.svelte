@@ -22,7 +22,7 @@
     tags: string[];
     isPublic: boolean;
   }
-  
+
   // URLからkifu_idを取得
   const kifuId = $page.url.searchParams.get('id');
 
@@ -42,11 +42,11 @@
       title: '',
       timeLimit: {
         initial: 0,
-        byoyomi: 0
-      }
+        byoyomi: 0,
+      },
     },
     tags: [],
-    isPublic: false
+    isPublic: false,
   };
 
   // タグの入力管理
@@ -65,8 +65,8 @@
       title: gameInfo.title || '',
       timeLimit: {
         initial: gameInfo.timeLimit?.initial || 0,
-        byoyomi: gameInfo.timeLimit?.byoyomi || 0
-      }
+        byoyomi: gameInfo.timeLimit?.byoyomi || 0,
+      },
     };
   }
 
@@ -75,7 +75,7 @@
     const gameInfo: GameInfo = {
       black: formMatchInfo.black,
       white: formMatchInfo.white,
-      date: formMatchInfo.date
+      date: formMatchInfo.date,
     };
 
     if (formMatchInfo.place) gameInfo.place = formMatchInfo.place;
@@ -83,7 +83,7 @@
     if (formMatchInfo.timeLimit.initial || formMatchInfo.timeLimit.byoyomi) {
       gameInfo.timeLimit = {
         initial: formMatchInfo.timeLimit.initial,
-        byoyomi: formMatchInfo.timeLimit.byoyomi
+        byoyomi: formMatchInfo.timeLimit.byoyomi,
       };
     }
 
@@ -113,8 +113,8 @@
     isLoading = true;
     try {
       // TODO: API実装後に実際のデータ取得に置き換え
-      await new Promise(resolve => setTimeout(resolve, 500)); // ローディング表示確認用
-      
+      await new Promise((resolve) => setTimeout(resolve, 500)); // ローディング表示確認用
+
       // テストデータ
       const testData: Kifu = {
         id: kifuId || '',
@@ -128,8 +128,8 @@
           title: '大会名',
           timeLimit: {
             initial: 60,
-            byoyomi: 30
-          }
+            byoyomi: 30,
+          },
         },
         tags: ['実戦', 'テスト'],
         isPublic: false,
@@ -137,12 +137,12 @@
         moves: [
           {
             moveNumber: 1,
-            piece: "歩",
+            piece: '歩',
             from: { x: 7, y: 7 },
             to: { x: 7, y: 6 },
-            comment: "序盤の一手"
-          }
-        ]
+            comment: '序盤の一手',
+          },
+        ],
       };
 
       kifu = testData;
@@ -151,9 +151,8 @@
         title: testData.title,
         matchInfo: gameInfoToFormData(testData.matchInfo),
         tags: [...testData.tags],
-        isPublic: testData.isPublic
+        isPublic: testData.isPublic,
       };
-      
     } catch (e) {
       error = '棋譜データの取得に失敗しました。';
     } finally {
@@ -172,13 +171,12 @@
         matchInfo: formDataToGameInfo(formData.matchInfo),
         tags: formData.tags,
         isPublic: formData.isPublic,
-        moves: moves
+        moves: moves,
       };
 
       // TODO: API実装後に実際の保存処理に置き換え
       console.log('Save kifu:', updatedKifu);
       alert('保存しました');
-      
     } catch (e) {
       alert('保存に失敗しました');
     }
@@ -211,7 +209,7 @@
         <h1>棋譜の編集</h1>
         <div class="header-actions">
           <label class="public-toggle">
-            <input type="checkbox" bind:checked={formData.isPublic}>
+            <input type="checkbox" bind:checked={formData.isPublic} />
             公開する
           </label>
           <button class="save-button" on:click={handleSave}>保存</button>
@@ -253,11 +251,7 @@
         <div class="form-row">
           <div class="form-group">
             <label for="match-date">対局日</label>
-            <input
-              type="date"
-              id="match-date"
-              bind:value={formData.matchInfo.date}
-            />
+            <input type="date" id="match-date" bind:value={formData.matchInfo.date} />
           </div>
           <div class="form-group">
             <label for="place">対局場所</label>
@@ -342,7 +336,8 @@
     padding: 2rem;
   }
 
-  .loading, .error {
+  .loading,
+  .error {
     text-align: center;
     padding: 2rem;
 
@@ -389,7 +384,7 @@
           gap: 0.5rem;
           cursor: pointer;
 
-          input[type="checkbox"] {
+          input[type='checkbox'] {
             cursor: pointer;
           }
         }

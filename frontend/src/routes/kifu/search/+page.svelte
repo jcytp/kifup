@@ -22,7 +22,7 @@
 
   // タグの入力管理
   let tagInput = '';
-  
+
   // タグの追加
   function addTag() {
     if (tagInput && !tags.includes(tagInput)) {
@@ -41,19 +41,21 @@
     isLoading = true;
     // TODO: APIリクエストの実装
     // 仮のデータを表示
-    kifuList = Array(itemsPerPage).fill(null).map((_, i) => ({
-      id: `kifu-${i}`,
-      ownerId: 'user-1',
-      title: `テスト棋譜 ${i + 1}`,
-      matchInfo: {
-        black: '先手太郎',
-        white: '後手次郎',
-        date: '2024-01-01',
-      },
-      tags: ['実戦', 'テスト'],
-      isPublic: true,
-      moves: [],
-    }));
+    kifuList = Array(itemsPerPage)
+      .fill(null)
+      .map((_, i) => ({
+        id: `kifu-${i}`,
+        ownerId: 'user-1',
+        title: `テスト棋譜 ${i + 1}`,
+        matchInfo: {
+          black: '先手太郎',
+          white: '後手次郎',
+          date: '2024-01-01',
+        },
+        tags: ['実戦', 'テスト'],
+        isPublic: true,
+        moves: [],
+      }));
     totalPages = 5;
     isLoading = false;
   }
@@ -87,12 +89,7 @@
 
       <div class="form-group">
         <h3 class="label">投稿アカウント</h3>
-        <input
-          type="text"
-          id="accountId"
-          bind:value={accountId}
-          placeholder="アカウント名で検索"
-        />
+        <input type="text" id="accountId" bind:value={accountId} placeholder="アカウント名で検索" />
       </div>
 
       <div class="form-group">
@@ -161,7 +158,7 @@
         >
           前へ
         </button>
-        
+
         {#each Array(totalPages) as _, i}
           <button
             class="page-button"
@@ -201,7 +198,8 @@
         background-color: var(--primary-color);
         color: white;
 
-        &:hover, &:focus {
+        &:hover,
+        &:focus {
           border-color: var(--secondary-color);
           background-color: var(--secondary-color);
         }
@@ -259,7 +257,9 @@
         display: block;
         width: 100%;
         padding: 1rem 1.5rem;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
 
         .kifu-header {
           display: flex;

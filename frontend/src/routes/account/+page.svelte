@@ -26,8 +26,8 @@
     isLoading = true;
     try {
       // TODO: API実装後に実際のデータ取得に置き換え
-      await new Promise(resolve => setTimeout(resolve, 500)); // ローディング表示確認用
-      
+      await new Promise((resolve) => setTimeout(resolve, 500)); // ローディング表示確認用
+
       accountInfo = {
         id: accountId || '',
         name: 'サンプルユーザー',
@@ -36,19 +36,21 @@
         last_login_at: new Date(),
       };
 
-      kifuList = Array(itemsPerPage).fill(null).map((_, i) => ({
-        id: `kifu-${i}`,
-        ownerId: accountId || '',
-        title: `テスト棋譜 ${i + 1}`,
-        matchInfo: {
-          black: '先手太郎',
-          white: '後手次郎',
-          date: '2024-01-01',
-        },
-        tags: ['実戦', 'テスト'],
-        isPublic: true,
-        moves: [],
-      }));
+      kifuList = Array(itemsPerPage)
+        .fill(null)
+        .map((_, i) => ({
+          id: `kifu-${i}`,
+          ownerId: accountId || '',
+          title: `テスト棋譜 ${i + 1}`,
+          matchInfo: {
+            black: '先手太郎',
+            white: '後手次郎',
+            date: '2024-01-01',
+          },
+          tags: ['実戦', 'テスト'],
+          isPublic: true,
+          moves: [],
+        }));
 
       totalPages = 5;
     } catch (e) {
@@ -135,7 +137,7 @@
         >
           前へ
         </button>
-        
+
         {#each Array(totalPages) as _, i}
           <button
             class="page-button"
@@ -206,7 +208,9 @@
       display: block;
       width: 100%;
       padding: 1rem 1.5rem;
-      transition: transform 0.2s, box-shadow 0.2s;
+      transition:
+        transform 0.2s,
+        box-shadow 0.2s;
 
       .kifu-header {
         display: flex;

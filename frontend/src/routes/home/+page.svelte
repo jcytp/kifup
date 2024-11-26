@@ -1,10 +1,8 @@
 <!-- src/routes/home/+page.svelte -->
 
 <script lang="ts">
-	import { account } from '$lib/stores/session';
   import { onMount } from 'svelte';
   import type { Kifu } from '$lib/types/Kifu';
-	import { goto } from '$app/navigation';
 
   // モック通知データ
   interface Notification {
@@ -47,7 +45,7 @@
           userId: 'user-2',
           userName: '許褚クリスティーナ',
           createdAt: '2024-01-10 15:30',
-          read: false
+          read: false,
         },
         {
           id: '2',
@@ -57,26 +55,28 @@
           userId: 'user-3',
           userName: '程昱ティノラベッラ',
           createdAt: '2024-01-09 18:45',
-          read: true
-        }
+          read: true,
+        },
       ];
-      
-      unreadCount = notifications.filter(n => !n.read).length;
+
+      unreadCount = notifications.filter((n) => !n.read).length;
 
       // 棋譜リスト
-      kifuList = Array(15).fill(null).map((_, i) => ({
-        id: `kifu-${i + 1}`,
-        ownerId: 'current-user',
-        title: `第${i + 1}局：${['四間飛車', '矢倉', '角換わり', '横歩取り', '相掛かり'][i % 5]}`,
-        matchInfo: {
-          black: '曹操オッキマラ',
-          white: ['許褚クリスティーナ', '程昱ティノラベッラ', '夏侯惇', '夏侯淵', '張遼'][i % 5],
-          date: '2024-01-01',
-        },
-        tags: ['実戦', ['四間飛車', '矢倉', '角換わり', '横歩取り', '相掛かり'][i % 5]],
-        isPublic: i % 2 === 0,
-        moves: [],
-      }));
+      kifuList = Array(15)
+        .fill(null)
+        .map((_, i) => ({
+          id: `kifu-${i + 1}`,
+          ownerId: 'current-user',
+          title: `第${i + 1}局：${['四間飛車', '矢倉', '角換わり', '横歩取り', '相掛かり'][i % 5]}`,
+          matchInfo: {
+            black: '曹操オッキマラ',
+            white: ['許褚クリスティーナ', '程昱ティノラベッラ', '夏侯惇', '夏侯淵', '張遼'][i % 5],
+            date: '2024-01-01',
+          },
+          tags: ['実戦', ['四間飛車', '矢倉', '角換わり', '横歩取り', '相掛かり'][i % 5]],
+          isPublic: i % 2 === 0,
+          moves: [],
+        }));
 
       totalPages = Math.ceil(kifuList.length / itemsPerPage);
     } finally {
@@ -100,23 +100,19 @@
 
   // 通知を既読にする
   function markAsRead(notificationId: string) {
-    notifications = notifications.map(n => 
-      n.id === notificationId ? { ...n, read: true } : n
-    );
-    unreadCount = notifications.filter(n => !n.read).length;
+    notifications = notifications.map((n) => (n.id === notificationId ? { ...n, read: true } : n));
+    unreadCount = notifications.filter((n) => !n.read).length;
   }
 
   // 棋譜の公開状態を切り替え
   function togglePublic(kifuId: string) {
-    kifuList = kifuList.map(k =>
-      k.id === kifuId ? { ...k, isPublic: !k.isPublic } : k
-    );
+    kifuList = kifuList.map((k) => (k.id === kifuId ? { ...k, isPublic: !k.isPublic } : k));
     selectedKifuId = null;
   }
 
   // 棋譜を削除
   function deleteKifu(kifuId: string) {
-    kifuList = kifuList.filter(k => k.id !== kifuId);
+    kifuList = kifuList.filter((k) => k.id !== kifuId);
     selectedKifuId = null;
   }
 
@@ -136,7 +132,9 @@
   <!-- 通知セクション -->
   {#if notifications.length > 0}
     <section class="basic notification">
-      <h2>通知 {#if unreadCount > 0}<span class="unread-count">{unreadCount}</span>{/if}</h2>
+      <h2>
+        通知 {#if unreadCount > 0}<span class="unread-count">{unreadCount}</span>{/if}
+      </h2>
       <div class="notification-list">
         {#each notifications as notification}
           <div class="card notification-item" class:unread={!notification.read}>
@@ -155,10 +153,7 @@
               <span class="notification-date">{notification.createdAt}</span>
             </div>
             {#if !notification.read}
-              <button
-                class="mark-read-button"
-                on:click={() => markAsRead(notification.id)}
-              >
+              <button class="mark-read-button" on:click={() => markAsRead(notification.id)}>
                 既読にする
               </button>
             {/if}
@@ -198,20 +193,20 @@
                   {kifu.isPublic ? '公開' : '非公開'}
                 </span>
               </div>
-              
+
               <div class="kifu-info">
                 <span>対局日: {kifu.matchInfo.date}</span>
                 <span>先手: {kifu.matchInfo.black}</span>
                 <span>後手: {kifu.matchInfo.white}</span>
               </div>
-              
+
               <div class="kifu-tags">
                 {#each kifu.tags as tag}
                   <span class="tag">{tag}</span>
                 {/each}
               </div>
             </button>
-            
+
             {#if selectedKifuId === kifu.id}
               <div id={`menu-${kifu.id}`} class="popup-menu" role="menu">
                 <a href={`/kifu/view?id=${kifu.id}`} class="menu-item" role="menuitem">
@@ -221,13 +216,17 @@
                   編集する
                 </a>
                 <button
-                  type="button" class="menu-item" role="menuitem"
+                  type="button"
+                  class="menu-item"
+                  role="menuitem"
                   on:click={() => togglePublic(kifu.id)}
                 >
                   {kifu.isPublic ? '非公開にする' : '公開する'}
                 </button>
                 <button
-                  type="button" class="menu-item delete" role="menuitem"
+                  type="button"
+                  class="menu-item delete"
+                  role="menuitem"
                   on:click={() => deleteKifu(kifu.id)}
                 >
                   削除する
@@ -247,7 +246,7 @@
         >
           前へ
         </button>
-        
+
         {#each Array(totalPages) as _, i}
           <button
             class="page-button"
@@ -265,7 +264,7 @@
         >
           次へ
         </button>
-      </div>    
+      </div>
     {/if}
   </section>
 </div>
@@ -273,28 +272,28 @@
 <style lang="scss">
   section.notification {
     h2 {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
 
-        .unread-count {
-          display: inline-block;
-          background-color: var(--primary-color);
-          color: white;
-          border-radius: 0.8rem;
-          padding: 0.4rem;
-          min-width: 1.6rem;
-          font-size: 0.8rem;
-          line-height: 0.8rem;
-          text-align: center;
-        }
+      .unread-count {
+        display: inline-block;
+        background-color: var(--primary-color);
+        color: white;
+        border-radius: 0.8rem;
+        padding: 0.4rem;
+        min-width: 1.6rem;
+        font-size: 0.8rem;
+        line-height: 0.8rem;
+        text-align: center;
+      }
     }
 
     .notification-list {
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      
+
       .notification-item {
         display: flex;
         justify-content: space-between;
@@ -370,7 +369,9 @@
           display: block;
           width: 100%;
           padding: 1rem 1.5rem;
-          transition: transform 0.2s, box-shadow 0.2s;
+          transition:
+            transform 0.2s,
+            box-shadow 0.2s;
 
           .kifu-header {
             display: flex;
@@ -381,12 +382,12 @@
               font-size: 0.8rem;
               padding: 0.25rem 0.5rem;
               border-radius: 0.2rem;
-              
+
               &.public {
                 background-color: var(--public-icon-background-color);
                 color: var(--public-icon-text-color);
               }
-              
+
               &.private {
                 background-color: var(--private-icon-background-color);
                 color: var(--private-icon-text-color);

@@ -5,7 +5,7 @@
   import type { Kifu } from '$lib/types/Kifu';
   import { page } from '$app/stores';
   import KifuPlayer from '$lib/components/KifuPlayer.svelte';
-	import { initialPosition } from '$lib/test/positions';
+  import { initialPosition } from '$lib/test/positions';
 
   // 現在のユーザーID（実際にはログイン情報から取得）
   // TODO: 認証機能実装後に実際のユーザーID取得に置き換え
@@ -41,8 +41,8 @@
     isLoading = true;
     try {
       // TODO: API実装後に実際のデータ取得に置き換え
-      await new Promise(resolve => setTimeout(resolve, 500)); // ローディング表示確認用
-      
+      await new Promise((resolve) => setTimeout(resolve, 500)); // ローディング表示確認用
+
       kifu = {
         id: kifuId || '',
         ownerId: 'user-1',
@@ -58,49 +58,48 @@
         moves: [
           {
             moveNumber: 1,
-            piece: "歩",
+            piece: '歩',
             from: { x: 7, y: 7 },
             to: { x: 7, y: 6 },
-            comment: "歩を突く",
+            comment: '歩を突く',
             variations: [
               {
                 moveNumber: 1,
-                piece: "歩",
+                piece: '歩',
                 from: { x: 5, y: 7 },
                 to: { x: 5, y: 6 },
-                comment: "５六歩と指す作戦もある"
-              }
-            ]
+                comment: '５六歩と指す作戦もある',
+              },
+            ],
           },
           {
             moveNumber: 2,
-            piece: "歩",
+            piece: '歩',
             from: { x: 3, y: 3 },
-            to: { x: 3, y: 4 }
+            to: { x: 3, y: 4 },
           },
           {
             moveNumber: 3,
-            piece: "歩",
+            piece: '歩',
             from: { x: 6, y: 7 },
-            to: { x: 6, y: 6 }
-          }
+            to: { x: 6, y: 6 },
+          },
         ],
-        createdAt: "2024-01-01 12:00",
-        updatedAt: "2024-01-01 15:30"
+        createdAt: '2024-01-01 12:00',
+        updatedAt: '2024-01-01 15:30',
       };
-      
+
       comments = [
         {
           id: '1',
           userId: 'user-2',
           userName: '観戦者A',
           content: '素晴らしい一手でした！',
-          createdAt: '2024-01-01 12:00'
-        }
+          createdAt: '2024-01-01 12:00',
+        },
       ];
-      
+
       likeCount = 42;
-      
     } catch (e) {
       error = '棋譜データの取得に失敗しました。';
     } finally {
@@ -116,14 +115,14 @@
     const day = String(date.getDate()).padStart(2, '0');
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
-    
+
     return `${year}-${month}-${day} ${hours}:${minutes}`;
   }
 
   // コメント投稿
   async function handleCommentSubmit() {
     if (!newComment.trim()) return;
-    
+
     // TODO: API実装後に実際のコメント投稿処理に置き換え
     comments = [
       ...comments,
@@ -132,10 +131,10 @@
         userId: 'current-user',
         userName: '自分',
         content: newComment,
-        createdAt: formatDateTime(new Date().toISOString())
-      }
+        createdAt: formatDateTime(new Date().toISOString()),
+      },
     ];
-    
+
     newComment = '';
   }
 
@@ -172,9 +171,7 @@
       <div class="header-top">
         <h1>{kifu.title}</h1>
         {#if isOwner}
-          <a href={`/kifu/edit?id=${kifu.id}`} class="edit-button">
-            編集する
-          </a>
+          <a href={`/kifu/edit?id=${kifu.id}`} class="edit-button"> 編集する </a>
         {/if}
       </div>
       <div class="kifu-meta">
@@ -205,16 +202,10 @@
 
       <section class="comments-section">
         <h2>コメント</h2>
-        
+
         <form class="comment-form" on:submit|preventDefault={handleCommentSubmit}>
-          <textarea
-            bind:value={newComment}
-            placeholder="コメントを入力..."
-            rows="3"
-          ></textarea>
-          <button type="submit" disabled={!newComment.trim()}>
-            コメントする
-          </button>
+          <textarea bind:value={newComment} placeholder="コメントを入力..." rows="3"></textarea>
+          <button type="submit" disabled={!newComment.trim()}> コメントする </button>
         </form>
 
         <div class="comments-list">
@@ -244,7 +235,8 @@
     padding: 2rem;
   }
 
-  .loading, .error {
+  .loading,
+  .error {
     text-align: center;
     padding: 2rem;
 
