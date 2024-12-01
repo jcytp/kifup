@@ -1,3 +1,5 @@
+// common/auxi/auxiliary.go
+
 package auxi
 
 import (
@@ -23,4 +25,17 @@ func PInt64(i int64) *int64 {
 
 func PBool(b bool) *bool {
 	return &b
+}
+
+func PString(s string) *string {
+	return &s
+}
+
+func IsInArray[T comparable](val T, arr []T) bool {
+	for _, v := range arr {
+		if val == v {
+			return true
+		}
+	}
+	return false
 }

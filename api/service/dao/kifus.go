@@ -121,7 +121,19 @@ func GetKifu(kifuID string) (*model.Kifu, error) {
 	return kifu, nil
 }
 
-func GetKifusByAccountID(accountID string, limit int, offset int) ([]*model.Kifu, error) {
+func CountKifusByAccountID(accountID string) (int, error) {
+	query := `
+		SELECT COUNT(*) FROM kifus
+		WHERE account_id = ?
+	`
+	var count int
+	if err := db.QueryRow(query, accountID).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
+}
+
+func ListKifusByAccountID(accountID string, limit int, offset int) ([]*model.Kifu, error) {
 	query := `
 		SELECT * FROM kifus
 		WHERE account_id = ?
@@ -149,6 +161,18 @@ func GetKifusByAccountID(accountID string, limit int, offset int) ([]*model.Kifu
 		kifus = append(kifus, kifu)
 	}
 	return kifus, nil
+}
+
+func CountPublicKifus() (int, error) {
+	query := `
+		SELECT COUNT(*) FROM kifus
+		WHERE is_public = true 
+	`
+	var count int
+	if err := db.QueryRow(query).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func ListPublicKifus(limit int, offset int) ([]*model.Kifu, error) {
@@ -179,6 +203,18 @@ func ListPublicKifus(limit int, offset int) ([]*model.Kifu, error) {
 		kifus = append(kifus, kifu)
 	}
 	return kifus, nil
+}
+
+func CountPublicKifusByAccountID(accountID string) (int, error) {
+	query := `
+		SELECT COUNT(*) FROM kifus
+		WHERE is_public = true AND account_id = ?
+	`
+	var count int
+	if err := db.QueryRow(query, accountID).Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func ListPublicKifusByAccountID(accountID string, limit int, offset int) ([]*model.Kifu, error) {

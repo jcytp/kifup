@@ -17,7 +17,7 @@ type Kifu struct {
 	WhitePlayer     *string         `db:"white_player"`     // 後手の名前
 	StartedAt       *time.Time      `db:"started_at"`       // 開始日時
 	TimeRule        *TimeRuleString `db:"time_rule"`        // 持ち時間
-	InitialPosition *SFEN           `db:"initial_position"` // 開始局面
+	InitialPosition *SFEN           `db:"initial_position"` // 開始局面（平手初期局面はNULL）
 	CreatedAt       time.Time       `db:"created_at"`
 	UpdatedAt       time.Time       `db:"updated_at"`
 }
@@ -58,6 +58,6 @@ type KifuMove struct {
 }
 
 type KifuBranchWithMoves struct {
-	KifuBranch
+	*KifuBranch
 	Moves []*KifuMove
 }

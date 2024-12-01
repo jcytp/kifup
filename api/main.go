@@ -48,7 +48,8 @@ func main() {
 	rp := ra.Group("/")
 	rp.Use(handler.MwCheckSession)
 	{
-		// ToDo: search kifu, etc.
+		rp.GET("/kifu", handler.HandlerInPagination(api.ListKifus))
+		rp.GET("/kifu/:kifuID", handler.HandlerOut(api.GetKifu))
 	}
 
 	// require session
@@ -60,7 +61,10 @@ func main() {
 		rs.PUT("/account/password", handler.HandlerIn(api.ChangePassword))
 		rs.POST("/session/refresh", handler.HandlerOut(api.RefreshSession))
 
-		// ToDo: manage kifu, etc.
+		rs.POST("/kifu", handler.HandlerInOut(api.CreateKifu))
+		rs.DELETE("/kifu/:kifuID", handler.Handler(api.DeleteKifu))
+		rs.PUT("/kifu/:kifuID", handler.HandlerIn(api.UpdateKifuInfo))
+		rs.PUT("/kifu/:kifuID/moves", handler.HandlerIn(api.UpdateKifuMoves))
 	}
 
 	r.Run() // default -> localhost:8080
