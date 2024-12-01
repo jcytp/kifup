@@ -59,26 +59,6 @@ func InsertKifuBranch(branch *model.KifuBranch) (string, error) {
 	return branch.ID, err
 }
 
-// 不使用
-// func UpdateKifuBranch(branch *model.KifuBranch) error {
-// 	query := `
-// 		UPDATE kifu_branches SET
-// 			ending_number = ?,
-// 			ending_type = ?,
-// 			ending_comment = ?
-// 		WHERE id = ? AND kifu_id = ?
-// 	`
-// 	res, err := db.Exec(
-// 		query,
-// 		branch.EndingNumber, branch.EndingType, branch.EndingComment,
-// 		branch.ID, branch.KifuID,
-// 	)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return db.CheckAffectedRows(res, 1)
-// }
-
 func DeleteKifuBranch(branchID string, kifuID string) error {
 	query := `DELETE FROM kifu_branches WHERE id = ? AND kifu_id = ?`
 	res, err := db.Exec(query, branchID, kifuID)
@@ -87,13 +67,6 @@ func DeleteKifuBranch(branchID string, kifuID string) error {
 	}
 	return db.CheckAffectedRows(res, 1)
 }
-
-// 不使用
-// func DeleteKifuBranchAfter(rootBranchID string, rootNumber int64) error {
-// 	query := `DELETE FROM kifu_branches WHERE root_branch_id = ? AND root_number >= ?`
-// 	_, err := db.Exec(query, rootBranchID, rootNumber)
-// 	return err
-// }
 
 func ListKifuBranchesByKifuID(kifuID string) ([]*model.KifuBranch, error) {
 	query := `

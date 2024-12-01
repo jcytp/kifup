@@ -20,3 +20,7 @@ func PInt(i int) *int {
 func PInt64(i int64) *int64 {
 	return &i
 }
+
+func PBool(b bool) *bool {
+	return &b
+}

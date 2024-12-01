@@ -28,10 +28,8 @@ func CreateKifuTable() error {
 			black_player TEXT,
 			white_player TEXT,
 			started_at TIMESTAMP,
-			ended_at TIMESTAMP,
 			time_rule TEXT,
-			starts_with_black BOOLEAN,
-			original_format TEXT NOT NULL,
+			initial_position TEXT,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
@@ -39,7 +37,7 @@ func CreateKifuTable() error {
 			CHECK (LENGTH(black_player) <= 100),
 			CHECK (LENGTH(white_player) <= 100),
 			CHECK (LENGTH(time_rule) <= 100),
-			CHECK (ended_at IS NULL OR started_at <= ended_at)
+			CHECK (LENGTH(initial_position) <= 200)
 		);
 		CREATE INDEX IF NOT EXISTS idx_kifus_account_id ON kifus(account_id);
 		CREATE INDEX IF NOT EXISTS idx_kifus_is_public ON kifus(is_public);
@@ -58,16 +56,16 @@ func InsertKifu(kifu *model.Kifu) (string, error) {
 	query := `
 		INSERT INTO kifus (
 			id, account_id, title, is_public,
-			black_player, white_player, started_at, ended_at,
-			time_rule, starts_with_black, original_format,
+			black_player, white_player, started_at,
+			time_rule, initial_position,
 			created_at, updated_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	_, err := db.Exec(
 		query,
 		kifu.ID, kifu.AccountID, kifu.Title, kifu.IsPublic,
-		kifu.BlackPlayer, kifu.WhitePlayer, kifu.StartedAt, kifu.EndedAt,
-		kifu.TimeRule, kifu.StartsWithBlack, kifu.OriginalFormat,
+		kifu.BlackPlayer, kifu.WhitePlayer, kifu.StartedAt,
+		kifu.TimeRule, kifu.InitialPosition,
 		kifu.CreatedAt, kifu.UpdatedAt,
 	)
 	return kifu.ID, err
@@ -76,19 +74,20 @@ func InsertKifu(kifu *model.Kifu) (string, error) {
 func UpdateKifu(kifu *model.Kifu) error {
 	kifu.UpdatedAt = time.Now()
 
+	// 初期局面は変更不可（新規作成が必要）
 	query := `
 		UPDATE kifus SET
 			title = ?, is_public = ?,
-			black_player = ?, white_player = ?, started_at = ?, ended_at = ?,
-			time_rule = ?, starts_with_black = ?,
+			black_player = ?, white_player = ?, started_at = ?,
+			time_rule = ?,
 			updated_at = ?
 		WHERE id = ? AND account_id = ?
 	`
 	res, err := db.Exec(
 		query,
 		kifu.Title, kifu.IsPublic,
-		kifu.BlackPlayer, kifu.WhitePlayer, kifu.StartedAt, kifu.EndedAt,
-		kifu.TimeRule, kifu.StartsWithBlack,
+		kifu.BlackPlayer, kifu.WhitePlayer, kifu.StartedAt,
+		kifu.TimeRule,
 		kifu.UpdatedAt,
 		kifu.ID, kifu.AccountID,
 	)
@@ -112,8 +111,8 @@ func GetKifu(kifuID string) (*model.Kifu, error) {
 	kifu := &model.Kifu{}
 	err := db.QueryRow(query, kifuID).Scan(
 		&kifu.ID, &kifu.AccountID, &kifu.Title, &kifu.IsPublic,
-		&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt, &kifu.EndedAt,
-		&kifu.TimeRule, &kifu.StartsWithBlack, &kifu.OriginalFormat,
+		&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
+		&kifu.TimeRule, &kifu.InitialPosition,
 		&kifu.CreatedAt, &kifu.UpdatedAt,
 	)
 	if err != nil {
@@ -140,8 +139,8 @@ func GetKifusByAccountID(accountID string, limit int, offset int) ([]*model.Kifu
 		kifu := &model.Kifu{}
 		err := rows.Scan(
 			&kifu.ID, &kifu.AccountID, &kifu.Title, &kifu.IsPublic,
-			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt, &kifu.EndedAt,
-			&kifu.TimeRule, &kifu.StartsWithBlack, &kifu.OriginalFormat,
+			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
+			&kifu.TimeRule, &kifu.InitialPosition,
 			&kifu.CreatedAt, &kifu.UpdatedAt,
 		)
 		if err != nil {
@@ -170,8 +169,8 @@ func ListPublicKifus(limit int, offset int) ([]*model.Kifu, error) {
 		kifu := &model.Kifu{}
 		err := rows.Scan(
 			&kifu.ID, &kifu.AccountID, &kifu.Title, &kifu.IsPublic,
-			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt, &kifu.EndedAt,
-			&kifu.TimeRule, &kifu.StartsWithBlack, &kifu.OriginalFormat,
+			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
+			&kifu.TimeRule, &kifu.InitialPosition,
 			&kifu.CreatedAt, &kifu.UpdatedAt,
 		)
 		if err != nil {
@@ -200,8 +199,8 @@ func ListPublicKifusByAccountID(accountID string, limit int, offset int) ([]*mod
 		kifu := &model.Kifu{}
 		err := rows.Scan(
 			&kifu.ID, &kifu.AccountID, &kifu.Title, &kifu.IsPublic,
-			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt, &kifu.EndedAt,
-			&kifu.TimeRule, &kifu.StartsWithBlack, &kifu.OriginalFormat,
+			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
+			&kifu.TimeRule, &kifu.InitialPosition,
 			&kifu.CreatedAt, &kifu.UpdatedAt,
 		)
 		if err != nil {
