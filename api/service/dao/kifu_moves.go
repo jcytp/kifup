@@ -19,20 +19,16 @@ func CreateKifuMoveTable() error {
 			branch_id TEXT NOT NULL,
 			number INTEGER NOT NULL,
 			piece INTEGER NOT NULL,
-			to_file INTEGER NOT NULL,
-			to_rank INTEGER NOT NULL,
-			from_file INTEGER,
-			from_rank INTEGER,
+			from_place INTEGER NOT NULL,
+			to_place INTEGER NOT NULL,
 			comment TEXT,
 			time_spent_ms INTEGER,
 			PRIMARY KEY (branch_id, number),
 			FOREIGN KEY (branch_id) REFERENCES kifu_branches(id) ON DELETE CASCADE,
 			CHECK (number > 0),
-			CHECK (piece > 0),
-			CHECK (to_file >= 1 AND to_file <= 9),
-			CHECK (to_rank >= 1 AND to_rank <= 9),
-			CHECK (from_file IS NULL OR (from_file >= 1 AND from_file <= 9)),
-			CHECK (from_rank IS NULL OR (from_rank >= 1 AND from_rank <= 9)),
+			CHECK (piece >= 0 AND piece <= 15),
+			CHECK (from_place >= 0 AND from_place <= 255),
+			CHECK (to_place >= 0 AND to_place <= 255),
 			CHECK (LENGTH(comment) <= 1000),
 			CHECK (time_spent_ms IS NULL OR time_spent_ms >= 0)
 		);
@@ -49,9 +45,8 @@ func InsertKifuMoves(moves []*model.KifuMove) error {
 
 	query := `
 		INSERT INTO kifu_moves (
-			branch_id, number, piece, 
-			to_file, to_rank, 
-			from_file, from_rank,
+			branch_id, number, piece,
+			from_place, to_place,
 			comment, time_spent_ms
 		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
@@ -59,8 +54,7 @@ func InsertKifuMoves(moves []*model.KifuMove) error {
 		_, err := db.Exec(
 			query,
 			move.BranchID, move.Number, move.Piece,
-			move.ToFile, move.ToRank,
-			move.FromFile, move.FromRank,
+			move.FromPlace, move.ToPlace,
 			move.Comment, move.TimeSpentMs,
 		)
 		if err != nil {
@@ -69,13 +63,6 @@ func InsertKifuMoves(moves []*model.KifuMove) error {
 	}
 	return nil
 }
-
-// 不使用
-// func DeleteKifuMovesAfter(branchID string, number int64) error {
-// 	query := `DELETE FROM kifu_moves WHERE branch_id = ? AND number >= ?`
-// 	_, err := db.Exec(query, branchID, number)
-// 	return err
-// }
 
 func ListKifuMovesByBranchID(branchID string) ([]*model.KifuMove, error) {
 	query := `
@@ -94,8 +81,7 @@ func ListKifuMovesByBranchID(branchID string) ([]*model.KifuMove, error) {
 		move := &model.KifuMove{}
 		err := rows.Scan(
 			&move.BranchID, &move.Number, &move.Piece,
-			&move.ToFile, &move.ToRank,
-			&move.FromFile, &move.FromRank,
+			&move.FromPlace, &move.ToPlace,
 			&move.Comment, &move.TimeSpentMs,
 		)
 		if err != nil {
