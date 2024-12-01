@@ -19,9 +19,6 @@ func SetupTables() {
 	if err := dao.CreateKifuTagTable(); err != nil {
 		log.Fatal()
 	}
-	if err := dao.CreateKifuInitialPieceTable(); err != nil {
-		log.Fatal()
-	}
 	if err := dao.CreateKifuBranchTable(); err != nil {
 		log.Fatal()
 	}

@@ -48,26 +48,10 @@ func InsertKifuOptions(options []*model.KifuOption) error {
 	return nil
 }
 
-func UpdateKifuOption(option *model.KifuOption) error {
-	query := `
-		UPDATE kifu_options 
-		SET value = ?
-		WHERE kifu_id = ? AND name = ?
-	`
-	res, err := db.Exec(query, option.Value, option.KifuID, option.Name)
-	if err != nil {
-		return err
-	}
-	return db.CheckAffectedRows(res, 1)
-}
-
-func DeleteKifuOption(kifuID string, name string) error {
-	query := `DELETE FROM kifu_options WHERE kifu_id = ? AND name = ?`
-	res, err := db.Exec(query, kifuID, name)
-	if err != nil {
-		return err
-	}
-	return db.CheckAffectedRows(res, 1)
+func ClearKifuOptionsByKifuID(kifuID string) error {
+	query := `DELETE FROM kifu_options WHERE kifu_id = ?`
+	_, err := db.Exec(query, kifuID)
+	return err
 }
 
 func ListKifuOptionsByKifuID(kifuID string) ([]*model.KifuOption, error) {

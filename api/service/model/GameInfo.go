@@ -5,7 +5,9 @@ package model
 
 import (
 	"fmt"
+	"log/slog"
 	"strings"
+	"time"
 )
 
 // ------------------------------------------------------------
@@ -36,6 +38,52 @@ func (t GameInfo) Merge(gameInfo GameInfo) {
 	}
 }
 
+func (gameInfo GameInfo) GetBlackPlayer() *string {
+	if name, ok := gameInfo["先手"]; ok && name != "" {
+		return &name
+	}
+	return nil
+}
+
+func (gameInfo GameInfo) GetWhitePlayer() *string {
+	if name, ok := gameInfo["後手"]; ok && name != "" {
+		return &name
+	}
+	return nil
+}
+
+func (gameInfo GameInfo) GetStartedAt() *time.Time {
+	if dateStr, ok := gameInfo["対局日時"]; ok && dateStr != "" {
+		t, err := time.Parse("2006-01-02 15:04", dateStr)
+		if err != nil {
+			slog.Error("Invalid started_at format", "val", dateStr)
+			return nil
+		}
+		return &t
+	}
+	return nil
+}
+
+func (gameInfo GameInfo) GetTimeRule() *TimeRuleString {
+	initialTime := "0"
+	if t, ok := gameInfo["持ち時間"]; ok {
+		initialTime = strings.TrimSuffix(t, "秒")
+	}
+	byoyomi := "0"
+	if t, ok := gameInfo["秒読み"]; ok {
+		byoyomi = strings.TrimSuffix(t, "秒")
+	}
+	increment := "0"
+	if t, ok := gameInfo["秒加算"]; ok {
+		increment = strings.TrimSuffix(t, "秒")
+	}
+	if initialTime == "0" && byoyomi == "0" && increment == "0" {
+		return nil
+	}
+	s := fmt.Sprintf("%s+%s+%s", initialTime, byoyomi, increment)
+	return (*TimeRuleString)(&s)
+}
+
 func (t *Kifu) buildSummaryGameInfo() GameInfo {
 	gameInfo := GameInfo{}
 	if t.BlackPlayer != nil {
@@ -45,7 +93,7 @@ func (t *Kifu) buildSummaryGameInfo() GameInfo {
 		gameInfo["後手"] = *t.WhitePlayer
 	}
 	if t.StartedAt != nil {
-		gameInfo["対局日時"] = t.StartedAt.Format("2006-01-02 03:04")
+		gameInfo["対局日時"] = t.StartedAt.Format("2006-01-02 15:04")
 	}
 	return gameInfo
 }

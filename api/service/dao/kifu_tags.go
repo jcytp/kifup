@@ -47,13 +47,10 @@ func InsertKifuTags(tags []*model.KifuTag) error {
 	return nil
 }
 
-func DeleteKifuTag(kifuID string, name string) error {
-	query := `DELETE FROM kifu_tags WHERE kifu_id = ? AND name = ?`
-	res, err := db.Exec(query, kifuID, name)
-	if err != nil {
-		return err
-	}
-	return db.CheckAffectedRows(res, 1)
+func ClearKifuTagsByKifuID(kifuID string) error {
+	query := `DELETE FROM kifu_tags WHERE kifu_id = ?`
+	_, err := db.Exec(query, kifuID)
+	return err
 }
 
 func ListKifuTagsByKifuID(kifuID string) ([]*model.KifuTag, error) {

@@ -71,9 +71,7 @@ func (t *Kifu) buildMoves(branches []*KifuBranchWithMoves) KifuMoveLineResponse 
 
 	// メインラインを特定（RootBranchIDがnullのもの）
 	var mainBranch *KifuBranchWithMoves
-	branchMap := map[string]*KifuBranchWithMoves{}
 	for _, branch := range branches {
-		branchMap[branch.ID] = branch
 		if branch.RootBranchID == nil {
 			mainBranch = branch
 		}
