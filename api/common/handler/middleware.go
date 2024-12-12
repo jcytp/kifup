@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"strconv"
 	"strings"
 
 	"github.com/dgrijalva/jwt-go"
@@ -79,14 +78,7 @@ func MwRequireSession(c *gin.Context) {
 func MwStorePathIDs(c *gin.Context) {
 	params := c.Params
 	for _, param := range params {
-		value, err := strconv.ParseInt(param.Value, 10, 64)
-		if err != nil {
-			msg := fmt.Sprintf("Failed to parse parameter %s", param.Key)
-			ResponseBadRequest(c, msg, err)
-			c.Abort()
-			return
-		}
-		c.Set(param.Key, value)
+		c.Set(param.Key, param.Value)
 	}
 	c.Next()
 }
