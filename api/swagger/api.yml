@@ -23,10 +23,8 @@ paths:
         '200':
           $ref: '#/components/responses/SuccessResponse'
         '400':
-          description: Invalid request parameters
           $ref: '#/components/responses/ErrorResponse'
         '500':
-          description: Server error
           $ref: '#/components/responses/ErrorResponse'
     get:
       summary: アカウント情報の取得
@@ -37,10 +35,8 @@ paths:
         '200':
           $ref: '#/components/responses/AccountResponse'
         '401':
-          description: Unauthorized
           $ref: '#/components/responses/ErrorResponse'
         '500':
-          description: Server error
           $ref: '#/components/responses/ErrorResponse'
     delete:
       summary: アカウント削除
@@ -51,10 +47,8 @@ paths:
         '200':
           $ref: '#/components/responses/SuccessResponse'
         '401':
-          description: Unauthorized
           $ref: '#/components/responses/ErrorResponse'
         '500':
-          description: Server error
           $ref: '#/components/responses/ErrorResponse'
   /api/account/password:
     put:
@@ -72,13 +66,10 @@ paths:
         '200':
           $ref: '#/components/responses/SuccessResponse'
         '400':
-          description: Invalid request parameters
           $ref: '#/components/responses/ErrorResponse'
         '401':
-          description: Unauthorized
           $ref: '#/components/responses/ErrorResponse'
         '500':
-          description: Server error
           $ref: '#/components/responses/ErrorResponse'
   /api/session/login:
     post:
@@ -94,13 +85,10 @@ paths:
         '200':
           $ref: '#/components/responses/TokenResponse'
         '400':
-          description: Invalid request parameters
           $ref: '#/components/responses/ErrorResponse'
         '401':
-          description: Invalid credentials
           $ref: '#/components/responses/ErrorResponse'
         '500':
-          description: Server error
           $ref: '#/components/responses/ErrorResponse'
   /api/session/refresh:
     post:
@@ -112,10 +100,112 @@ paths:
         '200':
           $ref: '#/components/responses/TokenResponse'
         '401':
-          description: Unauthorized
           $ref: '#/components/responses/ErrorResponse'
         '500':
-          description: Server error
+          $ref: '#/components/responses/ErrorResponse'
+  /api/kifu:
+    get:
+      summary: 棋譜リスト取得
+      tags: [Kifu]
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: owner
+          in: query
+          description: "所有者による絞り込み（nullの場合は全公開棋譜、'me'の場合は自身の棋譜）"
+          schema:
+            type: string
+        - $ref: '#/components/parameters/PageRequestPage'
+        - $ref: '#/components/parameters/PageRequestLimit'
+      responses:
+        '200':
+          $ref: '#/components/responses/KifuListResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    post:
+      summary: 棋譜新規作成
+      tags: [Kifu]
+      description: typeにはfileまたはpositionを指定し、fileの場合はcontentが、positionの場合はinitial_positionが必須となる。
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateKifuRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/IDResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/kifu/{kifuID}:
+    parameters:
+      - name: kifuID
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: 棋譜詳細取得
+      tags: [Kifu]
+      description: valiationsにはmove-listのリストが入る。
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/KifuDetailResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      summary: 棋譜削除
+      tags: [Kifu]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    put:
+      summary: 棋譜情報更新
+      tags: [Kifu]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateKifuInfoRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
           $ref: '#/components/responses/ErrorResponse'
 
 components:
@@ -124,6 +214,24 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  parameters:
+    PageRequestPage:
+      name: page
+      in: query
+      description: ページ番号
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PageRequestLimit:
+      name: limit
+      in: query
+      description: 1ページあたりの件数
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
   responses:
     SuccessResponse:
       description: 成功レスポンス
@@ -136,7 +244,7 @@ components:
                 type: boolean
                 example: true
     ErrorResponse:
-      description: エラーレスポンス
+      description: エラー
       content:
         application/json:
           schema:
@@ -147,6 +255,20 @@ components:
                 example: false
               data:
                 type: string
+                example: "some error occurred"
+    IDResponse:
+      description: データ登録成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: false
+              data:
+                type: string
+                description: Created data ID
                 example: "some error occurred"
     TokenResponse:
       description: トークン取得成功
@@ -172,22 +294,35 @@ components:
                 type: boolean
                 example: false
               data:
-                type: object
-                properties:
-                  id:
-                    type: string
-                  name:
-                    type: string
-                  icon_id:
-                    type: string
-                  introduction:
-                    type: string
-                  created_at:
-                    type: string
-                    format: date-time
-                  last_login_at:
-                    type: string
-                    format: date-time
+                $ref: '#/components/schemas/Account'
+    KifuListResponse:
+      description: 棋譜リスト取得成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KifuSummary'
+              pagination:
+                $ref: '#/components/schemas/Pagination'
+    KifuDetailResponse:
+      description: 棋譜詳細取得成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: true
+              data:
+                $ref: '#/components/schemas/KifuDetail'
   schemas:
     CreateAccountRequest:
       type: object
@@ -225,3 +360,165 @@ components:
           type: string
           format:  password
           example: "newPassword456"
+    CreateKifuRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [file, position]
+          description: 作成方法（ファイルまたは初期局面から）
+        content:
+          type: string
+          description: type=fileの場合の棋譜ファイル内容
+        initial_position:
+          type: string
+          description: type=positionの場合の初期局面（SFEN形式）
+    UpdateKifuInfoRequest:
+      type: object
+      required: [title]
+      properties:
+        title:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: タイトル
+        is_public:
+          type: boolean
+          description: 公開フラグ
+        game_info:
+          type: object
+          additionalProperties:
+            type: string
+          description: 対局情報
+        tags:
+          type: array
+          items:
+            type: string
+          description: タグリスト
+    Account:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        icon_id:
+          type: string
+        introduction:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_login_at:
+          type: string
+          format: date-time
+    Pagination:
+      type: object
+      properties:
+        total:
+          type: integer
+          description: 総件数
+        pages:
+          type: integer
+          description: 総ページ数
+        current:
+          type: integer
+          description: 現在のページ番号
+        limit:
+          type: integer
+          description: 1ページあたりの件数
+    KifuSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          $ref: '#/components/schemas/Account'
+        title:
+          type: string
+        is_public:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+        game_info:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+    KifuDetail:
+      type: object
+      properties:
+        id:
+          type: string
+        owner:
+          $ref: '#/components/schemas/Account'
+        title:
+          type: string
+        is_public:
+          type: boolean
+        initial_position:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        game_info:
+          type: object
+          additionalProperties:
+            type: string
+        tags:
+          type: array
+          items:
+            type: string
+        moves:
+          $ref: '#/components/schemas/KifuMoveLine'
+    KifuMoveLine:
+      type: array
+      items:
+        $ref: '#/components/schemas/KifuMove'
+    KifuMove:
+      type: object
+      required: [number, piece, from_place, to_place]
+      properties:
+        number:
+          type: integer
+          description: 手数
+        piece:
+          type: integer
+          description: 駒種
+        from_place:
+          type: integer
+          description: 移動元の位置
+        to_place:
+          type: integer
+          description: 移動先の位置
+        promote:
+          type: boolean
+          description: 成り判定
+        catch_piece:
+          type: integer
+          description: 取得した駒種
+        direction_sign:
+          type: string
+          description: 方向を表す記号
+        variations:
+          type: array
+          items:
+            $ref: '#/components/schemas/KifuMoveLine'
+          description: 変化手順
+        comment:
+          type: string
+          description: コメント
+        time_spent_ms:
+          type: integer
+          description: 消費時間（ミリ秒）
+
+
+
