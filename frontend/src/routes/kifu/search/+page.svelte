@@ -1,72 +1,67 @@
 <!-- src/routes/kifu/search/+page.svelte -->
 
 <script lang="ts">
-  import type { Kifu } from '$lib/types/Kifu';
+  import { searchKifus } from '$lib/apis/kifu';
+  import KifuList from '$lib/components/KifuList.svelte';
+  import type { PaginationResponse } from '$lib/types/API';
+  import type { KifuSummary } from '$lib/types/Kifu';
   import { onMount } from 'svelte';
 
-  // 検索条件の状態管理
+  // ----------------------------------------
+  // 棋譜リスト
+  let loading = true;
+  let kifuList: KifuSummary[] = [];
+  let pagination: PaginationResponse = {
+    total_count: 0,
+    page: 1,
+    page_size: 10,
+    max_page: 1,
+  };
+
+  const changePage = async (page: number) => {
+    pagination.page = page;
+    handleSearch();
+  };
+
+  // ----------------------------------------
+  // 検索条件
   let keyword = '';
   let accountId = '';
   let tags: string[] = [];
   let startDate = '';
   let endDate = '';
 
-  // ページネーションの状態管理
-  let currentPage = 1;
-  const itemsPerPage = 10;
-  let totalPages = 1;
-
-  // 棋譜リストの状態管理
-  let kifuList: Kifu[] = [];
-  let isLoading = false;
-
-  // タグの入力管理
+  // タグ
   let tagInput = '';
-
-  // タグの追加
   function addTag() {
     if (tagInput && !tags.includes(tagInput)) {
       tags = [...tags, tagInput];
       tagInput = '';
     }
   }
-
-  // タグの削除
   function removeTag(index: number) {
     tags = tags.filter((_, i) => i !== index);
   }
 
+  // ----------------------------------------
   // 検索実行
-  async function handleSearch() {
-    isLoading = true;
-    // TODO: APIリクエストの実装
-    // 仮のデータを表示
-    kifuList = Array(itemsPerPage)
-      .fill(null)
-      .map((_, i) => ({
-        id: `kifu-${i}`,
-        ownerId: 'user-1',
-        title: `テスト棋譜 ${i + 1}`,
-        matchInfo: {
-          black: '先手太郎',
-          white: '後手次郎',
-          date: '2024-01-01',
-        },
-        tags: ['実戦', 'テスト'],
-        isPublic: true,
-        moves: [],
-      }));
-    totalPages = 5;
-    isLoading = false;
-  }
+  const handleSearch = async () => {
+    loading = true;
 
-  // ページ変更
-  function changePage(page: number) {
-    if (page >= 1 && page <= totalPages) {
-      currentPage = page;
-      handleSearch();
+    const result = await searchKifus(null, pagination.page, pagination.page_size, false);
+    if (result.ok && result.data && result.pagination) {
+      kifuList = result.data as KifuSummary[];
+      pagination = result.pagination;
+    } else {
+      kifuList = []; // エラー時はリストをクリア
+      console.error('Failed to fetch kifu list: ', result);
     }
-  }
+
+    loading = false;
+  };
+
+  // ----------------------------------------
+  // 初回データロード
 
   onMount(() => {
     handleSearch();
@@ -127,57 +122,7 @@
   </section>
 
   <section class="basic kifu-list">
-    {#if isLoading}
-      <div class="loading">検索中...</div>
-    {:else}
-      <div class="kifu-list-container">
-        {#each kifuList as kifu}
-          <a href={`/kifu/view?id=${kifu.id}`} class="card kifu-card">
-            <div class="kifu-header">
-              <h3>{kifu.title}</h3>
-            </div>
-            <div class="kifu-info">
-              <span>対局日: {kifu.matchInfo.date}</span>
-              <span>対局者: {kifu.matchInfo.black} vs {kifu.matchInfo.white}</span>
-            </div>
-            <div class="kifu-tags">
-              {#each kifu.tags as tag}
-                <span class="tag">{tag}</span>
-              {/each}
-            </div>
-          </a>
-        {/each}
-      </div>
-
-      <!-- ページネーション -->
-      <div class="pagination">
-        <button
-          class="page-button"
-          disabled={currentPage === 1}
-          on:click={() => changePage(currentPage - 1)}
-        >
-          前へ
-        </button>
-
-        {#each Array(totalPages) as _, i}
-          <button
-            class="page-button"
-            class:active={currentPage === i + 1}
-            on:click={() => changePage(i + 1)}
-          >
-            {i + 1}
-          </button>
-        {/each}
-
-        <button
-          class="page-button"
-          disabled={currentPage === totalPages}
-          on:click={() => changePage(currentPage + 1)}
-        >
-          次へ
-        </button>
-      </div>
-    {/if}
+    <KifuList {kifuList} {pagination} {loading} mode="view-only" {changePage} />
   </section>
 </div>
 
@@ -236,61 +181,6 @@
       display: flex;
       gap: 1rem;
       align-items: center;
-    }
-  }
-
-  section.kifu-list {
-    border-top: 0.2rem solid var(--primary-color);
-
-    .loading {
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-color);
-    }
-
-    .kifu-list-container {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-
-      .kifu-card {
-        display: block;
-        width: 100%;
-        padding: 1rem 1.5rem;
-        transition:
-          transform 0.2s,
-          box-shadow 0.2s;
-
-        .kifu-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-
-        .kifu-info {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          margin-bottom: 0.3rem;
-          font-size: 0.9rem;
-          color: #666;
-        }
-
-        .kifu-tags {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          justify-content: end;
-
-          .tag {
-            background-color: var(--secondary-color);
-            color: white;
-            padding: 0.2rem 0.4rem;
-            border-radius: 0.2rem;
-            font-size: 0.8rem;
-          }
-        }
-      }
     }
   }
 </style>
