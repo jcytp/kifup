@@ -1,6 +1,6 @@
 // src/lib/stores/session.ts
 
-import { writable } from 'svelte/store';
+import { get, writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { Account } from '$lib/types/Account';
 import { refreshSession } from '$lib/apis/session';

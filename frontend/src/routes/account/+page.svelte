@@ -2,89 +2,84 @@
 
 <script lang="ts">
   import { page } from '$app/stores';
+  import { searchKifus } from '$lib/apis/kifu';
+  import KifuList from '$lib/components/KifuList.svelte';
+  import { account } from '$lib/stores/session';
   import type { Account } from '$lib/types/Account';
-  import type { Kifu } from '$lib/types/Kifu';
+  import type { PaginationResponse } from '$lib/types/API';
+  import type { KifuSummary } from '$lib/types/Kifu';
+  import { onMount } from 'svelte';
 
-  // URLからアカウントIDを取得
+  // ----------------------------------------
+  // アカウント情報
   const accountId = $page.url.searchParams.get('id');
-
   const image_url_base = 'http://example.com/icon/';
+  let isLoadingAccount = true;
+  let accountInfo: Account;
 
-  // アカウント情報の状態管理
-  let accountInfo: Account | null = null;
-  let kifuList: Kifu[] = [];
-  let isLoading = true;
-  let error: string | null = null;
+  const fetchAccountData = async () => {
+    isLoadingAccount = true;
+    await new Promise((resolve) => setTimeout(resolve, 500)); // ローディング表示確認用
 
-  // ページネーションの状態管理
-  let currentPage = 1;
-  const itemsPerPage = 10;
-  let totalPages = 1;
+    // TODO: MOCに代えてAPIからデータを取得
+    accountInfo = {
+      id: accountId || '',
+      name: 'サンプルユーザー',
+      introduction: '自己紹介～～～～～～～～～～～～～～',
+      created_at: new Date(),
+      last_login_at: new Date(),
+    };
 
-  // アカウント情報とその棋譜リストを取得
-  async function fetchAccountData() {
-    isLoading = true;
-    try {
-      // TODO: API実装後に実際のデータ取得に置き換え
-      await new Promise((resolve) => setTimeout(resolve, 500)); // ローディング表示確認用
+    isLoadingAccount = false;
+  };
 
-      accountInfo = {
-        id: accountId || '',
-        name: 'サンプルユーザー',
-        introduction: '自己紹介～～～～～～～～～～～～～～',
-        created_at: new Date(),
-        last_login_at: new Date(),
-      };
+  // ----------------------------------------
+  // 棋譜リスト
+  let isLoadingKifuList = true;
+  let kifuList: KifuSummary[] = [];
+  let pagination: PaginationResponse = {
+    total_count: 0,
+    page: 1,
+    page_size: 10,
+    max_page: 1,
+  };
 
-      kifuList = Array(itemsPerPage)
-        .fill(null)
-        .map((_, i) => ({
-          id: `kifu-${i}`,
-          ownerId: accountId || '',
-          title: `テスト棋譜 ${i + 1}`,
-          matchInfo: {
-            black: '先手太郎',
-            white: '後手次郎',
-            date: '2024-01-01',
-          },
-          tags: ['実戦', 'テスト'],
-          isPublic: true,
-          moves: [],
-        }));
+  const changePage = async (page: number) => {
+    pagination.page = page;
+    await fetchKifuList();
+  };
 
-      totalPages = 5;
-    } catch (e) {
-      error = 'アカウント情報の取得に失敗しました。';
-    } finally {
-      isLoading = false;
+  const fetchKifuList = async () => {
+    isLoadingKifuList = true;
+
+    const result = await searchKifus(accountId, pagination.page, pagination.page_size, false);
+    if (result.ok && result.data && result.pagination) {
+      kifuList = result.data as KifuSummary[];
+      pagination = result.pagination;
+    } else {
+      kifuList = []; // エラー時はリストをクリア
+      console.error('Failed to fetch kifu list: ', result);
     }
-  }
 
-  // ページ変更
-  function changePage(page: number) {
-    if (page >= 1 && page <= totalPages) {
-      currentPage = page;
-      fetchAccountData();
-    }
-  }
+    isLoadingKifuList = false;
+  };
 
-  // 初期データ取得
-  $: if (accountId) {
+  // ----------------------------------------
+  // 初回データロード
+
+  onMount(() => {
     fetchAccountData();
-  }
+    fetchKifuList();
+  });
 </script>
 
 <div class="page">
-  {#if isLoading}
-    <div class="loading">
-      <p>アカウント情報を読み込んでいます...</p>
-    </div>
-  {:else if error}
-    <div class="error">
-      <p>{error}</p>
-    </div>
-  {:else if accountInfo}
-    <section class="basic">
+  <section class="basic">
+    {#if isLoadingAccount}
+      <div class="loading">
+        <p>アカウント情報を読み込んでいます...</p>
+      </div>
+    {:else if accountInfo}
       <h2>ユーザー情報</h2>
       <div class="card account-profile">
         <div class="profile-header">
@@ -103,61 +98,15 @@
           </div>
         </div>
       </div>
-    </section>
+    {/if}
+  </section>
 
-    <hr />
+  <hr />
 
-    <section class="basic">
-      <h2>公開棋譜</h2>
-
-      <div class="kifu-list-container">
-        {#each kifuList as kifu}
-          <a href={`/kifu/view?id=${kifu.id}`} class="card kifu-card">
-            <div class="kifu-header">
-              <h3>{kifu.title}</h3>
-            </div>
-            <div class="kifu-info">
-              <span>対局日: {kifu.matchInfo.date}</span>
-              <span>対局者: {kifu.matchInfo.black} vs {kifu.matchInfo.white}</span>
-            </div>
-            <div class="kifu-tags">
-              {#each kifu.tags as tag}
-                <span class="tag">{tag}</span>
-              {/each}
-            </div>
-          </a>
-        {/each}
-      </div>
-
-      <div class="pagination">
-        <button
-          class="page-button"
-          disabled={currentPage === 1}
-          on:click={() => changePage(currentPage - 1)}
-        >
-          前へ
-        </button>
-
-        {#each Array(totalPages) as _, i}
-          <button
-            class="page-button"
-            class:active={currentPage === i + 1}
-            on:click={() => changePage(i + 1)}
-          >
-            {i + 1}
-          </button>
-        {/each}
-
-        <button
-          class="page-button"
-          disabled={currentPage === totalPages}
-          on:click={() => changePage(currentPage + 1)}
-        >
-          次へ
-        </button>
-      </div>
-    </section>
-  {/if}
+  <section class="basic">
+    <h2>公開棋譜</h2>
+    <KifuList {kifuList} {pagination} loading={isLoadingKifuList} mode="view-only" {changePage} />
+  </section>
 </div>
 
 <style lang="scss">
