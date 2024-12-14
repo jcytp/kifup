@@ -27,7 +27,7 @@ paths:
         '500':
           $ref: '#/components/responses/ErrorResponse'
     get:
-      summary: アカウント情報の取得
+      summary: アカウント情報の取得（自身）
       tags: [Account]
       security:
         - BearerAuth: []
@@ -69,6 +69,23 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '401':
           $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/account/{accountID}:
+    parameters:
+      - name: accountID
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: アカウント情報の取得（ID指定）
+      tags: [Account]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/AccountResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
   /api/session/login:

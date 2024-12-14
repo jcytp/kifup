@@ -45,6 +45,15 @@ func GetAccount(c *gin.Context) (*model.AccountResponse, string, error) {
 	return account.ToResponse(), "", nil
 }
 
+func GetAccountByID(c *gin.Context) (*model.AccountResponse, string, error) {
+	aid := c.GetString("accountID")
+	account, err := dao.GetAccountByID(aid)
+	if err != nil {
+		return nil, "Failed to get account", err
+	}
+	return account.ToResponse(), "", nil
+}
+
 func DeleteAccount(c *gin.Context) (string, error) {
 	aid := handler.GetAccountID(c)
 
