@@ -47,27 +47,28 @@ func MwCheckSession(c *gin.Context) {
 		return
 	}
 
-	accountID, ok := claims["sub"].(string)
+	actorID, ok := claims["sub"].(string)
 	if !ok {
 		slog.WarnContext(c.Request.Context(), "Invalid token claims", "error", "sub claim is missing or not a string")
 		c.Next()
 		return
 	}
 
-	ctx := context.WithValue(c.Request.Context(), log.AccountIDLogKey, accountID)
+	ctx := context.WithValue(c.Request.Context(), log.ActorIDLogKey, actorID)
 	c.Request = c.Request.WithContext(ctx)
-	c.Set("accountID", accountID)
+	c.Set("actorID", actorID)
+	println("actorID", actorID)
 	c.Next()
 }
 
-func GetAccountID(c *gin.Context) string {
-	return c.GetString("accountID")
+func GetActorID(c *gin.Context) string {
+	return c.GetString("actorID")
 }
 
 func MwRequireSession(c *gin.Context) {
-	aid := GetAccountID(c)
+	aid := GetActorID(c)
 	if aid == "" {
-		ResponseUnauthorized(c, "accountID is missing", nil)
+		ResponseUnauthorized(c, "actorID is missing", nil)
 		c.Abort()
 		return
 	}

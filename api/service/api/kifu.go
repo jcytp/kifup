@@ -20,7 +20,7 @@ type requestCreateKifu struct {
 }
 
 func CreateKifu(c *gin.Context, req requestCreateKifu) (*string, string, error) {
-	aid := handler.GetAccountID(c)
+	aid := handler.GetActorID(c)
 
 	switch req.Type {
 	case "file":
@@ -89,7 +89,7 @@ func ListKifus(c *gin.Context, req requestListKifus, pgreq *handler.PaginationRe
 		kifus, err = dao.ListPublicKifus(limit, offset) // 公開棋譜リスト
 	} else {
 		if *req.Owner == "me" {
-			accountID := handler.GetAccountID(c)
+			accountID := handler.GetActorID(c)
 			totalCount, _ = dao.CountKifusByAccountID(accountID)
 			kifus, err = dao.ListKifusByAccountID(accountID, limit, offset) // 自身の棋譜リスト
 		} else {
@@ -120,7 +120,7 @@ func ListKifus(c *gin.Context, req requestListKifus, pgreq *handler.PaginationRe
 
 // ------------------------------------------------------------
 func GetKifu(c *gin.Context) (*model.KifuDetailResponse, string, error) {
-	accountID := handler.GetAccountID(c)
+	accountID := handler.GetActorID(c)
 	kifuID := c.GetString("kifuID")
 
 	kifu, err := dao.GetKifu(kifuID)
@@ -168,7 +168,7 @@ func GetKifu(c *gin.Context) (*model.KifuDetailResponse, string, error) {
 
 // ------------------------------------------------------------
 func DeleteKifu(c *gin.Context) (string, error) {
-	accountID := handler.GetAccountID(c)
+	accountID := handler.GetActorID(c)
 	kifuID := c.GetString("kifuID")
 
 	// 存在確認と所有者チェック
@@ -198,7 +198,7 @@ type requestUpdateKifuInfo struct {
 }
 
 func UpdateKifuInfo(c *gin.Context, req requestUpdateKifuInfo) (string, error) {
-	accountID := handler.GetAccountID(c)
+	accountID := handler.GetActorID(c)
 	kifuID := c.GetString("kifuID")
 
 	// 存在確認と所有者チェック
@@ -296,7 +296,7 @@ type requestUpdateKifuMoves struct {
 }
 
 func UpdateKifuMoves(c *gin.Context, req requestUpdateKifuMoves) (string, error) {
-	accountID := handler.GetAccountID(c)
+	accountID := handler.GetActorID(c)
 	kifuID := c.GetString("kifuID")
 
 	// 存在確認と所有者チェック

@@ -51,7 +51,7 @@ func Login(c *gin.Context, req requestLogin) (string, string, error) {
 }
 
 func RefreshSession(c *gin.Context) (string, string, error) {
-	accountID := handler.GetAccountID(c)
+	accountID := handler.GetActorID(c)
 
 	account, err := dao.GetAccountByID(accountID)
 	if err != nil {
