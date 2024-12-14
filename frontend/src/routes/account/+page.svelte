@@ -2,6 +2,7 @@
 
 <script lang="ts">
   import { page } from '$app/stores';
+  import { getAccountById } from '$lib/apis/account';
   import { searchKifus } from '$lib/apis/kifu';
   import KifuList from '$lib/components/KifuList.svelte';
   import { account } from '$lib/stores/session';
@@ -19,16 +20,15 @@
 
   const fetchAccountData = async () => {
     isLoadingAccount = true;
-    await new Promise((resolve) => setTimeout(resolve, 500)); // ローディング表示確認用
 
-    // TODO: MOCに代えてAPIからデータを取得
-    accountInfo = {
-      id: accountId || '',
-      name: 'サンプルユーザー',
-      introduction: '自己紹介～～～～～～～～～～～～～～',
-      created_at: new Date(),
-      last_login_at: new Date(),
-    };
+    if (accountId) {
+      const result = await getAccountById(accountId);
+      if (result.ok && result.data) {
+        accountInfo = result.data as Account;
+      } else {
+        console.error('Failed to fetch account data:', result);
+      }
+    }
 
     isLoadingAccount = false;
   };
@@ -98,6 +98,10 @@
           </div>
         </div>
       </div>
+    {:else}
+      <div class="error">
+        <p>アカウント情報の取得に失敗しました。</p>
+      </div>
     {/if}
   </section>
 
@@ -144,82 +148,6 @@
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
-      }
-    }
-  }
-
-  .kifu-list-container {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-
-    .kifu-card {
-      display: block;
-      width: 100%;
-      padding: 1rem 1.5rem;
-      transition:
-        transform 0.2s,
-        box-shadow 0.2s;
-
-      .kifu-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .kifu-info {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.3rem;
-        font-size: 0.9rem;
-        color: #666;
-      }
-
-      .kifu-tags {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        justify-content: end;
-
-        .tag {
-          background-color: var(--secondary-color);
-          color: white;
-          padding: 0.2rem 0.4rem;
-          border-radius: 0.2rem;
-          font-size: 0.8rem;
-        }
-      }
-    }
-  }
-
-  .pagination {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-top: 2rem;
-
-    .page-button {
-      padding: 0.5rem 1rem;
-      border: 1px solid var(--border-color);
-      border-radius: 4px;
-      background: white;
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      &.active {
-        background-color: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
-      }
-
-      &:not(:disabled):hover {
-        background-color: var(--secondary-color);
-        color: white;
-        border-color: var(--secondary-color);
       }
     }
   }

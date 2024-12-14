@@ -30,3 +30,13 @@ export const getAccount = async (): Promise<ApiResult> => {
   }
   return result;
 };
+
+export const getAccountById = async (accountId: string): Promise<ApiResult> => {
+  const result = await API.get(`/api/account/${accountId}`, null, false);
+  if (!result.data) {
+    console.error('get account error: no data');
+    result.ok = false;
+    result.data = 'アカウント情報の取得に失敗しました。';
+  }
+  return result;
+};

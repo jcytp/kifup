@@ -42,6 +42,8 @@ func main() {
 		ra.GET("/test", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"result": "OK"}) })
 		ra.POST("/account", handler.HandlerIn(api.CreateAccount))
 		ra.POST("/session/login", handler.HandlerInOut(api.Login))
+
+		ra.GET("/account/:accountID", handler.HandlerOut(api.GetAccountByID))
 	}
 
 	// public endpoints (optional authentication)
@@ -53,7 +55,7 @@ func main() {
 	}
 
 	// require session
-	rs := rp.Group("/")
+	rs := ra.Group("/")
 	rs.Use(handler.MwRequireSession)
 	{
 		rs.GET("/account", handler.HandlerOut(api.GetAccount))
