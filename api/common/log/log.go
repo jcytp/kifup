@@ -9,8 +9,8 @@ import (
 type key string
 
 const (
-	AccountIDLogKey key = "account_id"
-	KifuIDLogKey    key = "kifu_id"
+	ActorIDLogKey key = "actor_id"
+	KifuIDLogKey  key = "kifu_id"
 )
 
 type LogHandler struct {
@@ -18,8 +18,8 @@ type LogHandler struct {
 }
 
 func (h *LogHandler) Handle(ctx context.Context, r slog.Record) error {
-	if accountID, ok := ctx.Value(AccountIDLogKey).(string); ok {
-		r.AddAttrs(slog.String("aid", accountID))
+	if actorID, ok := ctx.Value(ActorIDLogKey).(string); ok {
+		r.AddAttrs(slog.String("aid", actorID))
 	}
 	if kifuID, ok := ctx.Value(KifuIDLogKey).(string); ok {
 		r.AddAttrs(slog.String("kid", kifuID))

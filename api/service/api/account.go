@@ -37,7 +37,7 @@ func CreateAccount(c *gin.Context, req requestCreateAccount) (string, error) {
 }
 
 func GetAccount(c *gin.Context) (*model.AccountResponse, string, error) {
-	aid := handler.GetAccountID(c)
+	aid := handler.GetActorID(c)
 	account, err := dao.GetAccountByID(aid)
 	if err != nil {
 		return nil, "Failed to get account", err
@@ -55,7 +55,7 @@ func GetAccountByID(c *gin.Context) (*model.AccountResponse, string, error) {
 }
 
 func DeleteAccount(c *gin.Context) (string, error) {
-	aid := handler.GetAccountID(c)
+	aid := handler.GetActorID(c)
 
 	err := dao.DeleteAccount(aid)
 	if err != nil {
@@ -70,7 +70,7 @@ type requestChangePassword struct {
 }
 
 func ChangePassword(c *gin.Context, req requestChangePassword) (string, error) {
-	aid := handler.GetAccountID(c)
+	aid := handler.GetActorID(c)
 
 	passHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {

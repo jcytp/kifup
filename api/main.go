@@ -2,7 +2,6 @@ package main
 
 import (
 	"log/slog"
-	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -36,38 +35,35 @@ func main() {
 	}
 
 	// public endpoints (no authentication)
-	ra := r.Group("/api")
-	ra.Use(handler.MwStorePathIDs)
-	{
-		ra.GET("/test", func(c *gin.Context) { c.JSON(http.StatusOK, gin.H{"result": "OK"}) })
-		ra.POST("/account", handler.HandlerIn(api.CreateAccount))
-		ra.POST("/session/login", handler.HandlerInOut(api.Login))
-
-		ra.GET("/account/:accountID", handler.HandlerOut(api.GetAccountByID))
-	}
+	rPub := r.Group("/api")
+	rPub.Use(handler.MwStorePathIDs)
 
 	// public endpoints (optional authentication)
-	rp := ra.Group("/")
-	rp.Use(handler.MwCheckSession)
-	{
-		rp.GET("/kifu", handler.HandlerInPagination(api.ListKifus))
-		rp.GET("/kifu/:kifuID", handler.HandlerOut(api.GetKifu))
-	}
+	rOpt := rPub.Group("/")
+	rOpt.Use(handler.MwCheckSession)
 
 	// require session
-	rs := ra.Group("/")
-	rs.Use(handler.MwRequireSession)
-	{
-		rs.GET("/account", handler.HandlerOut(api.GetAccount))
-		rs.DELETE("/account", handler.Handler(api.DeleteAccount))
-		rs.PUT("/account/password", handler.HandlerIn(api.ChangePassword))
-		rs.POST("/session/refresh", handler.HandlerOut(api.RefreshSession))
+	rSes := rOpt.Group("/")
+	rSes.Use(handler.MwRequireSession)
 
-		rs.POST("/kifu", handler.HandlerInOut(api.CreateKifu))
-		rs.DELETE("/kifu/:kifuID", handler.Handler(api.DeleteKifu))
-		rs.PUT("/kifu/:kifuID", handler.HandlerIn(api.UpdateKifuInfo))
-		rs.PUT("/kifu/:kifuID/moves", handler.HandlerIn(api.UpdateKifuMoves))
-	}
+	// account api
+	rPub.POST("/account", handler.HandlerIn(api.CreateAccount))
+	rSes.GET("/account", handler.HandlerOut(api.GetAccount))
+	rSes.DELETE("/account", handler.Handler(api.DeleteAccount))
+	rSes.PUT("/account/password", handler.HandlerIn(api.ChangePassword))
+	rPub.GET("/account/:accountID", handler.HandlerOut(api.GetAccountByID))
+
+	// session api
+	rPub.POST("/session/login", handler.HandlerInOut(api.Login))
+	rSes.POST("/session/refresh", handler.HandlerOut(api.RefreshSession))
+
+	// kifu api
+	rSes.POST("/kifu", handler.HandlerInOut(api.CreateKifu))
+	rOpt.GET("/kifu", handler.HandlerInPagination(api.ListKifus))
+	rOpt.GET("/kifu/:kifuID", handler.HandlerOut(api.GetKifu))
+	rSes.DELETE("/kifu/:kifuID", handler.Handler(api.DeleteKifu))
+	rSes.PUT("/kifu/:kifuID", handler.HandlerIn(api.UpdateKifuInfo))
+	rSes.PUT("/kifu/:kifuID/moves", handler.HandlerIn(api.UpdateKifuMoves))
 
 	r.Run() // default -> localhost:8080
 }
