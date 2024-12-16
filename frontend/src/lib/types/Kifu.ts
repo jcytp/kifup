@@ -1,7 +1,7 @@
 // src/lib/types/Kifu.ts
 
 import type { Account } from './Account';
-import type { PieceType } from './KifuPiece';
+import type { PieceType } from './Piece';
 
 export interface KifuSummary {
   id: string;

@@ -1,8 +1,9 @@
 <!-- src/routes/kifu/new/+page.svelte -->
 
 <script lang="ts">
-  import InitialPositionEditor from '$lib/components/InitialPositionEditor.svelte';
-  import type { BoardPosition } from '$lib/types/Kifu';
+  import { goto } from '$app/navigation';
+  import { createKifu } from '$lib/apis/kifu';
+  import PositionEditor from '$lib/components/PositionEditor.svelte';
   import { readTextFile } from '$lib/utils/textEncoding';
 
   // 許可する拡張子のリスト
@@ -54,27 +55,20 @@
     }
   }
 
-  let currentPosition: BoardPosition | undefined;
+  let currentPosition: string | undefined;
 
-  function handlePositionChange(position: BoardPosition) {
+  function handlePositionChange(position?: string) {
     currentPosition = position;
   }
 
   // 初期局面から作成
   async function createFromPosition() {
-    if (!currentPosition) {
-      alert('局面が設定されていません');
-      return;
-    }
-
-    try {
-      // TODO: APIリクエストの実装
-      console.log('Creating kifu from position:', currentPosition);
-      // 成功したら編集ページへリダイレクト
-      // window.location.href = `/kifu/edit?id=${newKifuId}`;
-    } catch (error) {
-      console.error('棋譜作成エラー:', error);
-      alert('棋譜の作成に失敗しました');
+    const result = await createKifu('position', undefined, currentPosition);
+    if (result.ok && result.data) {
+      const kifuID = result.data;
+      goto(`/kifu/edit/?id=${kifuID}`); // 編集画面へ遷移
+    } else {
+      console.error('Failed to create kifu from position: ', result);
     }
   }
 </script>
@@ -107,7 +101,7 @@
 
   <section class="basic">
     <h2>棋譜を作成 - 局面から作成</h2>
-    <InitialPositionEditor change={handlePositionChange} />
+    <PositionEditor onChange={handlePositionChange} />
     <button on:click={createFromPosition} class="submit">この局面から作成</button>
   </section>
 </div>

@@ -7,12 +7,8 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
 
-  // セッション初期化
-  onMount(async () => {
-    await sessionToken.initialize();
-  });
-  $: isLoggedIn = !!$account;
-  $: if (!isLoggedIn) {
+  // ログアウト時の画面遷移
+  const logoutMove = () => {
     // pageのurlがvisitorUrlsのいずれかに一致しない場合、"/"に遷移する
     const visitorUrls = ['/', '/kifu/search/', '/kifu/view/', '/account/*'];
     const currentPath = $page.url.pathname;
@@ -27,7 +23,13 @@
       console.debug('unauthorized access');
       goto('/');
     }
-  }
+  };
+
+  // セッション初期化
+  onMount(async () => {
+    await sessionToken.initialize(logoutMove);
+  });
+  $: isLoggedIn = !!$account;
 
   // ログアウト
   const logout = () => {

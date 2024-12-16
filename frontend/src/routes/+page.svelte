@@ -4,7 +4,7 @@
   import { goto } from '$app/navigation';
   import { register } from '$lib/apis/account';
   import { login } from '$lib/apis/session';
-  import { account } from '$lib/stores/session';
+  import { account, sessionToken } from '$lib/stores/session';
 
   // ログイン済みの場合はホームへ遷移する
   $: if ($account) {
@@ -46,7 +46,10 @@
 
   const handleLogin = async () => {
     const result = await login(loginForm.email, loginForm.password);
-    if (!result.ok) {
+    if (result.ok) {
+      console.log('login success');
+      sessionToken.set(result.data);
+    } else {
       errorMessage = 'ログイン処理中にエラーが発生しました';
       return;
     }
@@ -65,7 +68,10 @@
       return;
     }
     const result_login = await login(registerForm.email, registerForm.password);
-    if (!result_login.ok) {
+    if (result_login.ok) {
+      console.log('login success');
+      sessionToken.set(result.data);
+    } else {
       errorMessage = 'ログイン処理中にエラーが発生しました';
       return;
     }

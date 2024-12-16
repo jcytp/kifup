@@ -112,12 +112,12 @@ func NewBoardPosition(sfen *SFEN) (*BoardPosition, error) {
 				p = p | PIECE_PROMOTE
 				flgPromote = false
 			}
-			if c >= 'A' { // white piece
-				bp.BlackBoard[i][x] = PIECE_VACANCY
-				bp.WhiteBoard[i][x] = p
-			} else { // black piece
+			if c >= 'A' { // black piece
 				bp.BlackBoard[i][x] = p
 				bp.WhiteBoard[i][x] = PIECE_VACANCY
+			} else { // white piece
+				bp.BlackBoard[i][x] = PIECE_VACANCY
+				bp.WhiteBoard[i][x] = p
 			}
 			x++
 		}
@@ -147,16 +147,16 @@ func NewBoardPosition(sfen *SFEN) (*BoardPosition, error) {
 			if !ok || p == PIECE_PROMOTE {
 				return nil, fmt.Errorf("invalid piece '%c' in hands", c)
 			}
-			if c >= 'A' { // white piece
-				if _, exists := bp.WhiteHands[p]; exists {
-					return nil, fmt.Errorf("duplicate piece '%c' in white hands", c)
-				}
-				bp.WhiteHands[p] = count
-			} else {
+			if c >= 'A' { // black piece
 				if _, exists := bp.BlackHands[p]; exists {
 					return nil, fmt.Errorf("duplicate piece '%c' in black hands", c)
 				}
 				bp.BlackHands[p] = count
+			} else {
+				if _, exists := bp.WhiteHands[p]; exists {
+					return nil, fmt.Errorf("duplicate piece '%c' in white hands", c)
+				}
+				bp.WhiteHands[p] = count
 			}
 			count = int32(1)
 		}
@@ -201,7 +201,7 @@ func (bp *BoardPosition) ToSFEN(moveCount int) (SFEN, error) {
 				if blackPiece&PIECE_PROMOTE != 0 {
 					sb.WriteRune('+')
 				}
-				sb.WriteRune(c)
+				sb.WriteRune(unicode.ToUpper(c))
 			} else if blackPiece == PIECE_VACANCY { // white piece exists
 				piece := whitePiece & ^PIECE_PROMOTE
 				c, ok := sfenOfPieceType[piece]
@@ -211,8 +211,7 @@ func (bp *BoardPosition) ToSFEN(moveCount int) (SFEN, error) {
 				if whitePiece&PIECE_PROMOTE != 0 {
 					sb.WriteRune('+')
 				}
-				sb.WriteRune(unicode.ToUpper(c))
-
+				sb.WriteRune(c)
 			} else {
 				return "", fmt.Errorf("both black and white piece exists at row %d col %d", i, j)
 			}
@@ -252,7 +251,7 @@ func (bp *BoardPosition) ToSFEN(moveCount int) (SFEN, error) {
 				if count > 1 {
 					sb.WriteString(strconv.Itoa(int(count)))
 				}
-				sb.WriteRune(sfenOfPieceType[p])
+				sb.WriteRune(unicode.ToUpper(sfenOfPieceType[p]))
 			}
 		}
 		// White hands
@@ -261,7 +260,7 @@ func (bp *BoardPosition) ToSFEN(moveCount int) (SFEN, error) {
 				if count > 1 {
 					sb.WriteString(strconv.Itoa(int(count)))
 				}
-				sb.WriteRune(unicode.ToUpper(sfenOfPieceType[p]))
+				sb.WriteRune(sfenOfPieceType[p])
 			}
 		}
 	}
