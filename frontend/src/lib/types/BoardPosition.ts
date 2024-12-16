@@ -1,6 +1,6 @@
 // src/lib/types/BoardPosition.ts
 
-import { PieceType, PieceTypeOfSFEN } from './Piece';
+import { PieceCharOfSFEN, PieceOrderForSFEN, PieceType, PieceTypeOfSFEN } from './Piece';
 
 const SFEN_HIRATE = 'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1';
 
@@ -35,7 +35,6 @@ export class BoardPosition {
     this.isBlackTurn = true;
 
     sfen = sfen || SFEN_HIRATE;
-    console.debug(sfen);
     const parts = sfen.split(' ');
     if (parts.length < 4) {
       console.error(`Invalid SFEN format: expected 4 parts, got ${parts.length}`);
@@ -157,5 +156,102 @@ export class BoardPosition {
       console.error(`Invalid move number: ${parts[3]}`);
       return;
     }
+  }
+
+  copy(): BoardPosition {
+    return new BoardPosition(this.toSfen(1));
+  }
+
+  toSfen(moveCount: number): string {
+    if (moveCount < 1) {
+      console.error('Invalid move count: must be positive');
+      return SFEN_HIRATE;
+    }
+
+    const parts: string[] = [];
+
+    // 盤面作成
+    const rows: string[] = [];
+    for (let i = 0; i < 9; i++) {
+      let row = '';
+      let emptyCount = 0;
+
+      for (let j = 0; j < 9; j++) {
+        const blackPiece = this.blackBoard[i][j];
+        const whitePiece = this.whiteBoard[i][j];
+        if (blackPiece === PieceType.VACANCY && whitePiece === PieceType.VACANCY) {
+          emptyCount++;
+          continue;
+        }
+        if (emptyCount > 0) {
+          // 空マス
+          row += emptyCount.toString();
+          emptyCount = 0;
+        }
+        if (whitePiece == PieceType.VACANCY) {
+          // 先手の駒
+          const char = PieceCharOfSFEN.get(blackPiece & ~PieceType.PROMOTE);
+          if (char) {
+            if (blackPiece & PieceType.PROMOTE) {
+              row += '+';
+            }
+            row += char.toUpperCase();
+          }
+        } else if (blackPiece === PieceType.VACANCY) {
+          // 後手の駒
+          const char = PieceCharOfSFEN.get(whitePiece & ~PieceType.PROMOTE);
+          if (char) {
+            if (whitePiece & PieceType.PROMOTE) {
+              row += '+';
+            }
+            row += char.toLowerCase();
+          }
+        }
+      }
+
+      if (emptyCount > 0) {
+        // 行末の空マス
+        row += emptyCount.toString();
+      }
+
+      rows.push(row);
+    }
+    parts.push(rows.join('/'));
+
+    // 手番
+    parts.push(this.isBlackTurn ? 'b' : 'w');
+
+    // 持ち駒
+    const hands: string[] = [];
+    for (const piece of PieceOrderForSFEN) {
+      const count = this.blackHands.get(piece);
+      if (count) {
+        if (count > 1) {
+          hands.push(count.toString());
+        }
+        const char = PieceCharOfSFEN.get(piece);
+        if (char) {
+          hands.push(char.toUpperCase());
+        }
+      }
+    }
+    for (const piece of PieceOrderForSFEN) {
+      const count = this.whiteHands.get(piece);
+      if (count) {
+        if (count > 1) {
+          hands.push(count.toString());
+        }
+        const char = PieceCharOfSFEN.get(piece);
+        if (char) {
+          hands.push(char.toLowerCase());
+        }
+      }
+    }
+    parts.push(hands.length > 0 ? hands.join('') : '-');
+
+    // 手数
+    parts.push(moveCount.toString());
+
+    return parts.join(' ');
   }
 }

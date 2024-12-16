@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import type { KifuMove } from '$lib/types/Kifu';
-  import BoardPositionView from './BoardPositionView.svelte';
+  import BoardPositionView from './PositionView/PositionView.svelte';
 
   // callback
   export let onChange: (position?: string) => void;
@@ -10,12 +10,14 @@
   let boardPosition: string | undefined;
 
   const handleChange = (position?: string, moves?: KifuMove[]) => {
+    boardPosition = position;
     onChange(position);
   };
 
   const reset = () => {
-    boardPosition = 'lnsg5/9/ppppp4/9/9/9/PPPPPPP2/9/4KGSNL b 2PLNSGBR2plnsgbr 1';
-    // boardPosition = undefined;
+    // TEST POSITION
+    // boardPosition = 'lnsg5/9/ppppp4/9/9/9/PPPPPPP2/9/4KGSNL b 2PLNSGBR2plnsgbr 1';
+    boardPosition = undefined;
     onChange(boardPosition);
   };
 
@@ -28,7 +30,7 @@
 <div class="position-editor">
   <BoardPositionView mode="position" sfen={boardPosition} onChange={handleChange} />
   <div class="controls">
-    <button on:click={reset}>平手</button>
+    <button on:click={reset}>平手初形</button>
     <button on:click={allRemove}>全て駒箱</button>
   </div>
 </div>

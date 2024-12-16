@@ -56,5 +56,46 @@ export const PieceTypeOfSFEN = new Map<string, PieceType>([
   ['+', PieceType.PROMOTE],
 ]);
 
+export const PieceCharOfSFEN = new Map<PieceType, string>([
+  [PieceType.FU, 'p'],
+  [PieceType.KY, 'l'],
+  [PieceType.KE, 'n'],
+  [PieceType.GI, 's'],
+  [PieceType.KI, 'g'],
+  [PieceType.KA, 'b'],
+  [PieceType.HI, 'r'],
+  [PieceType.OU, 'k'],
+]);
+
+export const PieceOrderForSFEN = [
+  PieceType.OU,
+  PieceType.HI,
+  PieceType.KA,
+  PieceType.KI,
+  PieceType.GI,
+  PieceType.KE,
+  PieceType.KY,
+  PieceType.FU,
+];
+
 // ------------------------------------------------------------
 export const PIECE_PLACE_IN_HAND = 0xff;
+
+// ------------------------------------------------------------
+export type PieceClickEvent = {
+  pieceType: PieceType;
+  source:
+    | {
+        type: 'board';
+        row: number;
+        col: number;
+        isBlack?: boolean;
+      }
+    | {
+        type: 'stand';
+        isBlack: boolean;
+      }
+    | {
+        type: 'box';
+      };
+};

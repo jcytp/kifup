@@ -1,4 +1,4 @@
-<!-- src/lib/components/Piece.svelte -->
+<!-- src/lib/components/PositionView/Piece.svelte -->
 
 <script lang="ts">
   import { PieceChar, PieceType } from '$lib/types/Piece';
@@ -8,6 +8,7 @@
   export let reverse: boolean = false;
   export let onClick: (() => void) | undefined = undefined;
   export let useViewBox = true;
+  export let state: 'normal' | 'picked' = 'normal';
 
   const L_SIZE_PATH = 'M120,10 L210,40 L230,250 L10,250, L30,40 Z';
   const M_SIZE_PATH = 'M120,20 L200,50 L230,250 L10,250, L40,50 Z';
@@ -32,6 +33,7 @@
   $: path = piecePath.get(pieceType);
   $: pieceChar = PieceChar.get(pieceType) ?? '?';
   $: transform = reverse ? 'rotate(180,120,130)' : undefined;
+  $: opacity = state == 'picked' ? 0.5 : 1;
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -43,16 +45,18 @@
   role="button"
   aria-label={`${pieceChar}`}
   tabindex="0"
+  pointer-events={onClick ? 'all' : 'none'}
 >
   <g {transform}>
     {#if style == 'pentagon'}
-      <path d={path} fill="#ffd" stroke="#666" stroke-width="10" />
+      <path d={path} fill="#ffd" stroke="#666" stroke-width="10" {opacity} />
       <text
         x={120}
         y={165}
         dominant-baseline="middle"
         text-anchor="middle"
         fill="#333"
+        {opacity}
         font-size={140}
         style:font-size="140px"
       >
@@ -65,6 +69,7 @@
         dominant-baseline="middle"
         text-anchor="middle"
         fill="#333"
+        {opacity}
         font-size={180}
         style:font-size="180px"
       >
@@ -74,13 +79,11 @@
   </g>
 </svg>
 
-{#if onClick !== undefined}
-  <style lang="scss">
-    .piece-svg {
-      cursor: pointer;
-      &:hover {
-        opacity: 0.8;
-      }
+<style lang="scss">
+  .piece-svg {
+    cursor: pointer;
+    &:hover {
+      opacity: 0.8;
     }
-  </style>
-{/if}
+  }
+</style>
