@@ -5,8 +5,8 @@
 
   export let pieceType: PieceType;
   export let style: 'default' | 'pentagon' = 'default';
-  export let reverse: boolean;
-  export let onClick: (() => void) | undefined;
+  export let reverse: boolean = false;
+  export let onClick: (() => void) | undefined = undefined;
   export let useViewBox = true;
 
   const L_SIZE_PATH = 'M120,10 L210,40 L230,250 L10,250, L30,40 Z';
@@ -49,7 +49,8 @@
       <path d={path} fill="#ffd" stroke="#666" stroke-width="10" />
       <text
         x={120}
-        y={200}
+        y={165}
+        dominant-baseline="middle"
         text-anchor="middle"
         fill="#333"
         font-size={140}
@@ -60,11 +61,12 @@
     {:else}
       <text
         x={120}
-        y={200}
+        y={165}
+        dominant-baseline="middle"
         text-anchor="middle"
         fill="#333"
-        font-size={170}
-        style:font-size="170px"
+        font-size={180}
+        style:font-size="180px"
       >
         {pieceChar}
       </text>
@@ -72,7 +74,7 @@
   </g>
 </svg>
 
-{#if onClick != undefined}
+{#if onClick !== undefined}
   <style lang="scss">
     .piece-svg {
       cursor: pointer;

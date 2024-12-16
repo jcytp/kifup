@@ -7,8 +7,6 @@
   export let moveNumber: number;
   export let x: number;
   export let y: number;
-  // const x = 60;
-  // const y = 120;
   const w = 920;
   const h = 2400;
 </script>

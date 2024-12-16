@@ -8,9 +8,7 @@
   export let whiteBoard: PieceType[][];
   export let x: number;
   export let y: number;
-
-  $: console.debug('blackBoard:', blackBoard);
-  $: console.debug('whiteBoard:', whiteBoard);
+  export let style: 'default' | 'pentagon' | undefined = 'default';
 </script>
 
 <g transform={`translate(${x}, ${y})`}>
@@ -21,20 +19,14 @@
       <rect x={10 + j * 245} y={10 + i * 265} width="240" height="260" fill="#ffc" />
       {#if piece !== PieceType.VACANCY}
         <g transform={`translate(${10 + j * 245}, ${10 + i * 265})`}>
-          <Piece
-            pieceType={piece}
-            style="pentagon"
-            reverse={false}
-            onClick={undefined}
-            useViewBox={false}
-          />
+          <Piece pieceType={piece} {style} reverse={false} onClick={undefined} useViewBox={false} />
         </g>
       {/if}
       {#if whiteBoard[i][j] !== PieceType.VACANCY}
         <g transform={`translate(${10 + j * 245}, ${10 + i * 265})`}>
           <Piece
             pieceType={whiteBoard[i][j]}
-            style="default"
+            {style}
             reverse={true}
             onClick={undefined}
             useViewBox={false}

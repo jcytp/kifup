@@ -14,7 +14,13 @@
   };
 
   const reset = () => {
-    boardPosition = undefined;
+    boardPosition = 'lnsg5/9/ppppp4/9/9/9/PPPPPPP2/9/4KGSNL b 2PLNSGBR2plnsgbr 1';
+    // boardPosition = undefined;
+    onChange(boardPosition);
+  };
+
+  const allRemove = () => {
+    boardPosition = '9/9/9/9/9/9/9/9/9 b - 1';
     onChange(boardPosition);
   };
 </script>
@@ -22,7 +28,8 @@
 <div class="position-editor">
   <BoardPositionView mode="position" sfen={boardPosition} onChange={handleChange} />
   <div class="controls">
-    <button on:click={reset}>初期局面に戻す</button>
+    <button on:click={reset}>平手</button>
+    <button on:click={allRemove}>全て駒箱</button>
   </div>
 </div>
 
@@ -32,6 +39,7 @@
     text-align: center;
 
     button {
+      width: 10rem;
       padding: 0.5rem 1rem;
       background-color: var(--primary-color);
       color: white;

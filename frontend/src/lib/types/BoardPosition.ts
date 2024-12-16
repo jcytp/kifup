@@ -22,7 +22,16 @@ export class BoardPosition {
       .map(() => Array(9).fill(PieceType.VACANCY));
     this.blackHands = new Map<PieceType, number>();
     this.whiteHands = new Map<PieceType, number>();
-    this.pieceBox = new Map<PieceType, number>();
+    this.pieceBox = new Map<PieceType, number>([
+      [PieceType.FU, 18],
+      [PieceType.KY, 4],
+      [PieceType.KE, 4],
+      [PieceType.GI, 4],
+      [PieceType.KI, 4],
+      [PieceType.KA, 2],
+      [PieceType.HI, 2],
+      [PieceType.OU, 2],
+    ]);
     this.isBlackTurn = true;
 
     sfen = sfen || SFEN_HIRATE;
@@ -32,6 +41,17 @@ export class BoardPosition {
       console.error(`Invalid SFEN format: expected 4 parts, got ${parts.length}`);
       return;
     }
+
+    // 駒箱から取り出す
+    const removeFromPieceBox = (pieceType: PieceType, count: number): boolean => {
+      const cnt = this.pieceBox.get(pieceType);
+      if (cnt && cnt >= count) {
+        this.pieceBox.set(pieceType, cnt - count);
+        return true;
+      }
+      console.error(`Cannot remove from piece box: ${pieceType}`);
+      return false;
+    };
 
     // 盤面の解析
     const rows = parts[0].split('/');
@@ -74,6 +94,9 @@ export class BoardPosition {
         } else {
           this.whiteBoard[i][x] = pieceType;
         }
+        if (!removeFromPieceBox(pieceType & ~PieceType.PROMOTE, 1)) {
+          return;
+        }
         x++;
       }
       if (x != 9) {
@@ -83,5 +106,56 @@ export class BoardPosition {
     }
 
     // 手番の解析
+    if (parts[1] != 'b' && parts[1] != 'w') {
+      console.error(`Invalid turn indicator: expected 'b' or 'w', got '${parts[1]}'`);
+      return;
+    }
+    this.isBlackTurn = parts[1] === 'b';
+
+    // 持ち駒の解析
+    if (parts[2] !== '-') {
+      let count = 1;
+      for (let i = 0; i < parts[2].length; i++) {
+        const c = parts[2][i];
+        // ToDo: 2桁の数字への対応
+        if (/[1-9]/.test(c)) {
+          if (i === parts[2].length - 1) {
+            console.error('Number at end of hands section');
+            return;
+          }
+          count = parseInt(c);
+          continue;
+        }
+        const pieceType = PieceTypeOfSFEN.get(c);
+        if (pieceType === undefined || pieceType === PieceType.PROMOTE) {
+          console.error(`Invalid piece '${c}' in hands`);
+          return;
+        }
+        if (c >= 'A' && c <= 'Z') {
+          if (this.blackHands.has(pieceType)) {
+            console.error(`Duplicate piece '${c}' in black hands`);
+            return;
+          }
+          this.blackHands.set(pieceType, count);
+        } else {
+          if (this.whiteHands.has(pieceType)) {
+            console.error(`Duplicate piece '${c}' in white hands`);
+            return;
+          }
+          this.whiteHands.set(pieceType, count);
+        }
+        if (!removeFromPieceBox(pieceType, count)) {
+          return;
+        }
+        count = 1;
+      }
+    }
+
+    // 手数
+    const moveCount = parseInt(parts[3]);
+    if (isNaN(moveCount)) {
+      console.error(`Invalid move number: ${parts[3]}`);
+      return;
+    }
   }
 }

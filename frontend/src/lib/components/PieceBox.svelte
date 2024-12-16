@@ -1,18 +1,49 @@
 <!-- src/lib/components/PieceStand.svelte -->
 
 <script lang="ts">
-  import type { PieceType } from '$lib/types/Piece';
+  import { PieceType } from '$lib/types/Piece';
+  import Piece from './Piece.svelte';
 
   export let pieces: Map<PieceType, number>;
   export let x: number;
   export let y: number;
-  // const x = 4420;
-  // const y = 840;
-  const w = 920;
+  export let style: 'default' | 'pentagon' | undefined = 'default';
+  const w = 800;
   const h = 1680;
+  const pieceTypeList = [
+    PieceType.FU,
+    PieceType.VACANCY,
+    PieceType.KY,
+    PieceType.KE,
+    PieceType.GI,
+    PieceType.KI,
+    PieceType.KA,
+    PieceType.HI,
+    PieceType.OU,
+  ];
+  const handleClickPiece = () => {};
 </script>
 
 <g transform={`translate(${x}, ${y})`}>
   <rect width={w} height={h} fill="#666" />
-  <rect x="10" y="10" width={w - 20} height={h - 20} fill="#ffc" />
+  <rect x="10" y="10" width={w - 20} height={h - 20} fill="#ccc" />
+  {#each pieceTypeList as pieceType, i}
+    {@const count = pieces.get(pieceType) ?? 0}
+    {#if count}
+      <g transform={`translate(${70 + (i % 2) * 360}, ${70 + Math.floor(i / 2) * 320})`}>
+        <Piece {pieceType} {style} onClick={handleClickPiece} useViewBox={false} />
+        {#if count > 1}
+          <text
+            x={220}
+            y={190}
+            fill="#333"
+            dominant-baseline="middle"
+            text-anchor="start"
+            font-size={140}
+            style:font-size="140px">{pieces.get(pieceType)}</text
+          >
+        {/if}
+      </g>
+    {/if}
+  {/each}
 </g>
