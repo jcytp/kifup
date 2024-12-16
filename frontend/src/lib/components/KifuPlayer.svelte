@@ -2,7 +2,7 @@
 
 <script lang="ts">
   import type { Kifu, Move } from '$lib/types/Kifu';
-  import ShogiBoard from './ShogiBoard.svelte';
+  import ShogiBoard from './old_ShogiBoard.svelte';
   import { generatePosition } from '$lib/utils/positionControl';
 
   export let kifu: Kifu;

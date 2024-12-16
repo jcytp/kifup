@@ -1,12 +1,13 @@
-<!-- src/lib/components/ShogiPiece.svelte -->
+<!-- src/lib/components/Piece.svelte -->
 
 <script lang="ts">
-  import { PieceChar, PieceType } from '$lib/types/KifuPiece';
+  import { PieceChar, PieceType } from '$lib/types/Piece';
 
   export let pieceType: PieceType;
   export let style: 'default' | 'pentagon' = 'default';
   export let reverse: boolean;
-  export let onClick: () => void | undefined;
+  export let onClick: (() => void) | undefined;
+  export let useViewBox = true;
 
   const L_SIZE_PATH = 'M120,10 L210,40 L230,250 L10,250, L30,40 Z';
   const M_SIZE_PATH = 'M120,20 L200,50 L230,250 L10,250, L40,50 Z';
@@ -36,7 +37,7 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <svg
   xmlns="http://www.w3.org/2000/svg"
-  viewBox="0 0 240 260"
+  viewBox={useViewBox ? '0 0 240 260' : undefined}
   class="piece-svg"
   on:click={onClick}
   role="button"
@@ -45,12 +46,26 @@
 >
   <g {transform}>
     {#if style == 'pentagon'}
-      <path d={path} fill="#fff" fill-opacity="0.6" stroke="#333" stroke-width="10" />
-      <text x="120" y="160" text-anchor="middle" fill="#333" font-size="120">
+      <path d={path} fill="#ffd" stroke="#666" stroke-width="10" />
+      <text
+        x={120}
+        y={200}
+        text-anchor="middle"
+        fill="#333"
+        font-size={140}
+        style:font-size="140px"
+      >
         {pieceChar}
       </text>
     {:else}
-      <text x="120" y="140" text-anchor="middle" fill="#333" font-size="120">
+      <text
+        x={120}
+        y={200}
+        text-anchor="middle"
+        fill="#333"
+        font-size={170}
+        style:font-size="170px"
+      >
         {pieceChar}
       </text>
     {/if}
@@ -67,10 +82,3 @@
     }
   </style>
 {/if}
-
-<style lang="scss">
-  .piece-svg {
-    width: 100%;
-    height: 100%;
-  }
-</style>

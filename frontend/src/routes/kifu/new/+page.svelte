@@ -1,8 +1,7 @@
 <!-- src/routes/kifu/new/+page.svelte -->
 
 <script lang="ts">
-  import InitialPositionEditor from '$lib/components/InitialPositionEditor.svelte';
-  import type { BoardPosition } from '$lib/types/Kifu';
+  import PositionEditor from '$lib/components/PositionEditor.svelte';
   import { readTextFile } from '$lib/utils/textEncoding';
 
   // 許可する拡張子のリスト
@@ -54,9 +53,9 @@
     }
   }
 
-  let currentPosition: BoardPosition | undefined;
+  let currentPosition: string | undefined;
 
-  function handlePositionChange(position: BoardPosition) {
+  function handlePositionChange(position?: string) {
     currentPosition = position;
   }
 
@@ -107,7 +106,7 @@
 
   <section class="basic">
     <h2>棋譜を作成 - 局面から作成</h2>
-    <InitialPositionEditor change={handlePositionChange} />
+    <PositionEditor onChange={handlePositionChange} />
     <button on:click={createFromPosition} class="submit">この局面から作成</button>
   </section>
 </div>

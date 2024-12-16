@@ -36,5 +36,25 @@ export const PieceChar = new Map<PieceType, string>([
   [PieceType.RY, '龍'],
 ]);
 
+export const PieceTypeOfSFEN = new Map<string, PieceType>([
+  ['P', PieceType.FU],
+  ['L', PieceType.KY],
+  ['N', PieceType.KE],
+  ['S', PieceType.GI],
+  ['G', PieceType.KI],
+  ['B', PieceType.KA],
+  ['R', PieceType.HI],
+  ['K', PieceType.OU],
+  ['p', PieceType.FU],
+  ['l', PieceType.KY],
+  ['n', PieceType.KE],
+  ['s', PieceType.GI],
+  ['g', PieceType.KI],
+  ['b', PieceType.KA],
+  ['r', PieceType.HI],
+  ['k', PieceType.OU],
+  ['+', PieceType.PROMOTE],
+]);
+
 // ------------------------------------------------------------
 export const PIECE_PLACE_IN_HAND = 0xff;
