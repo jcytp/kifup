@@ -1,7 +1,6 @@
 // src/lib/apis/session.ts
 
 import { API, type ApiResult } from '$lib/types/API';
-import { sessionToken } from '$lib/stores/session';
 
 export const login = async (email: string, password: string): Promise<ApiResult> => {
   const params = {
@@ -14,10 +13,6 @@ export const login = async (email: string, password: string): Promise<ApiResult>
     result.ok = false;
     result.data = 'ログインに失敗しました。';
   }
-  if (result.ok) {
-    console.log('login success');
-    sessionToken.set(result.data);
-  }
   return result;
 };
 
@@ -27,9 +22,6 @@ export const refreshSession = async (): Promise<ApiResult> => {
     console.error('refresh session error: no data');
     result.ok = false;
     result.data = 'トークン取得に失敗しました。';
-  }
-  if (result.ok) {
-    sessionToken.set(result.data);
   }
   return result;
 };

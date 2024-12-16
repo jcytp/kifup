@@ -1,10 +1,12 @@
 // src/lib/stores/session.ts
 
-import { get, writable } from 'svelte/store';
+import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { Account } from '$lib/types/Account';
 import { refreshSession } from '$lib/apis/session';
 import { getAccount } from '$lib/apis/account';
+
+let callbackLogoutMove: () => void;
 
 const createSessionTokenStore = () => {
   const { subscribe, set } = writable<string | null>(null);
@@ -17,17 +19,22 @@ const createSessionTokenStore = () => {
         localStorage.setItem('token', value);
         await update();
       } else {
+        console.log('sessionToken.set(null)');
         // ログアウト
         localStorage.removeItem('token');
         logout();
+        callbackLogoutMove();
       }
     },
-    initialize: async () => {
+    initialize: async (logoutMove: () => void) => {
+      callbackLogoutMove = logoutMove;
       const value = browser ? localStorage.getItem('token') : null;
       if (value) {
         set(value);
         localStorage.setItem('token', value);
         await update();
+      } else {
+        callbackLogoutMove();
       }
     },
   };
@@ -43,7 +50,13 @@ const update = async () => {
   if (!sessionRefreshTimer) {
     sessionRefreshTimer = setInterval(
       async () => {
-        await refreshSession();
+        const result = await refreshSession();
+        if (result.ok) {
+          sessionToken.set(result.data);
+        } else {
+          // セッション取得失敗のため、ログアウト
+          sessionToken.set(null);
+        }
       },
       30 * 60 * 1000
     ); // 30分
@@ -52,10 +65,10 @@ const update = async () => {
   // アカウント情報を更新
   const result = await getAccount();
   if (result.ok) {
-    const new_account = result.data as Account;
-    account.set(new_account);
+    account.set(result.data);
   } else {
-    sessionToken.set(null); // アカウント取得失敗のため、ログアウト
+    // アカウント取得失敗のため、ログアウト
+    sessionToken.set(null);
   }
 };
 
