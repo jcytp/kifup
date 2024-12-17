@@ -4,10 +4,12 @@
   import { BoardPosition } from '$lib/types/BoardPosition';
   import type { KifuMove } from '$lib/types/Kifu';
   import { PieceType, type PieceClickEvent } from '$lib/types/Piece';
+  import PositionEditor from '../PositionEditor.svelte';
   import Board from './Board.svelte';
   import MoveList from './MoveList.svelte';
   import PieceBox from './PieceBox.svelte';
   import PieceStand from './PieceStand.svelte';
+  import TurnIndicator from './TurnIndicator.svelte';
 
   // callbacks
   export let onChange: (position?: string, moves?: KifuMove[]) => void;
@@ -67,6 +69,13 @@
 
   $: viewBoxWidth = 4180 + (visibleMoveList ? 860 : 0) + (visiblePieceBox ? 860 : 0);
   const viewBoxHeight = 2640;
+
+  const handleToggleTurn = () => {
+    const newPosition = position.copy();
+    newPosition.isBlackTurn = !newPosition.isBlackTurn;
+    const newSfen = newPosition.toSfen(1); // 手数は1固定
+    onChange(newSfen, moveList);
+  };
 
   const handleRightClick = (event: PieceClickEvent) => {
     if (event.source.type !== 'board' || event.pieceType === PieceType.VACANCY) {
@@ -192,6 +201,7 @@
   };
   $: if (sfen) {
     pickedPiece = undefined;
+    console.debug(sfen);
   }
 </script>
 
@@ -229,6 +239,7 @@
       onPieceClick={handlePieceClick}
       {pickedPiece}
     />
+    <TurnIndicator x={3320} y={120} isBlackTurn={position.isBlackTurn} onClick={handleToggleTurn} />
     {#if visiblePieceBox}
       <PieceBox
         x={4180}
