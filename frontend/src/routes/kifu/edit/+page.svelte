@@ -15,7 +15,6 @@
 
   const fetchKifuData = async () => {
     isError = false;
-
     if (!kifuId) {
       console.error('No kifuId');
       isError = true;

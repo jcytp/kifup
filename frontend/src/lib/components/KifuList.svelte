@@ -3,7 +3,7 @@
 <script lang="ts">
   import type { PaginationResponse } from '$lib/types/API';
   import type { KifuSummary } from '$lib/types/Kifu';
-  import { formatDateTime } from '$lib/utils/dateFormat';
+  import { formatDateTime } from '$lib/utils/textFormat';
 
   // Callback functions
   export let changePage: (page: number) => Promise<void>;
