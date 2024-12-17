@@ -112,7 +112,7 @@ func NewBoardPosition(sfen *SFEN) (*BoardPosition, error) {
 				p = p | PIECE_PROMOTE
 				flgPromote = false
 			}
-			if c >= 'A' { // black piece
+			if c >= 'A' && c <= 'Z' { // black piece
 				bp.BlackBoard[i][x] = p
 				bp.WhiteBoard[i][x] = PIECE_VACANCY
 			} else { // white piece
@@ -147,7 +147,7 @@ func NewBoardPosition(sfen *SFEN) (*BoardPosition, error) {
 			if !ok || p == PIECE_PROMOTE {
 				return nil, fmt.Errorf("invalid piece '%c' in hands", c)
 			}
-			if c >= 'A' { // black piece
+			if c >= 'A' && c <= 'Z' { // black piece
 				if _, exists := bp.BlackHands[p]; exists {
 					return nil, fmt.Errorf("duplicate piece '%c' in black hands", c)
 				}
