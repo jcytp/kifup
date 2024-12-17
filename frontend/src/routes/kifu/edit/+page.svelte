@@ -46,13 +46,13 @@
       tags: kifu.tags,
     };
     initialTimeInput = kifu.game_info['持ち時間']
-      ? Math.floor(parseInt(kifu.game_info['持ち時間']) / 60)
+      ? Math.floor(parseInt(kifu.game_info['持ち時間'].replace('秒', '')) / 60)
       : 0;
     byoyomiTimeInput = kifu.game_info['秒読み']
-      ? Math.floor(parseInt(kifu.game_info['秒読み']) / 60)
+      ? Math.floor(parseInt(kifu.game_info['秒読み'].replace('秒', '')))
       : 0;
     incrementTimeInput = kifu.game_info['秒加算']
-      ? Math.floor(parseInt(kifu.game_info['秒加算']) / 60)
+      ? Math.floor(parseInt(kifu.game_info['秒加算'].replace('秒', '')))
       : 0;
     moves = kifu.moves;
   };
@@ -107,9 +107,9 @@
   // 棋譜情報の更新
   async function handleUpdateKifuInfo() {
     if (!kifuId) return;
-    formData.gameInfo['持ち時間'] = (initialTimeInput * 60).toString();
-    formData.gameInfo['秒読み'] = byoyomiTimeInput.toString();
-    formData.gameInfo['秒加算'] = incrementTimeInput.toString();
+    formData.gameInfo['持ち時間'] = (initialTimeInput * 60).toString() + '秒';
+    formData.gameInfo['秒読み'] = byoyomiTimeInput.toString() + '秒';
+    formData.gameInfo['秒加算'] = incrementTimeInput.toString() + '秒';
     const result = await updateKifuInfo(
       kifuId,
       formData.title,
