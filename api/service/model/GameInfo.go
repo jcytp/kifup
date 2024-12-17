@@ -54,7 +54,7 @@ func (gameInfo GameInfo) GetWhitePlayer() *string {
 
 func (gameInfo GameInfo) GetStartedAt() *time.Time {
 	if dateStr, ok := gameInfo["対局日時"]; ok && dateStr != "" {
-		t, err := time.Parse("2006-01-02 15:04", dateStr)
+		t, err := time.Parse("2006-01-02T15:04", dateStr)
 		if err != nil {
 			slog.Error("Invalid started_at format", "val", dateStr)
 			return nil
@@ -93,7 +93,7 @@ func (t *Kifu) buildSummaryGameInfo() GameInfo {
 		gameInfo["後手"] = *t.WhitePlayer
 	}
 	if t.StartedAt != nil {
-		gameInfo["対局日時"] = t.StartedAt.Format("2006-01-02 15:04")
+		gameInfo["対局日時"] = t.StartedAt.Format("2006-01-02T15:04")
 	}
 	return gameInfo
 }

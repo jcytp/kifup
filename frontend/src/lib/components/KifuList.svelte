@@ -3,6 +3,7 @@
 <script lang="ts">
   import type { PaginationResponse } from '$lib/types/API';
   import type { KifuSummary } from '$lib/types/Kifu';
+  import { formatDateTime } from '$lib/utils/textFormat';
 
   // Callback functions
   export let changePage: (page: number) => Promise<void>;
@@ -81,14 +82,17 @@
               </span>
             </div>
             <div class="kifu-info">
-              <span>対局日: {kifu.game_info.date}</span>
-              <span>先手: {kifu.game_info.black}</span>
-              <span>後手: {kifu.game_info.white}</span>
+              <span>対局日: {formatDateTime(kifu.game_info.対局日時) || '--'}</span>
+              <span>先手: {kifu.game_info.先手 || '--'}</span>
+              <span>後手: {kifu.game_info.後手 || '--'}</span>
             </div>
-            <div class="kifu-tags">
-              {#each kifu.tags as tag}
-                <span class="tag">{tag}</span>
-              {/each}
+            <div class="kifu-footer">
+              <span class="owner">{kifu.owner.name} [{formatDateTime(kifu.updated_at)}]</span>
+              <div class="kifu-tags">
+                {#each kifu.tags as tag}
+                  <span class="tag">{tag}</span>
+                {/each}
+              </div>
             </div>
           </button>
 
@@ -124,13 +128,16 @@
             <h3>{kifu.title}</h3>
           </div>
           <div class="kifu-info">
-            <span>対局日: {kifu.game_info.date}</span>
+            <span>対局日時: {formatDateTime(kifu.game_info.date)}</span>
             <span>対局者: {kifu.game_info.black} vs {kifu.game_info.white}</span>
           </div>
-          <div class="kifu-tags">
-            {#each kifu.tags as tag}
-              <span class="tag">{tag}</span>
-            {/each}
+          <div class="kifu-footer">
+            <span class="owner">{kifu.owner.name} [{formatDateTime(kifu.updated_at)}]</span>
+            <div class="kifu-tags">
+              {#each kifu.tags as tag}
+                <span class="tag">{tag}</span>
+              {/each}
+            </div>
           </div>
         </a>
       {/if}
@@ -224,18 +231,30 @@
         color: #666;
       }
 
-      .kifu-tags {
+      .kifu-footer {
         display: flex;
-        flex-wrap: wrap;
+        align-items: start;
         gap: 0.5rem;
-        justify-content: end;
 
-        .tag {
-          background-color: var(--secondary-color);
-          color: white;
-          padding: 0.2rem 0.4rem;
-          border-radius: 0.2rem;
-          font-size: 0.8rem;
+        .owner {
+          font-size: 0.9rem;
+          color: #666;
+        }
+
+        .kifu-tags {
+          flex: 1;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          justify-content: end;
+
+          .tag {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.2rem;
+            font-size: 0.8rem;
+          }
         }
       }
     }
