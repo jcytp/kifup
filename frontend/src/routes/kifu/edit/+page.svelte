@@ -10,12 +10,10 @@
 
   const kifuId = $page.url.searchParams.get('id'); // URLからkifuIDを取得
 
-  let preinit = true;
   let isError = false;
   let kifu: KifuDetail;
 
   const fetchKifuData = async () => {
-    preinit = false;
     isError = false;
 
     if (!kifuId) {
@@ -47,8 +45,8 @@
       },
       tags: kifu.tags,
     };
-    initialTimeInput = kifu.game_info['対局日時']
-      ? Math.floor(parseInt(kifu.game_info['対局日時']) / 60)
+    initialTimeInput = kifu.game_info['持ち時間']
+      ? Math.floor(parseInt(kifu.game_info['持ち時間']) / 60)
       : 0;
     byoyomiTimeInput = kifu.game_info['秒読み']
       ? Math.floor(parseInt(kifu.game_info['秒読み']) / 60)
@@ -138,7 +136,9 @@
   };
 
   // ----------------------------------------
+  let preinit = true;
   $: if ($account && preinit) {
+    preinit = false;
     fetchKifuData();
   }
 </script>

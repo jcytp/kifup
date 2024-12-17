@@ -1,7 +1,6 @@
 <!-- src/routes/home/+page.svelte -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
   import type { KifuSummary } from '$lib/types/Kifu';
   import KifuList from '$lib/components/KifuList.svelte';
   import { deleteKifu, searchKifus, updateKifuInfo } from '$lib/apis/kifu';
@@ -114,7 +113,9 @@
   // ----------------------------------------
   // 初回データロード
 
-  $: if (account) {
+  let preinit = true;
+  $: if ($account && preinit) {
+    preinit = false;
     fetchNotificationList();
     fetchKifuList();
   }
