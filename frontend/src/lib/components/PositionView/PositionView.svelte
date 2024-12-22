@@ -4,7 +4,6 @@
   import { BoardPosition } from '$lib/types/BoardPosition';
   import type { KifuMove } from '$lib/types/Kifu';
   import { PieceType, type PieceClickEvent } from '$lib/types/Piece';
-  import PositionEditor from '../PositionEditor.svelte';
   import Board from './Board.svelte';
   import MoveList from './MoveList.svelte';
   import PieceBox from './PieceBox.svelte';

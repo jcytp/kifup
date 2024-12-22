@@ -81,6 +81,30 @@ export const PieceOrderForSFEN = [
 // ------------------------------------------------------------
 export const PIECE_PLACE_IN_HAND = 0xff;
 
+const PiecePlaceFileChars = ['１', '２', '３', '４', '５', '６', '７', '８', '９'];
+const PiecePlaceRankChars = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+
+export const fileNum = (place: number): number => {
+  return 9 - (place & 0x0f);
+};
+export const rankNum = (place: number): number => {
+  return ((place & 0xf0) >> 4) + 1;
+};
+export const fileChar = (place: number): string => {
+  const n = fileNum(place);
+  if (n > 0 && n <= 9) {
+    return PiecePlaceFileChars[n - 1];
+  }
+  return '';
+};
+export const rankChar = (place: number): string => {
+  const n = rankNum(place);
+  if (n > 0 && n <= 9) {
+    return PiecePlaceRankChars[n - 1];
+  }
+  return '';
+};
+
 // ------------------------------------------------------------
 export type PieceClickEvent = {
   pieceType: PieceType;

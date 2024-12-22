@@ -30,8 +30,8 @@
 <div class="position-editor">
   <BoardPositionView mode="position" sfen={boardPosition} onChange={handleChange} />
   <div class="controls">
-    <button on:click={reset}>平手初形</button>
-    <button on:click={allRemove}>全て駒箱</button>
+    <button onclick={reset}>平手初形</button>
+    <button onclick={allRemove}>全て駒箱</button>
   </div>
 </div>
 
@@ -42,7 +42,7 @@
 
     button {
       width: 10rem;
-      padding: 0.5rem 1rem;
+      padding: 0.3rem 0.5rem;
       background-color: var(--primary-color);
       color: white;
       border: none;

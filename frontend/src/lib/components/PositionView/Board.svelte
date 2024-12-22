@@ -2,7 +2,6 @@
 
 <script lang="ts">
   import { PieceType, type PieceClickEvent } from '$lib/types/Piece';
-  import { preventDefault } from 'svelte/legacy';
   import Piece from './Piece.svelte';
 
   export let blackBoard: PieceType[][];
