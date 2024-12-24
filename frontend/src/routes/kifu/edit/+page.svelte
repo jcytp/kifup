@@ -1,9 +1,11 @@
+<!-- src/routes/kifu/edit/+page.svelte -->
+
 <script lang="ts">
   import { page } from '$app/stores';
   import type { KifuDetail, KifuMove } from '$lib/types/Kifu';
-  import KifuPlayer from '$lib/components/KifuPlayer.svelte';
   import { getKifu, updateKifuInfo } from '$lib/apis/kifu';
   import { account } from '$lib/stores/session';
+  import MovesEditor from '$lib/components/MovesEditor.svelte';
 
   // ----------------------------------------
   // 棋譜データの状態管理
@@ -129,6 +131,10 @@
 
   let moves: KifuMove[] = [];
 
+  const handleChangeMove = (newMoves: KifuMove[]) => {
+    moves = newMoves;
+  };
+
   const updateKifuMoves = async () => {
     // ToDo:
     console.debug('update kifu moves');
@@ -236,7 +242,11 @@
         <button type="submit" class="submit">棋譜情報を更新</button>
       </form>
 
-      <KifuPlayer {kifu} />
+      <MovesEditor
+        onChange={handleChangeMove}
+        initialSfen={kifu.initial_position}
+        moveList={moves}
+      />
       <button onclick={updateKifuMoves} class="submit">棋譜の指し手を更新</button>
     {/if}
   </section>

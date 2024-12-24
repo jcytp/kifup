@@ -79,7 +79,49 @@ export const PieceOrderForSFEN = [
 ];
 
 // ------------------------------------------------------------
-export const PIECE_PLACE_IN_HAND = 0xff;
+export class PiecePlace {
+  static IN_HAND = 0xff;
+  static FILE_CHARS = ['１', '２', '３', '４', '５', '６', '７', '８', '９'];
+  static RANK_CHARS = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  val: number;
+
+  constructor(val?: number) {
+    this.val = val === undefined ? PiecePlace.IN_HAND : val;
+  }
+  setRowCol(row: number, col: number): void {
+    this.val = (row << 4) | col;
+  }
+
+  row(): number {
+    return (this.val & 0xf0) >> 4;
+  }
+  col(): number {
+    return this.val & 0x0f;
+  }
+  fileNum(): number {
+    return 9 - this.col();
+  }
+  rankNum(): number {
+    return this.row() + 1;
+  }
+  fileChar(): string {
+    const n = this.fileNum();
+    if (n > 0 && n <= 9) {
+      return PiecePlace.FILE_CHARS[n - 1];
+    }
+    return '';
+  }
+  rankChar(): string {
+    const n = this.rankNum();
+    if (n > 0 && n <= 9) {
+      return PiecePlace.RANK_CHARS[n - 1];
+    }
+    return '';
+  }
+  isInHand(): boolean {
+    return this.val === PiecePlace.IN_HAND;
+  }
+}
 
 // ------------------------------------------------------------
 export type PieceClickEvent = {

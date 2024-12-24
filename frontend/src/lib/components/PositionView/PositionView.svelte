@@ -1,10 +1,11 @@
 <!-- src/lib/components/PositionView/PositionView.svelte -->
 
+<!-- 棋譜作成時の局面編集、棋譜更新での指し手の編集、棋譜詳細での棋譜再生、各ページで共通 -->
+
 <script lang="ts">
   import { BoardPosition } from '$lib/types/BoardPosition';
   import type { KifuMove } from '$lib/types/Kifu';
-  import { PieceType, type PieceClickEvent } from '$lib/types/Piece';
-  import PositionEditor from '../PositionEditor.svelte';
+  import { PiecePlace, PieceType, type PieceClickEvent } from '$lib/types/Piece';
   import Board from './Board.svelte';
   import MoveList from './MoveList.svelte';
   import PieceBox from './PieceBox.svelte';
@@ -12,13 +13,25 @@
   import TurnIndicator from './TurnIndicator.svelte';
 
   // callbacks
-  export let onChange: (position?: string, moves?: KifuMove[]) => void;
+  export let onToggleTurn: () => void = () => {};
+  export let onRotatePiece: (row: number, col: number, isBlack: boolean) => void = (
+    row,
+    col,
+    isBlack
+  ) => {};
+  export let onMovePiece: (moving: PieceClickEvent, target: PieceClickEvent) => void = (
+    moving,
+    target
+  ) => {};
+  export let onAppendMove: (num: number, move: KifuMove) => void = (num, move) => {};
+  export let onPromote: (promote: boolean) => void = (promote) => {};
 
   // parameters
   export let mode: 'position' | 'moves' = 'position';
-  export let sfen: string | undefined;
+  export let isBlackFirst: boolean | undefined = undefined;
   export let moveList: KifuMove[] = [];
-  export let moveNumber: number = 0;
+  export let moveNumber: number = 0; // 現在の手数
+  export let sfen: string | undefined; // 現在の局面
   $: visibleMoveList = mode === 'moves';
   $: visiblePieceBox = mode === 'position';
   $: position = new BoardPosition(sfen);
@@ -71,134 +84,89 @@
   const viewBoxHeight = 2640;
 
   const handleToggleTurn = () => {
-    const newPosition = position.copy();
-    newPosition.isBlackTurn = !newPosition.isBlackTurn;
-    const newSfen = newPosition.toSfen(1); // 手数は1固定
-    onChange(newSfen, moveList);
+    if (mode === 'position') {
+      onToggleTurn();
+    }
   };
 
   const handleRightClick = (event: PieceClickEvent) => {
-    if (event.source.type !== 'board' || event.pieceType === PieceType.VACANCY) {
-      return;
-    }
-
-    const i = event.source.row;
-    const j = event.source.col;
-    const newPosition = position.copy();
-    if (event.source.isBlack) {
-      const piece = newPosition.blackBoard[i][j];
-      if (piece & PieceType.PROMOTE || piece === PieceType.KI || piece === PieceType.OU) {
-        // 先手の成駒or金or王 -> 後手の表駒
-        newPosition.whiteBoard[i][j] = piece & ~PieceType.PROMOTE;
-        newPosition.blackBoard[i][j] = PieceType.VACANCY;
-      } else {
-        // 先手の表駒 -> 先手の成駒
-        newPosition.blackBoard[i][j] = piece | PieceType.PROMOTE;
+    if (mode === 'position') {
+      if (event.source.type !== 'board' || event.pieceType === PieceType.VACANCY) {
+        return;
       }
-    } else {
-      const piece = newPosition.whiteBoard[i][j];
-      if (piece & PieceType.PROMOTE || piece === PieceType.KI || piece === PieceType.OU) {
-        // 後手の成駒or金or王 -> 先手の表駒
-        newPosition.blackBoard[i][j] = piece & ~PieceType.PROMOTE;
-        newPosition.whiteBoard[i][j] = PieceType.VACANCY;
-      } else {
-        // 後手の表駒 -> 後手の成駒
-        newPosition.whiteBoard[i][j] = piece | PieceType.PROMOTE;
-      }
+      const row = event.source.row;
+      const col = event.source.col;
+      const isBlack = event.source.isBlack || false;
+      onRotatePiece(row, col, isBlack);
     }
-
-    // 新しいSFENを生成してコールバックを実行
-    const newSfen = newPosition.toSfen(1); // 手数は1固定
-    onChange(newSfen, moveList);
   };
 
   let pickedPiece: PieceClickEvent | undefined;
   const handlePieceClick = (newPickedPiece: PieceClickEvent) => {
     if (pickedPiece === undefined) {
-      // 駒を持ちあげる
       if (newPickedPiece.pieceType !== PieceType.VACANCY) {
+        if (mode === 'moves') {
+          // movesモードでは、自分の駒以外は持ちあげられない
+          if (
+            newPickedPiece.source.type === 'box' ||
+            newPickedPiece.source.isBlack != position.isBlackTurn
+          ) {
+            return;
+          }
+        }
+
+        // 駒を持ちあげる
         pickedPiece = newPickedPiece;
       }
     } else {
-      // 駒を移動させる
       const moving = pickedPiece; // 移動中の情報
       const target = newPickedPiece; // 移動先の情報
-      pickedPiece = undefined;
+      pickedPiece = undefined; // 駒の持ちあげをリセット
 
-      // 移動元の移動先が同じならキャンセル
+      // 移動元と移動先が同じなら何もしない
       if (moving.source.type === 'board' && target.source.type === 'board') {
         if (moving.source.row === target.source.row && moving.source.col === target.source.col) {
           return;
         }
       }
-
-      const newPosition = position.copy();
-
-      // 移動先に駒がある場合、持ち駒へ
-      if (target.source.type === 'board') {
-        if (target.pieceType !== PieceType.VACANCY) {
-          const originalType = target.pieceType & ~PieceType.PROMOTE;
-          if (originalType === PieceType.OU) {
-            // targetが玉の場合は、targetは駒箱へ
-            const num = newPosition.pieceBox.get(originalType) ?? 0;
-            newPosition.pieceBox.set(originalType, num + 1);
-          } else if (moving.source.type === 'box' || moving.source.isBlack) {
-            // 移動中の駒が、駒箱からor先手の場合、targetは先手の持ち駒へ
-            const num = newPosition.blackHands.get(originalType) ?? 0;
-            newPosition.blackHands.set(originalType, num + 1);
-          } else {
-            // 移動中の駒が後手の場合、targetは後手の持ち駒へ
-            const num = newPosition.whiteHands.get(originalType) ?? 0;
-            newPosition.whiteHands.set(originalType, num + 1);
-          }
+      if (moving.source.type === 'stand' && target.source.type === 'stand') {
+        if (moving.source.isBlack === target.source.isBlack) {
+          return;
         }
       }
-
-      // 移動先に駒を配置
-      if (target.source.type === 'board') {
-        if (moving.source.type === 'box' || moving.source.isBlack) {
-          newPosition.blackBoard[target.source.row][target.source.col] = moving.pieceType;
-          newPosition.whiteBoard[target.source.row][target.source.col] = PieceType.VACANCY;
-        } else {
-          newPosition.blackBoard[target.source.row][target.source.col] = PieceType.VACANCY;
-          newPosition.whiteBoard[target.source.row][target.source.col] = moving.pieceType;
-        }
-      } else if (target.source.type === 'stand' || target.source.type === 'box') {
-        const targetContainer =
-          target.source.type === 'stand'
-            ? target.source.isBlack
-              ? newPosition.blackHands
-              : newPosition.whiteHands
-            : newPosition.pieceBox;
-        const originalType = moving.pieceType & ~PieceType.PROMOTE;
-        const num = targetContainer.get(originalType) ?? 0;
-        targetContainer.set(originalType, num + 1);
+      if (moving.source.type === 'box' && target.source.type === 'box') {
+        return;
       }
 
-      // 移動元の駒を削除
-      if (moving.source.type === 'board') {
-        newPosition.blackBoard[moving.source.row][moving.source.col] = PieceType.VACANCY;
-        newPosition.whiteBoard[moving.source.row][moving.source.col] = PieceType.VACANCY;
-      } else if (moving.source.type === 'stand' || moving.source.type === 'box') {
-        const list =
-          moving.source.type === 'stand'
-            ? moving.source.isBlack
-              ? newPosition.blackHands
-              : newPosition.whiteHands
-            : newPosition.pieceBox;
-        const num = list.get(moving.pieceType) || 0;
-        if (num > 1) {
-          list.set(moving.pieceType, num - 1);
-        } else {
-          list.delete(moving.pieceType);
-        }
+      // 駒を移動させる
+      if (mode === 'position') {
+        onMovePiece(moving, target);
+      } else if (mode === 'moves' && isLegalMove(moving, target)) {
+        const move: KifuMove = {
+          number: moveNumber + 1,
+          piece: moving.pieceType,
+          from_place: getPlaceOfEvent(moving),
+          to_place: getPlaceOfEvent(target),
+          catch_piece: target.pieceType == PieceType.VACANCY ? undefined : target.pieceType,
+        };
+        onAppendMove(moveNumber + 1, move);
       }
-
-      // 新しいSFENを生成してコールバックを実行
-      const newSfen = newPosition.toSfen(1); // 手数は1固定
-      onChange(newSfen, moveList);
     }
   };
+
+  const isLegalMove = (moving: PieceClickEvent, target: PieceClickEvent): boolean => {
+    // ToDo: 駒の動きの合法性を確認する
+    return true;
+  };
+
+  const getPlaceOfEvent = (event: PieceClickEvent): number => {
+    const place = new PiecePlace();
+    if (event.source.type === 'board') {
+      place.setRowCol(event.source.row, event.source.col);
+    }
+    return place.val;
+  };
+
   $: if (sfen) {
     pickedPiece = undefined;
     console.debug(sfen);
@@ -209,7 +177,7 @@
   <rect width="100%" height="100%" fill="#fff" />
 
   {#if visibleMoveList}
-    <MoveList x={60} y={120} {moveList} {moveNumber} />
+    <MoveList x={60} y={120} {isBlackFirst} {moveList} {moveNumber} />
   {/if}
   <g transform={`translate(${visibleMoveList ? 860 : 0}, 0)`}>
     <PieceStand
