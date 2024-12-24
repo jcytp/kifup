@@ -79,31 +79,49 @@ export const PieceOrderForSFEN = [
 ];
 
 // ------------------------------------------------------------
-export const PIECE_PLACE_IN_HAND = 0xff;
+export class PiecePlace {
+  static IN_HAND = 0xff;
+  static FILE_CHARS = ['１', '２', '３', '４', '５', '６', '７', '８', '９'];
+  static RANK_CHARS = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  val: number;
 
-const PiecePlaceFileChars = ['１', '２', '３', '４', '５', '６', '７', '８', '９'];
-const PiecePlaceRankChars = ['一', '二', '三', '四', '五', '六', '七', '八', '九'];
+  constructor(val?: number) {
+    this.val = val === undefined ? PiecePlace.IN_HAND : val;
+  }
+  setRowCol(row: number, col: number): void {
+    this.val = (row << 4) | col;
+  }
 
-export const fileNum = (place: number): number => {
-  return 9 - (place & 0x0f);
-};
-export const rankNum = (place: number): number => {
-  return ((place & 0xf0) >> 4) + 1;
-};
-export const fileChar = (place: number): string => {
-  const n = fileNum(place);
-  if (n > 0 && n <= 9) {
-    return PiecePlaceFileChars[n - 1];
+  row(): number {
+    return (this.val & 0xf0) >> 4;
   }
-  return '';
-};
-export const rankChar = (place: number): string => {
-  const n = rankNum(place);
-  if (n > 0 && n <= 9) {
-    return PiecePlaceRankChars[n - 1];
+  col(): number {
+    return this.val & 0x0f;
   }
-  return '';
-};
+  fileNum(): number {
+    return 9 - this.col();
+  }
+  rankNum(): number {
+    return this.row() + 1;
+  }
+  fileChar(): string {
+    const n = this.fileNum();
+    if (n > 0 && n <= 9) {
+      return PiecePlace.FILE_CHARS[n - 1];
+    }
+    return '';
+  }
+  rankChar(): string {
+    const n = this.rankNum();
+    if (n > 0 && n <= 9) {
+      return PiecePlace.RANK_CHARS[n - 1];
+    }
+    return '';
+  }
+  isInHand(): boolean {
+    return this.val === PiecePlace.IN_HAND;
+  }
+}
 
 // ------------------------------------------------------------
 export type PieceClickEvent = {

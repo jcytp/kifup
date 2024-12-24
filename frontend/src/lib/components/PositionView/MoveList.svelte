@@ -2,15 +2,9 @@
 
 <script lang="ts">
   import type { KifuMove } from '$lib/types/Kifu';
-  import {
-    fileChar,
-    fileNum,
-    PIECE_PLACE_IN_HAND,
-    PieceChar,
-    rankChar,
-    rankNum,
-  } from '$lib/types/Piece';
+  import { PiecePlace, PieceChar } from '$lib/types/Piece';
 
+  export let isBlackFirst: boolean = true; //ToDo: set in upper component
   export let moveList: KifuMove[];
   export let moveNumber: number;
   export let x: number;
@@ -18,26 +12,20 @@
   const w = 800;
   const h = 2400;
 
-  $: if (moveList) {
-    console.debug(moveList);
-  }
   const testMoveList: KifuMove[] = [
     { number: 1, piece: 0x0, from_place: 0x67, to_place: 0x57 },
     { number: 2, piece: 0x0, from_place: 0x21, to_place: 0x31 },
   ];
 
-  const formatMove = (move: KifuMove): string => {
+  const formatMove = (move: KifuMove, num: number): string => {
+    const turnMark = (isBlackFirst && num % 2 == 1) || (!isBlackFirst && num % 2 == 0) ? '▲' : '△';
+    const toPlace = new PiecePlace(move.to_place);
+    const toText = `${toPlace.fileChar()}${toPlace.rankChar()}`;
     const pieceChar = PieceChar.get(move.promote ? move.piece & ~0x8 : move.piece);
-    const toFileChar = fileChar(move.to_place);
-    const toRankChar = rankChar(move.to_place);
     const promoteText = move.promote ? '成' : move.promote === false ? '不成' : ''; // 3 variations: true, false, undefined
-    const fromText = ((place: number): string => {
-      if (place === PIECE_PLACE_IN_HAND) return '打';
-      const fromFile = fileNum(place);
-      const fromRank = rankNum(place);
-      return `(${fromFile}${fromRank})`;
-    })(move.from_place);
-    return `${toFileChar}${toRankChar}${pieceChar}${promoteText}${fromText}`;
+    const fromPlace = new PiecePlace(move.from_place);
+    const fromText = fromPlace.isInHand() ? '打' : `(${fromPlace.fileNum()}${fromPlace.rankNum()})`;
+    return `${turnMark}${toText}${pieceChar}${promoteText}${fromText}`;
   };
 </script>
 
@@ -48,10 +36,10 @@
       <span class="move-number">0</span>
       <span class="move-text">開始局面</span>
     </div>
-    {#each testMoveList as move, i}
+    {#each moveList as move, i}
       <div class="move-item" class:current={i + 1 === moveNumber}>
         <span class="move-number">{i + 1}</span>
-        <span class="move-text">{formatMove(move)}</span>
+        <span class="move-text">{formatMove(move, i + 1)}</span>
       </div>
     {/each}
   </div>
@@ -81,10 +69,6 @@
         width: 140px;
         text-align: right;
         color: #666;
-      }
-
-      .move-text {
-        font-weight: bold;
       }
     }
   }

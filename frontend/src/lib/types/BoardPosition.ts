@@ -1,6 +1,13 @@
 // src/lib/types/BoardPosition.ts
 
-import { PieceCharOfSFEN, PieceOrderForSFEN, PieceType, PieceTypeOfSFEN } from './Piece';
+import type { KifuMove } from './Kifu';
+import {
+  PieceCharOfSFEN,
+  PieceOrderForSFEN,
+  PiecePlace,
+  PieceType,
+  PieceTypeOfSFEN,
+} from './Piece';
 
 const SFEN_HIRATE = 'lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1';
 
@@ -253,5 +260,62 @@ export class BoardPosition {
     parts.push(moveCount.toString());
 
     return parts.join(' ');
+  }
+
+  next(move: KifuMove): void {
+    const toPlace = new PiecePlace(move.to_place);
+    const toRow = toPlace.row();
+    const toCol = toPlace.col();
+    const fromPlace = new PiecePlace(move.from_place);
+
+    // 移動先に駒がある場合、持ち駒へ追加
+    const target = this.isBlackTurn ? this.whiteBoard[toRow][toCol] : this.blackBoard[toRow][toCol];
+    if (target !== PieceType.VACANCY) {
+      if (target === PieceType.OU) {
+        const num = this.pieceBox.get(target) ?? 0;
+        this.pieceBox.set(target, num + 1);
+      } else {
+        const original = target & ~PieceType.PROMOTE;
+        if (this.isBlackTurn) {
+          const num = this.blackHands.get(original) ?? 0;
+          this.blackHands.set(original, num + 1);
+        } else {
+          const num = this.whiteHands.get(original) ?? 0;
+          this.whiteHands.set(original, num + 1);
+        }
+      }
+    }
+
+    // 移動先に駒を配置
+    const piece = move.piece | (move.promote ? PieceType.PROMOTE : 0);
+    if (this.isBlackTurn) {
+      this.blackBoard[toRow][toCol] = piece;
+      this.whiteBoard[toRow][toCol] = PieceType.VACANCY;
+    } else {
+      this.whiteBoard[toRow][toCol] = piece;
+      this.blackBoard[toRow][toCol] = PieceType.VACANCY;
+    }
+
+    // 移動元の駒を削除
+    if (fromPlace.isInHand()) {
+      if (this.isBlackTurn) {
+        const num = this.blackHands.get(piece) || 0;
+        this.blackHands.set(piece, num - 1);
+      } else {
+        const num = this.whiteHands.get(piece) || 0;
+        this.whiteHands.set(piece, num - 1);
+      }
+    } else {
+      const fromRow = fromPlace.row();
+      const fromCol = fromPlace.col();
+      if (this.isBlackTurn) {
+        this.blackBoard[fromRow][fromCol] = PieceType.VACANCY;
+      } else {
+        this.whiteBoard[fromRow][fromCol] = PieceType.VACANCY;
+      }
+    }
+
+    // 手番を更新
+    this.isBlackTurn = !this.isBlackTurn;
   }
 }

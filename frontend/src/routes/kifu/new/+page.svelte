@@ -55,15 +55,16 @@
     }
   }
 
-  let currentPosition: string | undefined;
+  // 初期局面の管理
+  let sfen: string | undefined = undefined;
 
-  function handlePositionChange(position?: string) {
-    currentPosition = position;
+  function handlePositionChange(newSfen?: string) {
+    sfen = newSfen;
   }
 
   // 初期局面から作成
   async function createFromPosition() {
-    const result = await createKifu('position', undefined, currentPosition);
+    const result = await createKifu('position', undefined, sfen);
     if (result.ok && result.data) {
       const kifuID = result.data;
       goto(`/kifu/edit/?id=${kifuID}`); // 編集画面へ遷移

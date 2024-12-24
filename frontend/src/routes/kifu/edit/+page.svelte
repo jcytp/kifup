@@ -131,7 +131,9 @@
 
   let moves: KifuMove[] = [];
 
-  const handleChangeMove = (moves: KifuMove[]) => {};
+  const handleChangeMove = (newMoves: KifuMove[]) => {
+    moves = newMoves;
+  };
 
   const updateKifuMoves = async () => {
     // ToDo:
@@ -242,8 +244,8 @@
 
       <MovesEditor
         onChange={handleChangeMove}
-        initial={kifu.initial_position}
-        moveList={kifu.moves}
+        initialSfen={kifu.initial_position}
+        moveList={moves}
       />
       <button onclick={updateKifuMoves} class="submit">棋譜の指し手を更新</button>
     {/if}
