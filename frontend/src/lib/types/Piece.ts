@@ -141,3 +141,68 @@ export type PieceClickEvent = {
         type: 'box';
       };
 };
+
+// ------------------------------------------------------------
+const straightY = Array.from({ length: 8 }, (_, i) => ({ x: 0, y: -(i + 1) }));
+const straightYR = Array.from({ length: 8 }, (_, i) => ({ x: 0, y: i + 1 }));
+const straightX = Array.from({ length: 8 }, (_, i) => ({ x: i + 1, y: 0 }));
+const straightXR = Array.from({ length: 8 }, (_, i) => ({ x: -(i + 1), y: 0 }));
+const straightXY = Array.from({ length: 8 }, (_, i) => ({ x: i + 1, y: -(i + 1) }));
+const straightXYR = Array.from({ length: 8 }, (_, i) => ({ x: i + 1, y: i + 1 }));
+const straightXRY = Array.from({ length: 8 }, (_, i) => ({ x: -(i + 1), y: -(i + 1) }));
+const straightXRYR = Array.from({ length: 8 }, (_, i) => ({ x: -(i + 1), y: i + 1 }));
+const movablesFU = [{ x: 0, y: -1 }];
+const movablesKY = straightY;
+const movablesKE = [
+  { x: -1, y: -2 },
+  { x: 1, y: -2 },
+];
+const movablesGI = [
+  { x: 1, y: -1 },
+  { x: 0, y: -1 },
+  { x: -1, y: -1 },
+  { x: 1, y: 1 },
+  { x: -1, y: 1 },
+];
+const movablesKI = [
+  { x: 1, y: -1 },
+  { x: 0, y: -1 },
+  { x: -1, y: -1 },
+  { x: 1, y: 0 },
+  { x: -1, y: 0 },
+  { x: 0, y: 1 },
+];
+const movablesKA = [...straightXY, ...straightXYR, ...straightXRY, ...straightXRYR];
+const movablesHI = [...straightX, ...straightXR, ...straightY, ...straightYR];
+const movablesUM = [
+  ...movablesKA,
+  { x: 1, y: 0 },
+  { x: -1, y: 0 },
+  { x: 0, y: 1 },
+  { x: 0, y: -1 },
+];
+const movablesRY = [
+  ...movablesHI,
+  { x: 1, y: -1 },
+  { x: -1, y: -1 },
+  { x: 1, y: 1 },
+  { x: -1, y: 1 },
+];
+const movablesOU = [...movablesKI, { x: 1, y: 1 }, { x: -1, y: 1 }];
+
+export const PieceMovables: Map<PieceType, { x: number; y: number; blockable?: boolean }[]> =
+  new Map([
+    [PieceType.FU, movablesFU],
+    [PieceType.KY, movablesKY],
+    [PieceType.KE, movablesKE],
+    [PieceType.GI, movablesGI],
+    [PieceType.KI, movablesKI],
+    [PieceType.KA, movablesKA],
+    [PieceType.HI, movablesHI],
+    [PieceType.OU, movablesOU],
+    [PieceType.TO, movablesKI],
+    [PieceType.NY, movablesKI],
+    [PieceType.NG, movablesKI],
+    [PieceType.UM, movablesUM],
+    [PieceType.RY, movablesRY],
+  ]);
