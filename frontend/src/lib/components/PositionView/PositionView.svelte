@@ -5,7 +5,7 @@
 <script lang="ts">
   import { BoardPosition } from '$lib/types/BoardPosition';
   import type { KifuMove } from '$lib/types/Kifu';
-  import { PiecePlace, PieceType, type PieceClickEvent } from '$lib/types/Piece';
+  import { PieceMovables, PiecePlace, PieceType, type PieceClickEvent } from '$lib/types/Piece';
   import Board from './Board.svelte';
   import MoveList from './MoveList.svelte';
   import PieceBox from './PieceBox.svelte';
@@ -154,8 +154,64 @@
     }
   };
 
+  // 駒の動きの合法性を確認する
   const isLegalMove = (moving: PieceClickEvent, target: PieceClickEvent): boolean => {
-    // ToDo: 駒の動きの合法性を確認する
+    // 駒台or盤上から盤上へのみが許可される
+    if (moving.source.type === 'box' || target.source.type !== 'board') {
+      return false;
+    }
+    // 行き先に自分の駒があってはいけない
+    if (target.source.isBlack === position.isBlackTurn) {
+      return false;
+    }
+
+    if (moving.source.type === 'stand') {
+      // 駒を打つときは、targetに駒があってはいけない
+      if (target.pieceType !== PieceType.VACANCY) {
+        return false;
+      }
+    } else {
+      // 盤上の移動では、from-toの位置関係が合法か
+      let isRegalLocation = false;
+      const x = target.source.col - moving.source.col;
+      const y = target.source.row - moving.source.row;
+      const probables = PieceMovables.get(moving.pieceType) || [];
+      for (const probable of probables) {
+        if (probable.x === x && (position.isBlackTurn ? probable.y : -probable.y) === y) {
+          isRegalLocation = true;
+          break;
+        }
+      }
+      if (!isRegalLocation) {
+        return false;
+      }
+
+      // 間に駒があってはいけない
+      if ((moving.pieceType !== PieceType.KE && (x > 1 || x < -1)) || y > 1 || y < -1) {
+        const dx = x === 0 ? 0 : x > 0 ? 1 : -1;
+        const dy = y === 0 ? 0 : y > 0 ? 1 : -1;
+        let mx = moving.source.col + dx;
+        let my = moving.source.row + dy;
+        for (let i = 0; i < 8; i++) {
+          if (mx < 0 || mx > 8 || my < 0 || my > 8) {
+            break;
+          }
+          if (mx === target.source.col && my === target.source.row) {
+            break;
+          }
+          console.debug(`my=${my}, mx=${mx}`);
+          if (
+            position.blackBoard[my][mx] !== PieceType.VACANCY ||
+            position.whiteBoard[my][mx] !== PieceType.VACANCY
+          ) {
+            return false;
+          }
+          mx += dx;
+          my += dy;
+        }
+      }
+    }
+
     return true;
   };
 
