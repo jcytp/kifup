@@ -48,7 +48,7 @@ func InsertKifuMoves(moves []*model.KifuMove) error {
 			branch_id, number, piece,
 			from_place, to_place,
 			comment, time_spent_ms
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+		) VALUES (?, ?, ?, ?, ?, ?, ?)
 	`
 	for _, move := range moves {
 		_, err := db.Exec(

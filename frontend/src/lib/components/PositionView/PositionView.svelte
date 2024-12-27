@@ -10,6 +10,7 @@
   import MoveList from './MoveList.svelte';
   import PieceBox from './PieceBox.svelte';
   import PieceStand from './PieceStand.svelte';
+  import PromoteIndicator from './PromoteIndicator.svelte';
   import TurnIndicator from './TurnIndicator.svelte';
 
   // callbacks
@@ -35,6 +36,7 @@
   $: visibleMoveList = mode === 'moves';
   $: visiblePieceBox = mode === 'position';
   $: position = new BoardPosition(sfen);
+  let promoteChoice: PieceType = PieceType.VACANCY;
 
   // $: sizeSet = {
   //   borderThin: 5,
@@ -106,6 +108,10 @@
     if (pickedPiece === undefined) {
       if (newPickedPiece.pieceType !== PieceType.VACANCY) {
         if (mode === 'moves') {
+          if (promoteChoice != PieceType.VACANCY) {
+            return;
+          }
+
           // movesモードでは、自分の駒以外は持ちあげられない
           if (
             newPickedPiece.source.type === 'box' ||
@@ -142,6 +148,9 @@
       if (mode === 'position') {
         onMovePiece(moving, target);
       } else if (mode === 'moves' && isLegalMove(moving, target)) {
+        if (isPossibleToPromote(moving, target)) {
+          promoteChoice = moving.pieceType;
+        }
         const move: KifuMove = {
           number: moveNumber + 1,
           piece: moving.pieceType,
@@ -154,8 +163,14 @@
     }
   };
 
+  const handleSelectPoromote = (promote: boolean) => {
+    promoteChoice = PieceType.VACANCY;
+    onPromote(promote);
+  };
+
   // 駒の動きの合法性を確認する
   const isLegalMove = (moving: PieceClickEvent, target: PieceClickEvent): boolean => {
+    console.debug('isLegalMove');
     // 駒台or盤上から盤上へのみが許可される
     if (moving.source.type === 'box' || target.source.type !== 'board') {
       return false;
@@ -187,7 +202,7 @@
       }
 
       // 間に駒があってはいけない
-      if ((moving.pieceType !== PieceType.KE && (x > 1 || x < -1)) || y > 1 || y < -1) {
+      if (moving.pieceType !== PieceType.KE && (x > 1 || x < -1 || y > 1 || y < -1)) {
         const dx = x === 0 ? 0 : x > 0 ? 1 : -1;
         const dy = y === 0 ? 0 : y > 0 ? 1 : -1;
         let mx = moving.source.col + dx;
@@ -199,7 +214,6 @@
           if (mx === target.source.col && my === target.source.row) {
             break;
           }
-          console.debug(`my=${my}, mx=${mx}`);
           if (
             position.blackBoard[my][mx] !== PieceType.VACANCY ||
             position.whiteBoard[my][mx] !== PieceType.VACANCY
@@ -212,7 +226,27 @@
       }
     }
 
+    console.debug('isLegalMove: legal');
     return true;
+  };
+
+  const isPossibleToPromote = (moving: PieceClickEvent, target: PieceClickEvent): boolean => {
+    if (moving.source.type !== 'board' || target.source.type !== 'board') {
+      return false;
+    }
+
+    const piece = moving.pieceType;
+    if (piece & PieceType.PROMOTE || piece == PieceType.KI || piece == PieceType.OU) {
+      return false;
+    }
+
+    if (position.isBlackTurn && (moving.source.row < 3 || target.source.row < 3)) {
+      return true;
+    }
+    if (!position.isBlackTurn && (moving.source.row > 5 || target.source.row > 5)) {
+      return true;
+    }
+    return false;
   };
 
   const getPlaceOfEvent = (event: PieceClickEvent): number => {
@@ -272,6 +306,14 @@
         onAreaClick={handlePieceClick}
         onPieceClick={handlePieceClick}
         {pickedPiece}
+      />
+    {/if}
+    {#if promoteChoice !== PieceType.VACANCY}
+      <PromoteIndicator
+        x={1640}
+        y={1010}
+        pieceType={promoteChoice}
+        onSelect={handleSelectPoromote}
       />
     {/if}
   </g>

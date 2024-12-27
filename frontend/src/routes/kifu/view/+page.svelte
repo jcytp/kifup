@@ -5,7 +5,6 @@
   import type { KifuDetail } from '$lib/types/Kifu';
   import { page } from '$app/stores';
   import KifuPlayer from '$lib/components/KifuPlayer.svelte';
-  import { initialPosition } from '$lib/test/positions';
   import { account } from '$lib/stores/session';
   import { getKifu } from '$lib/apis/kifu';
   import { formatDateTime, formatTimeRule } from '$lib/utils/textFormat';
@@ -128,7 +127,7 @@
         {/if}
       </form>
 
-      <KifuPlayer {kifu} />
+      <!-- <KifuPlayer {kifu} /> -->
     </section>
 
     <section class="basic">

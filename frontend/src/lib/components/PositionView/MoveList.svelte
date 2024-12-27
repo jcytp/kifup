@@ -54,21 +54,26 @@
     overflow-y: auto;
 
     .move-item {
-      padding: 20px 40px;
+      padding: 20px;
       display: flex;
-      gap: 40px;
+      gap: 30px;
       align-items: baseline;
-      font-size: 80px;
-      line-height: 120px;
+      font-size: 68px;
+      line-height: 100px;
+      cursor: pointer;
 
       &.current {
         background: #e0f0ff;
       }
 
       .move-number {
-        width: 140px;
+        width: 120px;
         text-align: right;
         color: #666;
+      }
+
+      &:hover {
+        background-color: #ffe0f0;
       }
     }
   }
