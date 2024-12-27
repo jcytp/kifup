@@ -28,12 +28,12 @@
   export let onPromote: (promote: boolean) => void = (promote) => {};
 
   // parameters
-  export let mode: 'position' | 'moves' = 'position';
+  export let mode: 'position' | 'moves' | 'replay' = 'position';
   export let isBlackFirst: boolean | undefined = undefined;
   export let moveList: KifuMove[] = [];
   export let moveNumber: number = 0; // 現在の手数
   export let sfen: string | undefined; // 現在の局面
-  $: visibleMoveList = mode === 'moves';
+  $: visibleMoveList = mode === 'moves' || mode === 'replay';
   $: visiblePieceBox = mode === 'position';
   $: position = new BoardPosition(sfen);
   let promoteChoice: PieceType = PieceType.VACANCY;
@@ -105,6 +105,10 @@
 
   let pickedPiece: PieceClickEvent | undefined;
   const handlePieceClick = (newPickedPiece: PieceClickEvent) => {
+    if (mode === 'replay') {
+      return;
+    }
+
     if (pickedPiece === undefined) {
       if (newPickedPiece.pieceType !== PieceType.VACANCY) {
         if (mode === 'moves') {

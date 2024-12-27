@@ -1,23 +1,23 @@
 <!-- src/routes/kifu/view/+page.svelte -->
 
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import type { KifuDetail } from '$lib/types/Kifu';
+  import type { KifuDetail, KifuMove } from '$lib/types/Kifu';
   import { page } from '$app/stores';
-  import KifuPlayer from '$lib/components/KifuPlayer.svelte';
   import { account } from '$lib/stores/session';
   import { getKifu } from '$lib/apis/kifu';
   import { formatDateTime, formatTimeRule } from '$lib/utils/textFormat';
-
-  const kifuId = $page.url.searchParams.get('id'); // URLからkifuIDを取得
+  import KifuPlayer from '$lib/components/KifuPlayer.svelte';
 
   // ----------------------------------------
   // 棋譜データの状態管理
+
+  const kifuId = $page.url.searchParams.get('id'); // URLからkifuIDを取得
 
   let kifu: KifuDetail;
   let kifuError = false;
   $: isOwner = kifu?.owner.id === $account?.id; // 所有者本人かどうか
   let timeRuleString = '--';
+  let moves: KifuMove[] = []; // 表示する指し手のライン
 
   const fetchKifuData = async () => {
     kifuError = false;
@@ -30,14 +30,15 @@
     const result = await getKifu(kifuId);
     if (result.ok && result.data) {
       kifu = result.data as KifuDetail;
-      timeRuleString =
-        formatTimeRule(kifu.game_info.持ち時間, kifu.game_info.秒読み, kifu.game_info.秒加算) ||
-        '--';
     } else {
       console.error('Failed to fetch kifu detail: ', result);
       kifuError = true;
       return;
     }
+
+    timeRuleString =
+      formatTimeRule(kifu.game_info.持ち時間, kifu.game_info.秒読み, kifu.game_info.秒加算) || '--';
+    moves = kifu.moves;
   };
 
   // ----------------------------------------
@@ -80,7 +81,7 @@
       ...comments,
       {
         id: String(Date.now()),
-        userId: 'current-user',
+        userId: $account ? $account.id : '',
         userName: $account ? $account.name : 'anonymous',
         content: newComment,
         createdAt: formatDateTime(new Date()),
@@ -96,10 +97,13 @@
     likeCount += isLiked ? 1 : -1;
   };
 
-  onMount(() => {
+  // ----------------------------------------
+  let preinit = true;
+  $: if (preinit) {
+    preinit = false;
     fetchKifuData();
     fetchKifuComments();
-  });
+  }
 </script>
 
 <div class="page">
@@ -127,11 +131,11 @@
         {/if}
       </form>
 
-      <!-- <KifuPlayer {kifu} /> -->
+      <KifuPlayer initialSfen={kifu.initial_position} moveList={moves} />
     </section>
 
     <section class="basic">
-      <button class="like-button" class:liked={isLiked} on:click={toggleLike}>
+      <button class="like-button" class:liked={isLiked} onclick={toggleLike}>
         {isLiked ? '★' : '☆'} いいね！ ({likeCount})
       </button>
 
@@ -151,13 +155,13 @@
         {/if}
       </div>
 
-      <form class="basic">
+      <form class="basic" onsubmit={handleCommentSubmit}>
         <div class="form-group">
           <label for="comment-input">コメント</label>
           <textarea id="comment-input" bind:value={newComment} placeholder="コメントを入力..."
           ></textarea>
         </div>
-        <button type="submit" class="submit">コメントを送信</button>
+        <button type="submit" class="submit">{$account ? '' : '匿名で'}コメントを送信</button>
       </form>
     </section>
   {/if}

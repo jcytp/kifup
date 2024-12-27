@@ -319,3 +319,24 @@ export class BoardPosition {
     this.isBlackTurn = !this.isBlackTurn;
   }
 }
+
+export const generateMovedSfen = (
+  sfen: string | undefined,
+  moves: KifuMove[],
+  num: number
+): string | undefined => {
+  const position = new BoardPosition(sfen);
+  for (let i = 0; i < num; i++) {
+    if (i >= moves.length) {
+      console.error('move number is over moves count');
+    }
+    position.next(moves[i]);
+  }
+  return position.toSfen(1); // 手数は1固定
+};
+
+export const isBlackOfSfen = (sfen?: string) => {
+  if (!sfen) return true;
+  const parts = sfen.split(' ');
+  return parts[1] === 'b';
+};

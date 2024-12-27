@@ -3,7 +3,7 @@
 <script lang="ts">
   import { BoardPosition } from '$lib/types/BoardPosition';
   import { PieceType, type PieceClickEvent } from '$lib/types/Piece';
-  import BoardPositionView from './PositionView/PositionView.svelte';
+  import PositionView from './PositionView/PositionView.svelte';
 
   // callback
   export let onChange: (newSfen?: string) => void;
@@ -126,7 +126,7 @@
 </script>
 
 <div class="position-editor">
-  <BoardPositionView
+  <PositionView
     mode="position"
     {sfen}
     onToggleTurn={handleToggleTurn}
