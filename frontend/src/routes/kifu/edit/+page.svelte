@@ -3,7 +3,7 @@
 <script lang="ts">
   import { page } from '$app/stores';
   import type { KifuDetail, KifuMove } from '$lib/types/Kifu';
-  import { getKifu, updateKifuInfo } from '$lib/apis/kifu';
+  import { getKifu, updateKifuInfo, updateKifuMoves } from '$lib/apis/kifu';
   import { account } from '$lib/stores/session';
   import MovesEditor from '$lib/components/MovesEditor.svelte';
 
@@ -135,9 +135,17 @@
     moves = newMoves;
   };
 
-  const updateKifuMoves = async () => {
-    // ToDo:
-    console.debug('update kifu moves');
+  const handleUpdateKifuMoves = async () => {
+    if (!kifuId) {
+      return;
+    }
+    const result = await updateKifuMoves(kifuId, moves);
+    if (result.ok) {
+      await fetchKifuData();
+    } else {
+      console.error('Failed to create kifu from position: ', result);
+      isError = true;
+    }
   };
 
   // ----------------------------------------
@@ -247,7 +255,7 @@
         initialSfen={kifu.initial_position}
         moveList={moves}
       />
-      <button onclick={updateKifuMoves} class="submit">棋譜の指し手を更新</button>
+      <button onclick={handleUpdateKifuMoves} class="submit">棋譜の指し手を更新</button>
     {/if}
   </section>
 </div>
