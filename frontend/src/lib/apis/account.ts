@@ -54,3 +54,8 @@ export const updateAccountInfo = async (
   const result = await API.put('/api/account/info', params, true);
   return result;
 };
+
+export const deleteAccount = async (): Promise<ApiResult> => {
+  const result = await API.delete('/api/account', null, true);
+  return result;
+};

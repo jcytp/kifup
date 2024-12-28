@@ -27,7 +27,7 @@
       return;
     }
 
-    const result = await getKifu(kifuId);
+    const result = await getKifu(kifuId, $account ? true : false);
     if (result.ok && result.data) {
       kifu = result.data as KifuDetail;
     } else {
@@ -100,6 +100,11 @@
   // ----------------------------------------
   let preinit = true;
   $: if (preinit) {
+    preinit = false;
+    fetchKifuData();
+    fetchKifuComments();
+  }
+  $: if ($account) {
     preinit = false;
     fetchKifuData();
     fetchKifuComments();

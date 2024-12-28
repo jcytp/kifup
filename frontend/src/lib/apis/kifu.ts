@@ -42,8 +42,8 @@ export const createKifu = async (
   return result;
 };
 
-export const getKifu = async (kifuId: string): Promise<ApiResult> => {
-  const result = await API.get(`/api/kifu/${kifuId}`, null, false);
+export const getKifu = async (kifuId: string, withToken: boolean): Promise<ApiResult> => {
+  const result = await API.get(`/api/kifu/${kifuId}`, null, withToken);
   if (!result.data) {
     console.error('get kifu error: no data');
     result.ok = false;

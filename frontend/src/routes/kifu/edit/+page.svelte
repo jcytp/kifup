@@ -24,7 +24,7 @@
       return;
     }
 
-    const result = await getKifu(kifuId);
+    const result = await getKifu(kifuId, true);
     if (result.ok && result.data) {
       kifu = result.data as KifuDetail;
     } else {
