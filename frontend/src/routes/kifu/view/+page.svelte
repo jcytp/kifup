@@ -111,23 +111,31 @@
     <section class="basic">
       <h2>{kifu.title}</h2>
       <form class="basic kifu-info">
-        <p>先手： {kifu.game_info.先手}</p>
-        <p>後手： {kifu.game_info.後手}</p>
-        <p>対局日時： {kifu.game_info.対局日時}</p>
-        <p>対局場所： {kifu.game_info.対局場所}</p>
-        <p>持ち時間： {timeRuleString}</p>
-        <p class="tags">
-          {#each kifu.tags as tag}
-            <span class="tag">{tag}</span>
-          {/each}
-        </p>
-        <p>
-          アップロード： <a href={`/account?id=${kifu.owner.id}`} class="owner-link"
-            >{kifu.owner.name}</a
-          >
-        </p>
+        <div class="kifu-info-block">
+          <p>先手： {kifu.game_info.先手}</p>
+          <p>後手： {kifu.game_info.後手}</p>
+        </div>
+        <div class="kifu-info-block">
+          <p>対局日時： {formatDateTime(kifu.game_info.対局日時)}</p>
+          <p>対局場所： {kifu.game_info.対局場所}</p>
+          <p>持ち時間： {timeRuleString}</p>
+        </div>
+        <div class="kifu-info-block">
+          <p>
+            作成： <a href={`/account?id=${kifu.owner.id}`} class="owner-link">{kifu.owner.name}</a>
+          </p>
+        </div>
+        <div class="kifu-info-block">
+          <p class="tags">
+            {#each kifu.tags as tag}
+              <span class="tag">{tag}</span>
+            {/each}
+          </p>
+        </div>
         {#if isOwner}
-          <p class="edit-link"><a href={`/kifu/edit?id=${kifu.id}`}>編集する</a></p>
+          <div class="kifu-info-block">
+            <p class="edit-link"><a href={`/kifu/edit?id=${kifu.id}`}>編集する</a></p>
+          </div>
         {/if}
       </form>
 
@@ -168,12 +176,41 @@
 </div>
 
 <style lang="scss">
-  .owner-link {
-    color: var(--secondary-color);
-    text-decoration: underline;
+  .kifu-info {
+    display: flex;
+    flex-wrap: wrap;
 
-    &:hover {
-      opacity: 0.8;
+    .kifu-info-block {
+      flex: 1;
+      min-width: 35%;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin: 0.5rem 0 0 0;
+
+      .tag {
+        background-color: var(--secondary-color);
+        color: white;
+        padding: 0.3rem 0.4rem 0.3rem 0.6rem;
+        border-radius: 0.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.9rem;
+        line-height: 1.4rem;
+      }
+    }
+
+    .owner-link {
+      color: var(--secondary-color);
+      text-decoration: underline;
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 
