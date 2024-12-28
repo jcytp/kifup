@@ -1,6 +1,7 @@
 <!-- src/routes/settings/+page.svelte -->
 
 <script lang="ts">
+  import { updateAccountInfo } from '$lib/apis/account';
   import { account } from '$lib/stores/session';
   import type { Account } from '$lib/types/Account';
   import { onMount } from 'svelte';
@@ -30,8 +31,17 @@
 
   // 設定の保存
   const handleSubmit = async () => {
-    // TODO: API実装後に実際の保存処理に置き換え
-    console.log('Saving settings:', accountInfo);
+    if (!accountInfo) {
+      return;
+    }
+    const result = await updateAccountInfo(
+      accountInfo.name,
+      accountInfo.icon_id,
+      accountInfo.introduction
+    );
+    if (!result.ok) {
+      console.error('Failed to update account info: ', result);
+    }
   };
 
   // コンポーネントのアンマウント時にプレビューをクリーンアップ
@@ -54,7 +64,7 @@
     <section class="basic">
       <h2>設定</h2>
 
-      <form on:submit|preventDefault={handleSubmit} class="basic settings-form">
+      <form onsubmit={handleSubmit} class="basic settings-form">
         <div class="form-group">
           <label for="name">アカウントページ</label>
           <p class="account-link">
@@ -89,7 +99,7 @@
                 type="file"
                 id="profile-image"
                 accept="image/*"
-                on:change={handleImageChange}
+                onchange={handleImageChange}
                 class="hidden"
               />
               <p class="upload-note">推奨: 200x200px以上の正方形の画像</p>

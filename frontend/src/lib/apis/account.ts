@@ -40,3 +40,17 @@ export const getAccountById = async (accountId: string): Promise<ApiResult> => {
   }
   return result;
 };
+
+export const updateAccountInfo = async (
+  name: string,
+  icon_id?: string,
+  introduction?: string
+): Promise<ApiResult> => {
+  const params = {
+    name: name,
+    icon_id: icon_id || '',
+    introduction: introduction || '',
+  };
+  const result = await API.put('/api/account/info', params, true);
+  return result;
+};

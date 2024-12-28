@@ -51,6 +51,7 @@ func main() {
 	rSes.GET("/account", handler.HandlerOut(api.GetAccount))
 	rSes.DELETE("/account", handler.Handler(api.DeleteAccount))
 	rSes.PUT("/account/password", handler.HandlerIn(api.ChangePassword))
+	rSes.PUT("/account/info", handler.HandlerIn(api.UpdateAccountInfo))
 	rPub.GET("/account/:accountID", handler.HandlerOut(api.GetAccountByID))
 
 	// session api
