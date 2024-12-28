@@ -12,8 +12,8 @@ import (
 )
 
 type requestCreateAccount struct {
-	Name     string `json:"name" binding:"required,min=2"`
-	Email    string `json:"email" binding:"required,email"`
+	Name     string `json:"name" binding:"required,min=2,max=60"`
+	Email    string `json:"email" binding:"required,email,max=255"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
@@ -85,6 +85,29 @@ func ChangePassword(c *gin.Context, req requestChangePassword) (string, error) {
 	err = dao.UpdateAccount(account)
 	if err != nil {
 		return "Failed to update password", err
+	}
+
+	return "", nil
+}
+
+type requestUpadateAccountInfo struct {
+	Name         string `json:"name" binding:"required,min=2,max=60"`
+	IconID       string `json:"icon_id" binding:"max=60"`
+	Introduction string `json:"introduction" binding:"max=1000"`
+}
+
+func UpdateAccountInfo(c *gin.Context, req requestUpadateAccountInfo) (string, error) {
+	aid := handler.GetActorID(c)
+	account, err := dao.GetAccountByID(aid)
+	if err != nil {
+		return "Failed to get account", err
+	}
+	account.Name = req.Name
+	account.IconID = req.IconID
+	account.Introduction = req.Introduction
+	err = dao.UpdateAccount(account)
+	if err != nil {
+		return "Failed to update account info", err
 	}
 
 	return "", nil

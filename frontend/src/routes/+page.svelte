@@ -70,7 +70,7 @@
     const result_login = await login(registerForm.email, registerForm.password);
     if (result_login.ok) {
       console.log('login success');
-      sessionToken.set(result.data);
+      sessionToken.set(result_login.data);
     } else {
       errorMessage = 'ログイン処理中にエラーが発生しました';
       return;

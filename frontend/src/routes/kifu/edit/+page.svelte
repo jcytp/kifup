@@ -14,6 +14,7 @@
 
   let isError = false;
   let kifu: KifuDetail;
+  let moves: KifuMove[] = []; // 表示する指し手のライン
 
   const fetchKifuData = async () => {
     isError = false;
@@ -23,7 +24,7 @@
       return;
     }
 
-    const result = await getKifu(kifuId);
+    const result = await getKifu(kifuId, true);
     if (result.ok && result.data) {
       kifu = result.data as KifuDetail;
     } else {
@@ -129,9 +130,8 @@
   // ----------------------------------------
   // 棋譜の指し手管理
 
-  let moves: KifuMove[] = [];
-
   const handleChangeMove = (newMoves: KifuMove[]) => {
+    // ToDo: 分岐に対応
     moves = newMoves;
   };
 

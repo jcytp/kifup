@@ -1,7 +1,8 @@
 <!-- src/routes/settings/+page.svelte -->
 
 <script lang="ts">
-  import { account } from '$lib/stores/session';
+  import { deleteAccount, updateAccountInfo } from '$lib/apis/account';
+  import { account, sessionToken } from '$lib/stores/session';
   import type { Account } from '$lib/types/Account';
   import { onMount } from 'svelte';
   import { get } from 'svelte/store';
@@ -9,6 +10,7 @@
   const account_url_base = '/account/';
   const image_url_base = 'http://example.com/icon/';
   let imagePreview: string | null = null;
+  let viewMode: 'setting' | 'password' | 'delete' = 'setting';
 
   // プロフィール画像の処理
   function handleImageChange(event: Event) {
@@ -30,8 +32,17 @@
 
   // 設定の保存
   const handleSubmit = async () => {
-    // TODO: API実装後に実際の保存処理に置き換え
-    console.log('Saving settings:', accountInfo);
+    if (!accountInfo) {
+      return;
+    }
+    const result = await updateAccountInfo(
+      accountInfo.name,
+      accountInfo.icon_id,
+      accountInfo.introduction
+    );
+    if (!result.ok) {
+      console.error('Failed to update account info: ', result);
+    }
   };
 
   // コンポーネントのアンマウント時にプレビューをクリーンアップ
@@ -47,6 +58,22 @@
   // ToDo: アカウント情報に追加が必要
   let likes_notification = true;
   let comments_notification = true;
+
+  // ----------------------------------------
+  // パスワードリセット
+  const handleResetPassword = async () => {};
+
+  // ----------------------------------------
+  // アカウント削除
+
+  const handleDeleteAccount = async () => {
+    const result = await deleteAccount();
+    if (result.ok) {
+      sessionToken.set(null);
+    } else {
+      console.error('Failed to delete account: ', result);
+    }
+  };
 </script>
 
 <div class="page">
@@ -54,74 +81,102 @@
     <section class="basic">
       <h2>設定</h2>
 
-      <form on:submit|preventDefault={handleSubmit} class="basic settings-form">
-        <div class="form-group">
-          <label for="name">アカウントページ</label>
-          <p class="account-link">
-            <a href={`${account_url_base}?id=${accountInfo.id}`}
-              >{`${account_url_base}?id=${accountInfo.id}`}</a
-            >
-          </p>
-        </div>
+      {#if viewMode === 'setting'}
+        <form onsubmit={handleSubmit} class="basic settings-form">
+          <div class="form-group">
+            <label for="name">アカウントページ</label>
+            <p class="account-link">
+              <a href={`${account_url_base}?id=${accountInfo.id}`}
+                >{`${account_url_base}?id=${accountInfo.id}`}</a
+              >
+            </p>
+          </div>
 
-        <div class="form-group">
-          <label for="name">名前</label>
-          <input type="text" id="name" bind:value={accountInfo.name} required />
-        </div>
+          <div class="form-group">
+            <label for="name">名前</label>
+            <input type="text" id="name" bind:value={accountInfo.name} required />
+          </div>
 
-        <div class="form-group">
-          <h3 class="label">プロフィール画像</h3>
-          <div class="profile-image-container">
-            <div class="profile-image">
-              {#if imagePreview}
-                <img src={imagePreview} alt="プロフィール画像プレビュー" />
-              {:else if accountInfo.icon_id}
-                <img src={`${image_url_base}${accountInfo.icon_id}`} alt="プロフィール画像" />
-              {:else}
-                <div class="placeholder-image">
-                  {accountInfo.name[0]}
-                </div>
-              {/if}
-            </div>
-            <div class="image-upload">
-              <label for="profile-image" class="upload-button"> 画像を選択 </label>
-              <input
-                type="file"
-                id="profile-image"
-                accept="image/*"
-                on:change={handleImageChange}
-                class="hidden"
-              />
-              <p class="upload-note">推奨: 200x200px以上の正方形の画像</p>
+          <div class="form-group">
+            <h3 class="label">プロフィール画像</h3>
+            <div class="profile-image-container">
+              <div class="profile-image">
+                {#if imagePreview}
+                  <img src={imagePreview} alt="プロフィール画像プレビュー" />
+                {:else if accountInfo.icon_id}
+                  <img src={`${image_url_base}${accountInfo.icon_id}`} alt="プロフィール画像" />
+                {:else}
+                  <div class="placeholder-image">
+                    {accountInfo.name[0]}
+                  </div>
+                {/if}
+              </div>
+              <div class="image-upload">
+                <label for="profile-image" class="upload-button"> 画像を選択 </label>
+                <input
+                  type="file"
+                  id="profile-image"
+                  accept="image/*"
+                  onchange={handleImageChange}
+                  class="hidden"
+                />
+                <p class="upload-note">推奨: 200x200px以上の正方形の画像</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="form-group">
-          <label for="bio">自己紹介</label>
-          <textarea
-            id="bio"
-            bind:value={accountInfo.introduction}
-            rows="5"
-            placeholder="自己紹介文を入力してください"
-          ></textarea>
-        </div>
+          <div class="form-group">
+            <label for="bio">自己紹介</label>
+            <textarea
+              id="bio"
+              bind:value={accountInfo.introduction}
+              rows="5"
+              placeholder="自己紹介文を入力してください"
+            ></textarea>
+          </div>
 
-        <div class="form-group">
-          <h3 class="label">通知設定</h3>
-          <label class="checkbox-label">
-            <input type="checkbox" bind:checked={likes_notification} />
-            いいねを通知する
-          </label>
-          <label class="checkbox-label">
-            <input type="checkbox" bind:checked={comments_notification} />
-            コメントを通知する
-          </label>
-        </div>
+          <div class="form-group">
+            <h3 class="label">通知設定</h3>
+            <label class="checkbox-label">
+              <input type="checkbox" bind:checked={likes_notification} />
+              いいねを通知する
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" bind:checked={comments_notification} />
+              コメントを通知する
+            </label>
+          </div>
 
-        <button type="submit" class="submit">設定を保存</button>
-      </form>
+          <button type="submit" class="submit">設定を保存</button>
+        </form>
+      {/if}
+
+      {#if viewMode === 'password'}
+        <form onsubmit={handleResetPassword} class="basic settings-form">
+          <!-- ToDo: imprement to reset password -->
+        </form>
+      {/if}
+
+      {#if viewMode === 'delete'}
+        <form onsubmit={handleDeleteAccount} class="basic settings-form">
+          <p>アカウントを削除すると、作成した全ての棋譜が失われます。</p>
+          <p>アカウントを削除しますか？</p>
+          <div class="controls">
+            <button onclick={() => (viewMode = 'setting')}>キャンセル</button>
+            <button type="submit" class="submit warning">削除する</button>
+          </div>
+        </form>
+      {/if}
     </section>
+
+    {#if viewMode === 'setting'}
+      <section class="basic">
+        <div class="controls">
+          <button onclick={() => (viewMode = 'password')}>パスワード変更</button>
+          <button onclick={() => (viewMode = 'delete')} class="warning">アカウントを削除</button>
+        </div>
+      </section>
+    {/if}
   {/if}
 </div>
 
@@ -203,6 +258,28 @@
 
       .hidden {
         display: none;
+      }
+    }
+  }
+
+  .controls {
+    text-align: center;
+
+    button {
+      width: 10rem;
+      padding: 0.3rem 0.5rem;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+
+      &.warning {
+        background-color: var(--warning-color);
+      }
+
+      &:hover {
+        opacity: 0.9;
       }
     }
   }

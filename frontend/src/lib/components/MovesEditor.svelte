@@ -1,10 +1,10 @@
 <!-- src/lib/components/MovesEditor.svelte -->
 
 <script lang="ts">
-  import { BoardPosition } from '$lib/types/BoardPosition';
+  import { generateMovedSfen, isBlackOfSfen } from '$lib/types/BoardPosition';
   import type { KifuMove } from '$lib/types/Kifu';
   import { PieceType } from '$lib/types/Piece';
-  import BoardPositionView from './PositionView/PositionView.svelte';
+  import PositionView from './PositionView/PositionView.svelte';
 
   // callback
   export let onChange: (moves: KifuMove[]) => void;
@@ -15,27 +15,6 @@
   $: moveNumber = moveList.length;
   $: currentSfen = generateMovedSfen(initialSfen, moveList, moveNumber);
   $: isBlackFirst = isBlackOfSfen(initialSfen);
-
-  const generateMovedSfen = (
-    sfen: string | undefined,
-    moves: KifuMove[],
-    num: number
-  ): string | undefined => {
-    const position = new BoardPosition(sfen);
-    for (let i = 0; i < num; i++) {
-      if (i >= moves.length) {
-        console.error('move number is over moves count');
-      }
-      position.next(moves[i]);
-    }
-    return position.toSfen(1); // 手数は1固定
-  };
-
-  const isBlackOfSfen = (sfen?: string) => {
-    if (!sfen) return true;
-    const parts = sfen.split(' ');
-    return parts[1] === 'b';
-  };
 
   let handleToStart = () => {
     moveNumber = 0;
@@ -72,7 +51,7 @@
 </script>
 
 <div class="position-editor">
-  <BoardPositionView
+  <PositionView
     mode="moves"
     {isBlackFirst}
     sfen={currentSfen}
