@@ -46,6 +46,9 @@ func main() {
 	rSes := rOpt.Group("/")
 	rSes.Use(handler.MwRequireSession)
 
+	// health-check api
+	rPub.GET("/status", handler.HandlerOut(api.GetServerStatus))
+
 	// account api
 	rPub.POST("/account", handler.HandlerIn(api.CreateAccount))
 	rSes.GET("/account", handler.HandlerOut(api.GetAccount))

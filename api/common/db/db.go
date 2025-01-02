@@ -18,7 +18,7 @@ type DB struct {
 
 var db *DB
 
-const DB_FILE = "tmp/kifup.db"
+const DB_FILE = "kifup.db"
 
 func CheckDBFileExists() bool {
 	_, err := os.Stat(DB_FILE)
