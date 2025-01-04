@@ -2,6 +2,7 @@
 
 import { sessionToken } from '$lib/stores/session';
 import { get } from 'svelte/store';
+import { PUBLIC_API_SERVER } from '$env/static/public';
 
 export interface PaginationResponse {
   total_count: number;
@@ -17,8 +18,6 @@ export interface ApiResult {
 }
 
 export class API {
-  static server = 'http://192.168.11.12:8080'; // 開発サーバー
-
   private static async call(
     method: string,
     path: string,
@@ -42,7 +41,9 @@ export class API {
       });
       queryString = search.toString();
     }
-    const url = queryString ? this.server + path + '?' + queryString : this.server + path;
+    const url = queryString
+      ? PUBLIC_API_SERVER + path + '?' + queryString
+      : PUBLIC_API_SERVER + path;
 
     const headers: any = {};
     if (params) {
@@ -61,7 +62,7 @@ export class API {
 
     const response = await fetch(url, {
       method: method,
-      // mode: 'same-origin', // 開発サーバーではoriginが異なる
+      mode: PUBLIC_API_SERVER ? 'cors' : 'same-origin',
       cache: 'no-cache',
       headers: headers,
       body: body,
