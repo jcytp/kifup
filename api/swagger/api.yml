@@ -4,11 +4,18 @@ info:
   description: API for Shogi game record management service
   version: 1.0.0
 
-servers:
-  - url: http://192.168.11.12:8080/
-    description: 開発サーバー
-
 paths:
+  /api/status:
+    get:
+      summary: サーバー状態の取得（ヘルスチェック）
+      tags: [Server]
+      responses:
+        '200':
+          $ref: '#/components/responses/ServerStatusResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/account:
     post:
       summary: アカウント作成
@@ -273,6 +280,18 @@ components:
               data:
                 type: string
                 example: "some error occurred"
+    ServerStatusResponse:
+      description: サーバー状態
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: false
+              data:
+                $ref: '#/components/schemas/ServerStatus'
     IDResponse:
       description: データ登録成功
       content:
@@ -341,6 +360,18 @@ components:
               data:
                 $ref: '#/components/schemas/KifuDetail'
   schemas:
+    ServerStatus:
+      type: object
+      properties:
+        mode:
+          type: string
+          example: "debug"
+        environment:
+          type: string
+          example: "development"
+        status:
+          type: string
+          example: "running"
     CreateAccountRequest:
       type: object
       required: [name, email, password]
@@ -348,7 +379,7 @@ components:
         name:
           type: string
           minLength: 2
-          example: "曹操オッキマラ"
+          example: "曹操孟徳"
         email:
           type: string
           format: email

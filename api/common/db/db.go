@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jcytp/kifup-api/common/env"
 	_ "modernc.org/sqlite"
 )
 
@@ -18,15 +19,13 @@ type DB struct {
 
 var db *DB
 
-const DB_FILE = "kifup.db"
-
 func CheckDBFileExists() bool {
-	_, err := os.Stat(DB_FILE)
+	_, err := os.Stat(env.DatabasePath())
 	return !os.IsNotExist(err)
 }
 
 func New() {
-	sqlt, err := sql.Open("sqlite", DB_FILE)
+	sqlt, err := sql.Open("sqlite", env.DatabasePath())
 	if err != nil {
 		log.Fatal(err)
 	}

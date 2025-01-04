@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"github.com/jcytp/kifup-api/common/db"
+	"github.com/jcytp/kifup-api/common/env"
 	"github.com/jcytp/kifup-api/common/handler"
 	"github.com/jcytp/kifup-api/common/log"
 	"github.com/jcytp/kifup-api/service/api"
@@ -15,6 +16,10 @@ import (
 func main() {
 	log.Setup(slog.LevelDebug)
 
+	// environment values
+	env.Initialize()
+
+	// dabase setup
 	if db.CheckDBFileExists() {
 		db.New()
 	} else {
@@ -23,14 +28,16 @@ func main() {
 	}
 	defer db.Close()
 
+	// gin engine
 	r := gin.Default()
-	if gin.Mode() == gin.DebugMode {
-		config := cors.DefaultConfig()
-		config.AllowOrigins = []string{"http://192.168.11.12:8081"} // frontend開発サーバー
-		config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-		config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
-		r.Use(cors.New(config))
+	config := cors.DefaultConfig()
+	config.AllowOrigins = env.AllowedOrigins()
+	config.AllowMethods = []string{"GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
+	r.Use(cors.New(config))
 
+	// swagger route
+	if env.SwaggerEnable() {
 		r.Static("/swagger", "./swagger")
 	}
 
@@ -69,5 +76,5 @@ func main() {
 	rSes.PUT("/kifu/:kifuID", handler.HandlerIn(api.UpdateKifuInfo))
 	rSes.PUT("/kifu/:kifuID/moves", handler.HandlerIn(api.UpdateKifuMoves))
 
-	r.Run() // default -> localhost:8080
+	r.Run(":80") // default -> localhost:8080
 }
