@@ -21,12 +21,20 @@ func main() {
 
 	// dabase setup
 	if db.CheckDBFileExists() {
-		db.New()
+		db.New() // 既存のDBの使用
 	} else {
-		db.New()
-		api.SetupTables()
+		if err := db.DownloadDB(); err != nil {
+			// ダウンロードできなければ新規作成して使用
+			db.New()
+			api.SetupTables()
+			db.UploadDB() // 作成したDBをS3にアップロード
+		} else {
+			db.New() // ダウンロードしたDBの使用
+		}
 	}
 	defer db.Close()
+	db.StartBackupCycle()    // 定期的なバックアップの作成
+	db.ScheduleFinalBackup() // 正常終了時の最終バックアップ
 
 	// gin engine
 	r := gin.Default()
