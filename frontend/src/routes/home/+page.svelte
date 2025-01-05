@@ -24,30 +24,30 @@
   let unreadCount = 0;
 
   async function fetchNotificationList() {
-    notifications = [
-      {
-        id: '1',
-        type: 'like',
-        kifuId: 'kifu-1',
-        kifuTitle: '第1局：四間飛車',
-        userId: 'user-2',
-        userName: '許褚クリスティーナ',
-        createdAt: '2024-01-10 15:30',
-        read: false,
-      },
-      {
-        id: '2',
-        type: 'comment',
-        kifuId: 'kifu-2',
-        kifuTitle: '第2局：矢倉',
-        userId: 'user-3',
-        userName: '程昱ティノラベッラ',
-        createdAt: '2024-01-09 18:45',
-        read: true,
-      },
-    ];
-
-    unreadCount = notifications.filter((n) => !n.read).length;
+    // ToDo: APIが実装されたら、データを取得する
+    // notifications = [
+    //   {
+    //     id: '1',
+    //     type: 'like',
+    //     kifuId: 'kifu-1',
+    //     kifuTitle: '第1局：四間飛車',
+    //     userId: 'user-2',
+    //     userName: '許褚クリスティーナ',
+    //     createdAt: '2024-01-10 15:30',
+    //     read: false,
+    //   },
+    //   {
+    //     id: '2',
+    //     type: 'comment',
+    //     kifuId: 'kifu-2',
+    //     kifuTitle: '第2局：矢倉',
+    //     userId: 'user-3',
+    //     userName: '程昱ティノラベッラ',
+    //     createdAt: '2024-01-09 18:45',
+    //     read: true,
+    //   },
+    // ];
+    // unreadCount = notifications.filter((n) => !n.read).length;
   }
 
   function markAsRead(notificationId: string) {

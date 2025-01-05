@@ -6,7 +6,9 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/jcytp/kifup-api/common/aws"
 	"github.com/jcytp/kifup-api/common/db"
+	"github.com/jcytp/kifup-api/common/env"
 	"github.com/jcytp/kifup-api/common/handler"
 	"github.com/jcytp/kifup-api/common/log"
 	"github.com/jcytp/kifup-api/service/api"
@@ -15,22 +17,41 @@ import (
 func main() {
 	log.Setup(slog.LevelDebug)
 
+	// environment values
+	env.Initialize()
+
+	// aws clients
+	aws.S3Initialize()
+	aws.SesInitialize()
+
+	// dabase setup
 	if db.CheckDBFileExists() {
-		db.New()
+		db.New() // 既存のDBの使用
 	} else {
-		db.New()
-		api.SetupTables()
+		if err := db.DownloadDB(); err != nil {
+			// ダウンロードできなければ新規作成して使用
+			db.New()
+			api.SetupTables()
+			db.UploadDB() // 作成したDBをS3にアップロード
+		} else {
+			db.New() // ダウンロードしたDBの使用
+		}
 	}
 	defer db.Close()
+	db.StartBackupCycle()    // 定期的なバックアップの作成
+	db.ScheduleFinalBackup() // 正常終了時の最終バックアップ
 
+	// gin engine
 	r := gin.Default()
-	if gin.Mode() == gin.DebugMode {
-		config := cors.DefaultConfig()
-		config.AllowOrigins = []string{"http://192.168.11.12:8081"} // frontend開発サーバー
-		config.AllowMethods = []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}
-		config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
-		r.Use(cors.New(config))
+	config := cors.DefaultConfig()
+	config.AllowOrigins = env.AllowedOrigins()
+	config.AllowMethods = []string{"GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"}
+	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
+	r.Use(cors.New(config))
+	r.Use(handler.MwSetCacheControl)
 
+	// swagger route
+	if env.SwaggerEnable() {
 		r.Static("/swagger", "./swagger")
 	}
 
@@ -46,7 +67,12 @@ func main() {
 	rSes := rOpt.Group("/")
 	rSes.Use(handler.MwRequireSession)
 
+	// health-check api
+	rPub.GET("/status", handler.HandlerOut(api.GetServerStatus))
+
 	// account api
+	rPub.POST("/account/verify-email", handler.HandlerIn(api.SendVerificationEmail))
+	rPub.POST("/account/verify-code", handler.HandlerIn(api.CheckVerificationCode))
 	rPub.POST("/account", handler.HandlerIn(api.CreateAccount))
 	rSes.GET("/account", handler.HandlerOut(api.GetAccount))
 	rSes.DELETE("/account", handler.Handler(api.DeleteAccount))
@@ -66,5 +92,5 @@ func main() {
 	rSes.PUT("/kifu/:kifuID", handler.HandlerIn(api.UpdateKifuInfo))
 	rSes.PUT("/kifu/:kifuID/moves", handler.HandlerIn(api.UpdateKifuMoves))
 
-	r.Run() // default -> localhost:8080
+	r.Run(":80") // default -> localhost:8080
 }

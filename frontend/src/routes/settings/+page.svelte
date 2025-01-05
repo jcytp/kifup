@@ -111,7 +111,7 @@
                   </div>
                 {/if}
               </div>
-              <div class="image-upload">
+              <!-- <div class="image-upload">
                 <label for="profile-image" class="upload-button"> 画像を選択 </label>
                 <input
                   type="file"
@@ -121,7 +121,7 @@
                   class="hidden"
                 />
                 <p class="upload-note">推奨: 200x200px以上の正方形の画像</p>
-              </div>
+              </div> -->
             </div>
           </div>
 
@@ -135,7 +135,7 @@
             ></textarea>
           </div>
 
-          <div class="form-group">
+          <!-- <div class="form-group">
             <h3 class="label">通知設定</h3>
             <label class="checkbox-label">
               <input type="checkbox" bind:checked={likes_notification} />
@@ -145,7 +145,7 @@
               <input type="checkbox" bind:checked={comments_notification} />
               コメントを通知する
             </label>
-          </div>
+          </div> -->
 
           <button type="submit" class="submit">設定を保存</button>
         </form>
@@ -172,7 +172,7 @@
     {#if viewMode === 'setting'}
       <section class="basic">
         <div class="controls">
-          <button onclick={() => (viewMode = 'password')}>パスワード変更</button>
+          <!-- <button onclick={() => (viewMode = 'password')}>パスワード変更</button> -->
           <button onclick={() => (viewMode = 'delete')} class="warning">アカウントを削除</button>
         </div>
       </section>

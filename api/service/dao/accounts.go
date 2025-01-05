@@ -30,6 +30,7 @@ func CreateAccountTable() error {
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			last_login_at TIMESTAMP,
 			CHECK (LENGTH(name) >= 2),
+			CHECK (LENGTH(email) <= 255),
 			CHECK (LENGTH(introduction) <= 1000)
 		);
 		CREATE UNIQUE INDEX IF NOT EXISTS idx_accounts_email ON accounts(email)

@@ -2,9 +2,9 @@
 
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { register } from '$lib/apis/account';
   import { login } from '$lib/apis/session';
   import { account, sessionToken } from '$lib/stores/session';
+  import RegisterForm from '$lib/components/RegisterForm.svelte';
 
   // ログイン済みの場合はホームへ遷移する
   $: if ($account) {
@@ -20,12 +20,12 @@
     email: '',
     password: '',
   };
-  let registerForm = {
-    name: '',
-    email: '',
-    password: '',
-    passwordConfirm: '',
-  };
+  // let registerForm = {
+  //   name: '',
+  //   email: '',
+  //   password: '',
+  //   passwordConfirm: '',
+  // };
   let resetForm = {
     email: '',
   };
@@ -56,27 +56,27 @@
     goto('/home');
   };
 
-  const handleRegister = async () => {
-    console.debug('handleRegister');
-    if (registerForm.password !== registerForm.passwordConfirm) {
-      errorMessage = 'パスワードが一致していません';
-      return;
-    }
-    const result = await register(registerForm.name, registerForm.email, registerForm.password);
-    if (!result.ok) {
-      errorMessage = '新規登録処理中にエラーが発生しました';
-      return;
-    }
-    const result_login = await login(registerForm.email, registerForm.password);
-    if (result_login.ok) {
-      console.log('login success');
-      sessionToken.set(result_login.data);
-    } else {
-      errorMessage = 'ログイン処理中にエラーが発生しました';
-      return;
-    }
-    goto('/home');
-  };
+  // const handleRegister = async () => {
+  //   console.debug('handleRegister');
+  //   if (registerForm.password !== registerForm.passwordConfirm) {
+  //     errorMessage = 'パスワードが一致していません';
+  //     return;
+  //   }
+  //   const result = await register(registerForm.name, registerForm.email, registerForm.password);
+  //   if (!result.ok) {
+  //     errorMessage = '新規登録処理中にエラーが発生しました';
+  //     return;
+  //   }
+  //   const result_login = await login(registerForm.email, registerForm.password);
+  //   if (result_login.ok) {
+  //     console.log('login success');
+  //     sessionToken.set(result_login.data);
+  //   } else {
+  //     errorMessage = 'ログイン処理中にエラーが発生しました';
+  //     return;
+  //   }
+  //   goto('/home');
+  // };
 
   function handleReset() {
     // ToDo: パスワードリセット処理
@@ -121,11 +121,10 @@
         <li><button on:click={switchToReset}>パスワードを忘れた</button></li>
       </ul>
     </section>
-  {/if}
-
-  {#if activeSection === 'register'}
+  {:else if activeSection === 'register'}
     <section class="basic form-section">
-      <form on:submit|preventDefault={handleRegister} class="basic">
+      <RegisterForm onSwitchToLogin={switchToLogin} />
+      <!-- <form on:submit|preventDefault={handleRegister} class="basic">
         <h2>新規登録</h2>
         <div class="form-group">
           <label for="register-name">名前</label>
@@ -176,11 +175,9 @@
       </form>
       <ul class="view-control">
         <li><button on:click={switchToLogin}>ログイン</button></li>
-      </ul>
+      </ul> -->
     </section>
-  {/if}
-
-  {#if activeSection === 'reset'}
+  {:else if activeSection === 'reset'}
     <section class="basic form-section">
       <form on:submit|preventDefault={handleReset} class="basic">
         <h2>パスワードの再設定</h2>

@@ -78,7 +78,7 @@
   <section class="basic">
     <h2>棋譜を作成 - データから作成</h2>
     <form on:submit|preventDefault={createFromKifu} class="basic">
-      <div class="form-group kifu-input-layout">
+      <!-- <div class="form-group kifu-input-layout">
         <textarea
           id="kifu-textarea"
           bind:value={kifuContent}
@@ -94,7 +94,8 @@
           <p>対応形式： {ALLOWED_EXTENSIONS.join(', ')}</p>
         </div>
       </div>
-      <button type="submit" class="submit">棋譜データから作成</button>
+      <button type="submit" class="submit">棋譜データから作成</button> -->
+      <p>※未実装です</p>
     </form>
   </section>
 

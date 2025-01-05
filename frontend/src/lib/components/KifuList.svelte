@@ -82,7 +82,7 @@
               </span>
             </div>
             <div class="kifu-info">
-              <span>対局日: {formatDateTime(kifu.game_info.対局日時) || '--'}</span>
+              <span>対局日時: {formatDateTime(kifu.game_info.対局日時) || '--'}</span>
               <span>先手: {kifu.game_info.先手 || '--'}</span>
               <span>後手: {kifu.game_info.後手 || '--'}</span>
             </div>
@@ -128,8 +128,9 @@
             <h3>{kifu.title}</h3>
           </div>
           <div class="kifu-info">
-            <span>対局日時: {formatDateTime(kifu.game_info.date)}</span>
-            <span>対局者: {kifu.game_info.black} vs {kifu.game_info.white}</span>
+            <span>対局日時: {formatDateTime(kifu.game_info.対局日時) || '--'}</span>
+            <span>先手: {kifu.game_info.先手 || '--'}</span>
+            <span>後手: {kifu.game_info.後手 || '--'}</span>
           </div>
           <div class="kifu-footer">
             <span class="owner">{kifu.owner.name} [{formatDateTime(kifu.updated_at)}]</span>

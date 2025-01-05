@@ -60,17 +60,17 @@
     commentsError = false;
 
     // ToDo: API実装後にデータ取得を実装
-    comments = [
-      {
-        id: '1',
-        userId: 'user-2',
-        userName: '観戦者A',
-        content: '素晴らしい一手でした！',
-        createdAt: '2024-01-01 12:00',
-      },
-    ];
-    likeCount = 42;
-    isLiked = false;
+    // comments = [
+    //   {
+    //     id: '1',
+    //     userId: 'user-2',
+    //     userName: '観戦者A',
+    //     content: '素晴らしい一手でした！',
+    //     createdAt: '2024-01-01 12:00',
+    //   },
+    // ];
+    // likeCount = 42;
+    // isLiked = false;
   };
 
   const handleCommentSubmit = async () => {
@@ -147,7 +147,7 @@
       <KifuPlayer initialSfen={kifu.initial_position} moveList={moves} />
     </section>
 
-    <section class="basic">
+    <!-- <section class="basic">
       <button class="like-button" class:liked={isLiked} onclick={toggleLike}>
         {isLiked ? '★' : '☆'} いいね！ ({likeCount})
       </button>
@@ -176,7 +176,7 @@
         </div>
         <button type="submit" class="submit">{$account ? '' : '匿名で'}コメントを送信</button>
       </form>
-    </section>
+    </section> -->
   {/if}
 </div>
 
