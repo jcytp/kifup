@@ -72,7 +72,7 @@
   <section class="basic">
     <h2>棋譜検索</h2>
     <form on:submit|preventDefault={handleSearch} class="basic search-form">
-      <div class="form-group">
+      <!-- <div class="form-group">
         <h3 class="label">キーワード</h3>
         <input
           type="text"
@@ -80,14 +80,14 @@
           bind:value={keyword}
           placeholder="タイトル、対局者名で検索"
         />
-      </div>
+      </div> -->
 
       <div class="form-group">
         <h3 class="label">投稿アカウント</h3>
         <input type="text" id="accountId" bind:value={accountId} placeholder="アカウント名で検索" />
       </div>
 
-      <div class="form-group">
+      <!-- <div class="form-group">
         <h3 class="label">タグ</h3>
         <div class="tag-input-container">
           <input
@@ -106,16 +106,16 @@
             </span>
           {/each}
         </div>
-      </div>
+      </div> -->
 
-      <div class="form-group">
+      <!-- <div class="form-group">
         <h3 class="label">対局日</h3>
         <div class="match-date-inputs">
           <input type="date" bind:value={startDate} />
           <span>～</span>
           <input type="date" bind:value={endDate} />
         </div>
-      </div>
+      </div> -->
 
       <button type="submit" class="submit search-button">検索</button>
     </form>
