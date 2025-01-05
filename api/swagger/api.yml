@@ -45,6 +45,13 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/VerifyCodeRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/account:
     post:
       summary: アカウント作成

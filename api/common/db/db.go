@@ -56,6 +56,10 @@ func UploadDB() {
 		return
 	}
 
+	if err := aws.S3CopyObject(env.S3BucketName(), backupKey, env.S3BucketName(), currentDBKey); err != nil {
+		slog.Error("Failed to copy database from backup to current", "error", err)
+	}
+
 	slog.Info("Successfully uploaded database to S3", "backup", backupKey)
 }
 

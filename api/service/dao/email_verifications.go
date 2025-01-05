@@ -37,7 +37,7 @@ func CreateEmailVerificationTable() error {
 func InsertEmailVerification(ev *model.EmailVerification) error {
 	query := `
 		INSERT INTO email_verifications (
-			email, verification_code, expired_at, is_useed
+			email, verification_code, expired_at, is_used
 		) VALUES (?, ?, ?, ?)
 		ON CONFLICT(email) DO UPDATE SET
 			verification_code = excluded.verification_code,

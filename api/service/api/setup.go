@@ -10,6 +10,9 @@ import (
 )
 
 func SetupTables() {
+	if err := dao.CreateEmailVerificationTable(); err != nil {
+		log.Fatal("failed to create email verification table")
+	}
 	if err := dao.CreateAccountTable(); err != nil {
 		log.Fatal("failed to create account table")
 	}
