@@ -15,6 +15,20 @@ import (
 	"github.com/jcytp/kifup-api/common/log"
 )
 
+func MwSetCacheControl(c *gin.Context) {
+	c.Header("Cache-Control", "no-store, no-cache, must-revalidate")
+	c.Header("Pragma", "no-cache")
+	c.Next()
+}
+
+func MwStorePathIDs(c *gin.Context) {
+	params := c.Params
+	for _, param := range params {
+		c.Set(param.Key, param.Value)
+	}
+	c.Next()
+}
+
 func MwCheckSession(c *gin.Context) {
 	authHeader := c.GetHeader("Authorization")
 	if authHeader == "" {
@@ -72,14 +86,4 @@ func MwRequireSession(c *gin.Context) {
 		c.Abort()
 		return
 	}
-}
-
-// ----------------------------------------
-
-func MwStorePathIDs(c *gin.Context) {
-	params := c.Params
-	for _, param := range params {
-		c.Set(param.Key, param.Value)
-	}
-	c.Next()
 }

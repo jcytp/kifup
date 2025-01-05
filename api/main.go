@@ -43,6 +43,7 @@ func main() {
 	config.AllowMethods = []string{"GET", "HEAD", "OPTIONS", "POST", "PUT", "DELETE"}
 	config.AllowHeaders = []string{"Origin", "Content-Type", "Authorization"}
 	r.Use(cors.New(config))
+	r.Use(handler.MwSetCacheControl)
 
 	// swagger route
 	if env.SwaggerEnable() {
