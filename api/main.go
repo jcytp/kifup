@@ -6,6 +6,7 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/jcytp/kifup-api/common/aws"
 	"github.com/jcytp/kifup-api/common/db"
 	"github.com/jcytp/kifup-api/common/env"
 	"github.com/jcytp/kifup-api/common/handler"
@@ -18,6 +19,10 @@ func main() {
 
 	// environment values
 	env.Initialize()
+
+	// aws clients
+	aws.S3Initialize()
+	aws.SesInitialize()
 
 	// dabase setup
 	if db.CheckDBFileExists() {
@@ -66,6 +71,8 @@ func main() {
 	rPub.GET("/status", handler.HandlerOut(api.GetServerStatus))
 
 	// account api
+	rPub.POST("/account/verify-email", handler.HandlerIn(api.SendVerificationEmail))
+	rPub.POST("/account/verify-code", handler.HandlerIn(api.CheckVerificationCode))
 	rPub.POST("/account", handler.HandlerIn(api.CreateAccount))
 	rSes.GET("/account", handler.HandlerOut(api.GetAccount))
 	rSes.DELETE("/account", handler.Handler(api.DeleteAccount))

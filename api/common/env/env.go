@@ -16,7 +16,9 @@ type Config struct {
 	SecretKey      []byte
 	AllowedOrigins []string
 	DatabasePath   string
+	AwsRegion      string
 	S3BucketName   string
+	EmailSender    string
 	SwaggerEnable  bool
 }
 
@@ -40,7 +42,9 @@ func Initialize() {
 			SecretKey:      []byte(secretKey),
 			AllowedOrigins: []string{frontendOrigin},
 			DatabasePath:   "kifup.db",
+			AwsRegion:      "ap-northeast-1",
 			S3BucketName:   "s3-kifup",
+			EmailSender:    "system.kifup@jcytp.net",
 			SwaggerEnable:  false,
 		}
 	case envStaging:
@@ -49,7 +53,9 @@ func Initialize() {
 			SecretKey:      []byte(secretKey),
 			AllowedOrigins: []string{frontendOrigin},
 			DatabasePath:   "kifup.db",
+			AwsRegion:      "ap-northeast-1",
 			S3BucketName:   "s3-kifup-stg",
+			EmailSender:    "system.kifup@jcytp.net",
 			SwaggerEnable:  true,
 		}
 	case envDevelopment:
@@ -58,7 +64,9 @@ func Initialize() {
 			SecretKey:      []byte(secretKey),
 			AllowedOrigins: []string{"http://localhost", frontendOrigin},
 			DatabasePath:   "tmp/kifup.db",
+			AwsRegion:      "",
 			S3BucketName:   "",
+			EmailSender:    "",
 			SwaggerEnable:  true,
 		}
 	default:
@@ -94,8 +102,16 @@ func DatabasePath() string {
 	return conf.DatabasePath
 }
 
+func AwsRegion() string {
+	return conf.AwsRegion
+}
+
 func S3BucketName() string {
 	return conf.S3BucketName
+}
+
+func EmailSender() string {
+	return conf.EmailSender
 }
 
 func SwaggerEnable() bool {

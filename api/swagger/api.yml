@@ -16,6 +16,35 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
+  /api/account/verify-email:
+    post:
+      summary: メール認証用コードの送信リクエスト
+      tags: [Account]
+      description: アカウント作成時のメールアドレス確認用。認証コードを生成してメールで送信します。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MailVerificationRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/account/verify-code:
+    post:
+      summary: メール認証コードの検証
+      tags: [Account]
+      description: 送信した認証コードの有効性を確認します。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyCodeRequest'
   /api/account:
     post:
       summary: アカウント作成
@@ -372,6 +401,27 @@ components:
         status:
           type: string
           example: "running"
+    MailVerificationRequest:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "caocao@example.com"
+    VerifyCodeRequest:
+      type: object
+      required: [email, code]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "caocao@example.com"
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          example: "123456"
     CreateAccountRequest:
       type: object
       required: [name, email, password]
@@ -379,6 +429,7 @@ components:
         name:
           type: string
           minLength: 2
+          maxLength: 60
           example: "曹操孟徳"
         email:
           type: string
@@ -388,6 +439,11 @@ components:
           type: string
           format:  password
           example: "password123"
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          example: "123456"
     LoginRequest:
       type: object
       required: [email, password]
