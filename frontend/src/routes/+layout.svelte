@@ -7,6 +7,18 @@
   import { page } from '$app/stores';
   import { goto } from '$app/navigation';
 
+  const isCurrentPath = (path: string) => {
+    const currentPath = $page.url.pathname;
+    return path.endsWith('*') ? currentPath.startsWith(path.slice(0, -1)) : currentPath === path;
+  };
+
+  // ----------------------------------------
+  // セッション初期化
+  onMount(async () => {
+    await sessionToken.initialize(logoutMove);
+  });
+  $: isLoggedIn = !!$account;
+
   // ログアウト時の画面遷移
   const logoutMove = () => {
     // pageのurlがvisitorUrlsのいずれかに一致しない場合、"/"に遷移する
@@ -25,12 +37,6 @@
     }
   };
 
-  // セッション初期化
-  onMount(async () => {
-    await sessionToken.initialize(logoutMove);
-  });
-  $: isLoggedIn = !!$account;
-
   // ログアウト
   const logout = () => {
     sessionToken.set(null);
@@ -44,14 +50,14 @@
   <nav>
     <ul>
       {#if isLoggedIn}
-        <li><a href="/home">ホーム</a></li>
-        <li><a href="/kifu/new">新規作成</a></li>
-        <li><a href="/kifu/search">棋譜検索</a></li>
-        <li><a href="/settings">設定</a></li>
+        <li><a href="/home/" class:active={isCurrentPath('/home/')}>ホーム</a></li>
+        <li><a href="/kifu/new/" class:active={isCurrentPath('/kifu/new/')}>新規作成</a></li>
+        <li><a href="/kifu/search/" class:active={isCurrentPath('/kifu/search/')}>棋譜検索</a></li>
+        <li><a href="/settings/" class:active={isCurrentPath('/settings/')}>設定</a></li>
         <li class="newgroup"><button on:click={logout}>ログアウト</button></li>
       {:else}
-        <li><a href="/">ログイン</a></li>
-        <li><a href="/kifu/search">棋譜検索</a></li>
+        <li><a href="/" class:active={isCurrentPath('/')}>ログイン</a></li>
+        <li><a href="/kifu/search/" class:active={isCurrentPath('/kifu/search/')}>棋譜検索</a></li>
       {/if}
     </ul>
   </nav>
@@ -104,15 +110,21 @@
         li button {
           display: block;
           width: 9rem;
+          border: 2px solid transparent;
+          border-radius: 0.5rem;
           padding-left: 1rem;
           line-height: 2rem;
           color: var(--primary-color);
           text-decoration: none;
           text-align: left;
 
-          &:hover {
+          &.active {
+            border-color: var(--border-color);
+            cursor: default;
+          }
+
+          &:hover:not(.active) {
             background-color: var(--secondary-color);
-            border-radius: 0.5rem;
             color: var(--background-color);
           }
         }
