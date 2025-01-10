@@ -16,7 +16,28 @@ import (
 
 type SFEN string
 
-const sfenHirate SFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
+const (
+	SfenHirate            SFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
+	SfenKyoOchi           SFEN = "lnsgkgsn1/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenMigiKyoOchi       SFEN = "1nsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenKakuOchi          SFEN = "lnsgkgsnl/1r7/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenHishaOchi         SFEN = "lnsgkgsnl/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenHiKyoOchi         SFEN = "lnsgkgsn1/7b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenNimaiOchi         SFEN = "lnsgkgsnl/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenSanmaiOchi        SFEN = "lnsgkgsn1/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenYonmaiOchi        SFEN = "1nsgkgsn1/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenGomaiOchi         SFEN = "2sgkgsn1/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenHidariGomaiOchi   SFEN = "1nsgkgs2/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenRokumaiOchi       SFEN = "2sgkgs2/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenHidariNanamaiOchi SFEN = "2sgkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenMigiNanamaiOchi   SFEN = "3gkgs2/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenHachimaiOchi      SFEN = "3gkg3/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+	SfenJumaiOchi         SFEN = "4k4/9/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
+)
+
+func (sfen SFEN) PSFEN() *SFEN {
+	return &sfen
+}
 
 type BoardPosition struct {
 	BlackBoard  [9][9]PieceType
@@ -60,8 +81,7 @@ var sfenOfPieceType = map[PieceType]rune{
 // SFEN -> BoardPosition
 func NewBoardPosition(sfen *SFEN) (*BoardPosition, error) {
 	if sfen == nil {
-		s := sfenHirate
-		sfen = &s
+		sfen = SfenHirate.PSFEN()
 	}
 
 	bp := &BoardPosition{

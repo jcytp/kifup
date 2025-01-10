@@ -2,6 +2,8 @@
 
 package model
 
+import "log/slog"
+
 // --------------------------------------------------------------------------------
 type PieceType byte
 
@@ -49,13 +51,34 @@ var PieceTypeNameKIF = map[PieceType]string{
 	PIECE_KI: "金",
 	PIECE_KA: "角",
 	PIECE_HI: "飛",
-	PIECE_OU: "王",
+	PIECE_OU: "玉",
 	PIECE_TO: "と",
 	PIECE_NY: "成香",
 	PIECE_NK: "成桂",
 	PIECE_NG: "成銀",
 	PIECE_UM: "馬",
 	PIECE_RY: "龍",
+}
+
+var PieceTypeFromStringKIF = map[string]PieceType{
+	"歩":  PIECE_FU,
+	"香":  PIECE_KY,
+	"桂":  PIECE_KE,
+	"銀":  PIECE_GI,
+	"金":  PIECE_KI,
+	"角":  PIECE_KA,
+	"飛":  PIECE_HI,
+	"玉":  PIECE_OU,
+	"と":  PIECE_TO,
+	"成香": PIECE_NY,
+	"杏":  PIECE_NY,
+	"成桂": PIECE_NK,
+	"圭":  PIECE_NK,
+	"成銀": PIECE_NG,
+	"全":  PIECE_NG,
+	"馬":  PIECE_UM,
+	"龍":  PIECE_RY,
+	"竜":  PIECE_RY,
 }
 
 const (
@@ -71,9 +94,17 @@ const (
 // --------------------------------------------------------------------------------
 type PiecePlace byte
 
-// １一 ＝ 1筋1段 ＝ 8列0行 ＝ 0x81
+// １一 ＝ 1筋1段 ＝ 0行8列 ＝ 0x18
+// ２六 ＝ 2筋6段 ＝ 5行7列 ＝ 0x57
 // 持ち駒 = 0x99
-const PIECE_PLACE_IN_HAND = 0xFF
+const PIECE_PLACE_IN_HAND PiecePlace = 0xFF
+
+func NewPiecePlaceFromFileRank(file int, rank int) PiecePlace {
+	row := rank - 1
+	col := 9 - file
+	slog.Debug("NewPiecePlace", "file", file, "rank", rank, "row", row, "col", col)
+	return PiecePlace(row<<4 | col)
+}
 
 func (place PiecePlace) RowCol() (row int, col int) {
 	return int(place & 0xF0 >> 4), int(place & 0x0F)
@@ -83,3 +114,8 @@ func (place PiecePlace) FileRank() (file int, rank int) {
 	row, col := place.RowCol()
 	return 9 - col, row + 1
 }
+
+var (
+	FullWidthFileString = "１２３４５６７８９"
+	FullWidthRankString = "一二三四五六七八九"
+)

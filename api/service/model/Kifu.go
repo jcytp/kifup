@@ -61,3 +61,10 @@ type KifuBranchWithMoves struct {
 	*KifuBranch
 	Moves []*KifuMove
 }
+
+// 棋譜ファイルのパーシング用、KifuIDやBranchIDは仮のものを設定
+type ParsedKifu struct {
+	Kifu     *Kifu
+	Options  []*KifuOption
+	Branches []*KifuBranchWithMoves // 1つめがメインブランチで、必ず親ブランチが先にある
+}

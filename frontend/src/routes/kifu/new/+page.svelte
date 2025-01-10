@@ -6,13 +6,13 @@
   import PositionEditor from '$lib/components/PositionEditor.svelte';
   import { readTextFile } from '$lib/utils/textEncoding';
 
-  // 許可する拡張子のリスト
-  const ALLOWED_EXTENSIONS = ['.txt', '.kif', '.csa'];
+  // ----------------------------------------
+  // データから作成
 
-  // 棋譜データの状態管理
+  const ALLOWED_EXTENSIONS = ['.txt', '.kif', '.kifu', '.csa'];
+
   let kifuContent = '';
 
-  // ファイル選択時の処理
   async function handleFileSelect(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -20,16 +20,12 @@
     if (!file) return;
 
     try {
-      // ファイル名から拡張子を取得
       const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-
-      // 拡張子チェック
       if (!ALLOWED_EXTENSIONS.includes(extension)) {
         alert('対応していないファイル形式です。\n' + `対応形式: ${ALLOWED_EXTENSIONS.join(', ')}`);
         return;
       }
 
-      // FileReaderでファイルを読み込む
       kifuContent = await readTextFile(file);
     } catch (error) {
       console.error('ファイル読み込みエラー:', error);
@@ -37,32 +33,32 @@
     }
   }
 
-  // 棋譜データから作成
   async function createFromKifu() {
-    if (!kifuContent.trim()) {
+    const data = kifuContent.trim();
+    if (!data) {
       alert('棋譜データを入力してください');
       return;
     }
 
-    try {
-      // TODO: APIリクエストの実装
-      console.log('Creating kifu from data:', kifuContent);
-      // 成功したら編集ページへリダイレクト
-      // window.location.href = `/kifu/edit?id=${newKifuId}`;
-    } catch (error) {
-      console.error('棋譜作成エラー:', error);
-      alert('棋譜の作成に失敗しました');
+    console.log('Creating kifu from data:', data);
+    const result = await createKifu('file', data, undefined);
+    if (result.ok && result.data) {
+      const kifuID = result.data;
+      goto(`/kifu/edit/?id=${kifuID}`); // 編集画面へ遷移
+    } else {
+      console.error('Failed to create kifu from file: ', result);
     }
   }
 
-  // 初期局面の管理
+  // ----------------------------------------
+  // 初期局面から作成
+
   let sfen: string | undefined = undefined;
 
   function handlePositionChange(newSfen?: string) {
     sfen = newSfen;
   }
 
-  // 初期局面から作成
   async function createFromPosition() {
     const result = await createKifu('position', undefined, sfen);
     if (result.ok && result.data) {
@@ -78,7 +74,7 @@
   <section class="basic">
     <h2>棋譜を作成 - データから作成</h2>
     <form on:submit|preventDefault={createFromKifu} class="basic">
-      <!-- <div class="form-group kifu-input-layout">
+      <div class="form-group kifu-input-layout">
         <textarea
           id="kifu-textarea"
           bind:value={kifuContent}
@@ -94,8 +90,8 @@
           <p>対応形式： {ALLOWED_EXTENSIONS.join(', ')}</p>
         </div>
       </div>
-      <button type="submit" class="submit">棋譜データから作成</button> -->
-      <p>※未実装です</p>
+      <button type="submit" class="submit">棋譜データから作成</button>
+      <p>※現在KIF形式のみ、分岐には未対応です</p>
     </form>
   </section>
 
