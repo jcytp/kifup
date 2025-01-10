@@ -45,6 +45,21 @@ var EndingTypeName = map[EndingType]string{
 	ENDING_ERROR:                "ERROR",
 }
 
+var EndingNameToEndingTypeKIF = map[string]EndingType{
+	"中断":   ENDING_CHUDAN,
+	"投了":   ENDING_TORYO,
+	"持将棋":  ENDING_JISHOGI,
+	"千日手":  ENDING_SENNICHITE,
+	"切れ負け": ENDING_TIME_UP,
+	"反則勝ち": ENDING_KACHI,
+	"反則負け": ENDING_ILLEGAL_MOVE,
+	"入玉勝ち": ENDING_KACHI,
+	"不戦勝":  ENDING_WHITE_ILLEGAL_ACTION,
+	"不戦敗":  ENDING_BLACK_ILLEGAL_ACTION,
+	"詰み":   ENDING_TSUMI,
+	"不詰":   ENDING_FUZUMI,
+}
+
 // --------------------------------------------------------------------------------
 type KifuMoveResponse struct {
 	Number        int64                   `json:"number"`                   // 何手目か（分岐の場合も初手からカウント）
@@ -90,6 +105,7 @@ func (t *Kifu) buildMoves(branches []*KifuBranchWithMoves) KifuMoveLineResponse 
 }
 
 func (t *KifuMove) ToResponse(branchID string, allBranches []*KifuBranchWithMoves, position *BoardPosition) *KifuMoveResponse {
+	slog.Debug("KifuMove.ToResponse", "move", *t)
 	resp := &KifuMoveResponse{
 		Number:        t.Number,
 		Piece:         t.Piece,

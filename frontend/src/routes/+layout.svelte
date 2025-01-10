@@ -118,15 +118,15 @@
           text-decoration: none;
           text-align: left;
 
-          &.active {
-            border-color: var(--border-color);
-            cursor: default;
-          }
-
           &:hover:not(.active) {
             background-color: var(--secondary-color);
             color: var(--background-color);
           }
+        }
+
+        li a.active {
+          border-color: var(--border-color);
+          cursor: default;
         }
 
         li.newgroup {

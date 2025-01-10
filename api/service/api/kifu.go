@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jcytp/kifup-api/common/auxi"
 	"github.com/jcytp/kifup-api/common/handler"
+	"github.com/jcytp/kifup-api/service/api/parser"
 	"github.com/jcytp/kifup-api/service/dao"
 	"github.com/jcytp/kifup-api/service/model"
 )
@@ -33,12 +34,56 @@ func CreateKifu(c *gin.Context, req requestCreateKifu) (*string, string, error) 
 }
 
 func createKifuFromFile(aid string, content string) (*string, string, error) {
-	_ = aid
-	_ = content
 	// 1. 棋譜フォーマットごとに棋譜テキストをパースする
 	// 　※どの棋譜フォーマットにも合致しなければエラー
 	// 2. 生成されたKifu・KifuOption・KifuBranch・KifuMoveをDBに保存する
-	return nil, "Not implemented", fmt.Errorf("createKifuFromFile request")
+	var err error
+	var parsedKifu *model.ParsedKifu
+	parsedKifu, err = parser.ParseFromKIF(aid, content) // フォーマット対象外の場合、nil, nilが返る
+	if err != nil {
+		return nil, "error in Parsing from KIF", err
+	} else if parsedKifu != nil {
+		return createKifuFromParsedKifu(parsedKifu) // DBへ保存
+	}
+	// ToDo: 他のフォーマットについても追加していく。
+
+	return nil, "Formats unmatched", fmt.Errorf("content unmatched any kifu formats")
+}
+
+func createKifuFromParsedKifu(parsedKifu *model.ParsedKifu) (*string, string, error) {
+	kifuID, err := dao.InsertKifu(parsedKifu.Kifu)
+	if err != nil {
+		return nil, "Failed to create kifu", err
+	}
+
+	for i := range parsedKifu.Options {
+		parsedKifu.Options[i].KifuID = kifuID
+	}
+	if err := dao.InsertKifuOptions(parsedKifu.Options); err != nil {
+		return nil, "Failed to create kifu options", err
+	}
+
+	branchIDMap := make(map[string]string) // 仮ID->実IDの対応表
+	for _, branch := range parsedKifu.Branches {
+		branch.KifuID = kifuID
+		if branch.RootBranchID != nil {
+			rootBranchID := branchIDMap[*branch.RootBranchID]
+			branch.RootBranchID = &rootBranchID
+		}
+		branchID, err := dao.InsertKifuBranch(branch.KifuBranch)
+		if err != nil {
+			return nil, "Failed to create kifu branch", err
+		}
+
+		for _, move := range branch.Moves {
+			move.BranchID = branchID
+		}
+		if err := dao.InsertKifuMoves(branch.Moves); err != nil {
+			return nil, "Failed to create kifu moves", err
+		}
+	}
+
+	return &kifuID, "", nil
 }
 
 func createKifuFromPosition(aid string, sfen *model.SFEN) (*string, string, error) {
