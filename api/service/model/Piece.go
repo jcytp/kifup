@@ -2,8 +2,6 @@
 
 package model
 
-import "log/slog"
-
 // --------------------------------------------------------------------------------
 type PieceType byte
 
@@ -41,6 +39,23 @@ var PieceTypeNameCSA = map[PieceType]string{
 	PIECE_NG: "NG",
 	PIECE_UM: "UM",
 	PIECE_RY: "RY",
+}
+
+var PieceTypeFromStringCSA = map[string]PieceType{
+	"FU": PIECE_FU,
+	"KY": PIECE_KY,
+	"KE": PIECE_KE,
+	"GI": PIECE_GI,
+	"KI": PIECE_KI,
+	"KA": PIECE_KA,
+	"HI": PIECE_HI,
+	"OU": PIECE_OU,
+	"TO": PIECE_TO,
+	"NY": PIECE_NY,
+	"NK": PIECE_NK,
+	"NG": PIECE_NG,
+	"UM": PIECE_UM,
+	"RY": PIECE_RY,
 }
 
 var PieceTypeNameKIF = map[PieceType]string{
@@ -102,7 +117,7 @@ const PIECE_PLACE_IN_HAND PiecePlace = 0xFF
 func NewPiecePlaceFromFileRank(file int, rank int) PiecePlace {
 	row := rank - 1
 	col := 9 - file
-	slog.Debug("NewPiecePlace", "file", file, "rank", rank, "row", row, "col", col)
+	// slog.Debug("NewPiecePlace", "file", file, "rank", rank, "row", row, "col", col)
 	return PiecePlace(row<<4 | col)
 }
 

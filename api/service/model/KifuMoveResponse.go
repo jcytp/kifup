@@ -60,6 +60,24 @@ var EndingNameToEndingTypeKIF = map[string]EndingType{
 	"不詰":   ENDING_FUZUMI,
 }
 
+var EndingNameToEndingTypeCSA = map[string]EndingType{
+	"TORYO":           ENDING_TORYO,
+	"CHUDAN":          ENDING_CHUDAN,
+	"SENNICHITE":      ENDING_SENNICHITE,
+	"TIME_UP":         ENDING_TIME_UP,
+	"ILLEGAL_MOVE":    ENDING_ILLEGAL_MOVE,
+	"+ILLEGAL_ACTION": ENDING_BLACK_ILLEGAL_ACTION,
+	"-ILLEGAL_ACTION": ENDING_WHITE_ILLEGAL_ACTION,
+	"JISHOGI":         ENDING_JISHOGI,
+	"KACHI":           ENDING_KACHI,
+	"HIKIWAKE":        ENDING_HIKIWAKE,
+	"MAX_MOVES":       ENDING_MAX_MOVES,
+	"MATTA":           ENDING_MATTA,
+	"TSUMI":           ENDING_TSUMI,
+	"FUZUMI":          ENDING_FUZUMI,
+	"ERROR":           ENDING_ERROR,
+}
+
 // --------------------------------------------------------------------------------
 type KifuMoveResponse struct {
 	Number        int64                   `json:"number"`                   // 何手目か（分岐の場合も初手からカウント）

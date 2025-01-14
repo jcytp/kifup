@@ -39,13 +39,22 @@ func createKifuFromFile(aid string, content string) (*string, string, error) {
 	// 2. 生成されたKifu・KifuOption・KifuBranch・KifuMoveをDBに保存する
 	var err error
 	var parsedKifu *model.ParsedKifu
-	parsedKifu, err = parser.ParseFromKIF(aid, content) // フォーマット対象外の場合、nil, nilが返る
+
+	parsedKifu, err = parser.ParseFromKIF(content) // フォーマット対象外の場合、nil, nilが返る
 	if err != nil {
 		return nil, "error in Parsing from KIF", err
 	} else if parsedKifu != nil {
+		parsedKifu.Kifu.AccountID = aid
 		return createKifuFromParsedKifu(parsedKifu) // DBへ保存
 	}
-	// ToDo: 他のフォーマットについても追加していく。
+
+	parsedKifu, err = parser.ParseFromCSA(content) // フォーマット対象外の場合、nil, nilが返る
+	if err != nil {
+		return nil, "error in Parsing from KIF", err
+	} else if parsedKifu != nil {
+		parsedKifu.Kifu.AccountID = aid
+		return createKifuFromParsedKifu(parsedKifu) // DBへ保存
+	}
 
 	return nil, "Formats unmatched", fmt.Errorf("content unmatched any kifu formats")
 }
