@@ -4,7 +4,7 @@ package parser
 
 import (
 	"fmt"
-	"log/slog"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -13,12 +13,16 @@ import (
 	"github.com/jcytp/kifup-api/service/model"
 )
 
-func ParseFromKIF(aid string, content string) (*model.ParsedKifu, error) {
+func ParseFromKIF(content string) (*model.ParsedKifu, error) {
+	lines := strings.Split(content, "\n")
+	if !checkKifuFormatKIF(lines) {
+		return nil, nil
+	}
+
 	kifuID := auxi.NewULID()       // dummy id
 	mainBranchID := auxi.NewULID() // dummy id
 	result := &model.ParsedKifu{
 		Kifu: &model.Kifu{
-			AccountID:       aid,
 			Title:           "新規棋譜",
 			IsPublic:        false,
 			InitialPosition: model.SfenHirate.PSFEN(),
@@ -39,7 +43,6 @@ func ParseFromKIF(aid string, content string) (*model.ParsedKifu, error) {
 	nextNumber := 1 // 次の指し手番号
 	lastPlace := model.PIECE_PLACE_IN_HAND
 
-	lines := strings.Split(content, "\n")
 	for _, line := range lines {
 		line = strings.TrimSpace(line)
 		if strings.Contains(line, "：") {
@@ -62,32 +65,51 @@ func ParseFromKIF(aid string, content string) (*model.ParsedKifu, error) {
 	return result, nil
 }
 
+func checkKifuFormatKIF(lines []string) bool {
+	branch := &model.KifuBranchWithMoves{
+		KifuBranch: &model.KifuBranch{
+			RootBranchID: nil,
+			RootNumber:   nil,
+		},
+	} // dummy
+	lastPlace := model.PIECE_PLACE_IN_HAND
+
+	moveLinePattern := regexp.MustCompile(`^\d+\s`)
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		// 1手目の指し手がパーシングできればフォーマット適合とする
+		if moveLinePattern.MatchString(line) {
+			return parseMoveLineForKIF(line, branch, &lastPlace) == nil
+		}
+	}
+	return false
+}
+
 func parseGameInfoLineForKIF(line string, result *model.ParsedKifu, tmpTimeRule *model.GameInfo) error {
 	parts := strings.Split(line, "：")
 	key := strings.TrimSpace(parts[0])
 	value := strings.TrimSpace(parts[1])
 	switch key {
 	case "開始日時", "対局日":
-		t, err := time.Parse("2006/01/02 15:04:05", value)
-		if err != nil {
-			t, err = time.Parse("2006/01/02", value)
-			if err != nil {
-				return err
-			}
+		if t, err := time.Parse("2006/01/02 15:04:05", value); err == nil {
+			result.Kifu.StartedAt = &t
+		} else if t, err := time.Parse("2006/01/02", value); err == nil {
+			result.Kifu.StartedAt = &t
+		} else {
+			return err
 		}
-		result.Kifu.StartedAt = &t
 	case "終了日時":
-		t, err := time.Parse("2006/01/02 15:04:05", value)
-		if err != nil {
-			t, err = time.Parse("2006/01/02", value)
-			if err != nil {
-				return err
-			}
+		var endTime time.Time
+		if t, err := time.Parse("2006/01/02 15:04:05", value); err == nil {
+			endTime = t
+		} else if t, err := time.Parse("2006/01/02", value); err == nil {
+			endTime = t
+		} else {
+			return err
 		}
 		opt := &model.KifuOption{
-			KifuID: "",
-			Name:   key,
-			Value:  t.Format("2006-01-02T15:04"),
+			Name:  key,
+			Value: endTime.Format("2006-01-02T15:04"),
 		}
 		result.Options = append(result.Options, opt)
 	case "手合割":
@@ -148,9 +170,8 @@ func parseGameInfoLineForKIF(line string, result *model.ParsedKifu, tmpTimeRule 
 	default:
 		// 他の情報は全てKifuOptionとする
 		opt := &model.KifuOption{
-			KifuID: "",
-			Name:   key,
-			Value:  value,
+			Name:  key,
+			Value: value,
 		}
 		result.Options = append(result.Options, opt)
 	}
@@ -196,7 +217,7 @@ func parseMoveLineForKIF(line string, resultBranch *model.KifuBranchWithMoves, l
 	numString := parts[0]
 	moveString := parts[1]
 	timeString := strings.Join(parts[2:], "")
-	slog.Debug("parseMoveLine", "numString", numString, "moveString", moveString, "timeString", timeString)
+	// slog.Debug("parseMoveLine", "numString", numString, "moveString", moveString, "timeString", timeString)
 
 	// 番号の取得
 	num, err := strconv.ParseInt(numString, 10, 64)

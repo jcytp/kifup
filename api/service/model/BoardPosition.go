@@ -17,6 +17,7 @@ import (
 type SFEN string
 
 const (
+	SfenAllInBox          SFEN = "9/9/9/9/9/9/9/9/9 b - 1"
 	SfenHirate            SFEN = "lnsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL b - 1"
 	SfenKyoOchi           SFEN = "lnsgkgsn1/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
 	SfenMigiKyoOchi       SFEN = "1nsgkgsnl/1r5b1/ppppppppp/9/9/9/PPPPPPPPP/1B5R1/LNSGKGSNL w - 1"
@@ -44,7 +45,7 @@ type BoardPosition struct {
 	WhiteBoard  [9][9]PieceType
 	BlackHands  map[PieceType]int32
 	WhiteHands  map[PieceType]int32
-	isBlackTurn bool
+	IsBlackTurn bool
 }
 
 var pieceTypeOfSFEN = map[rune]PieceType{
@@ -89,7 +90,7 @@ func NewBoardPosition(sfen *SFEN) (*BoardPosition, error) {
 		WhiteBoard:  [9][9]PieceType{},
 		BlackHands:  map[PieceType]int32{},
 		WhiteHands:  map[PieceType]int32{},
-		isBlackTurn: true,
+		IsBlackTurn: true,
 	}
 
 	parts := strings.Split(string(*sfen), " ")
@@ -150,7 +151,7 @@ func NewBoardPosition(sfen *SFEN) (*BoardPosition, error) {
 	if parts[1] != "b" && parts[1] != "w" {
 		return nil, fmt.Errorf("invalid turn indicator: expected 'b' or 'w', got '%s'", parts[1])
 	}
-	bp.isBlackTurn = parts[1] == "b"
+	bp.IsBlackTurn = parts[1] == "b"
 
 	// Parse hands
 	if parts[2] != "-" {
@@ -246,7 +247,7 @@ func (bp *BoardPosition) ToSFEN(moveCount int) (SFEN, error) {
 
 	// Write turn
 	sb.WriteRune(' ')
-	if bp.isBlackTurn {
+	if bp.IsBlackTurn {
 		sb.WriteRune('b')
 	} else {
 		sb.WriteRune('w')
@@ -295,7 +296,7 @@ func (bp *BoardPosition) ToSFEN(moveCount int) (SFEN, error) {
 func (bp *BoardPosition) Move(move *KifuMove) error {
 	var currentBoard, opponentBoard *[9][9]PieceType
 	var currentHand *map[PieceType]int32
-	if bp.isBlackTurn {
+	if bp.IsBlackTurn {
 		currentBoard = &bp.BlackBoard
 		opponentBoard = &bp.WhiteBoard
 		currentHand = &bp.BlackHands
@@ -358,7 +359,7 @@ func (bp *BoardPosition) Move(move *KifuMove) error {
 	}
 
 	// 手番を変更
-	bp.isBlackTurn = !bp.isBlackTurn
+	bp.IsBlackTurn = !bp.IsBlackTurn
 
 	return nil
 }
@@ -369,7 +370,7 @@ func (bp *BoardPosition) Copy() *BoardPosition {
 		WhiteBoard:  bp.WhiteBoard,
 		BlackHands:  make(map[PieceType]int32, len(bp.BlackHands)),
 		WhiteHands:  make(map[PieceType]int32, len(bp.WhiteHands)),
-		isBlackTurn: bp.isBlackTurn,
+		IsBlackTurn: bp.IsBlackTurn,
 	}
 	for k, v := range bp.BlackHands {
 		newPosition.BlackHands[k] = v
@@ -388,7 +389,7 @@ func (bp *BoardPosition) IsPromote(move *KifuMove) *bool {
 		} else {
 			var pieceBefore PieceType
 			row, col := move.FromPlace.RowCol()
-			if bp.isBlackTurn { // 先手番
+			if bp.IsBlackTurn { // 先手番
 				pieceBefore = bp.BlackBoard[row][col]
 			} else { // 後手番
 				pieceBefore = bp.WhiteBoard[row][col]
@@ -406,12 +407,12 @@ func (bp *BoardPosition) IsPromote(move *KifuMove) *bool {
 		if move.FromPlace != PIECE_PLACE_IN_HAND { // 持ち駒から打ったのではない
 			// 敵陣から動いたか
 			fromRow, _ := move.FromPlace.RowCol()
-			if (bp.isBlackTurn && fromRow < 3) || (!bp.isBlackTurn && fromRow > 5) {
+			if (bp.IsBlackTurn && fromRow < 3) || (!bp.IsBlackTurn && fromRow > 5) {
 				return auxi.PBool(false) // 成判定false（不成）
 			}
 			// 敵陣に入ったか
 			toRow, _ := move.ToPlace.RowCol()
-			if (bp.isBlackTurn && toRow < 3) || (!bp.isBlackTurn && toRow > 5) {
+			if (bp.IsBlackTurn && toRow < 3) || (!bp.IsBlackTurn && toRow > 5) {
 				return auxi.PBool(false) // 成判定false（不成）
 			}
 			// その他は、成判定null
@@ -423,7 +424,7 @@ func (bp *BoardPosition) IsPromote(move *KifuMove) *bool {
 func (bp *BoardPosition) CatchPiece(move *KifuMove) *PieceType {
 	var result PieceType = PIECE_VACANCY
 	row, col := move.ToPlace.RowCol()
-	if bp.isBlackTurn {
+	if bp.IsBlackTurn {
 		result = bp.WhiteBoard[row][col]
 	} else {
 		result = bp.BlackBoard[row][col]
@@ -437,4 +438,32 @@ func (bp *BoardPosition) CatchPiece(move *KifuMove) *PieceType {
 func (bp *BoardPosition) DirectionSign(move *KifuMove) *string {
 	// ToDo: ki2形式で出力するにはDirecrtionSignが必要
 	return nil // 必要ない場合はnull
+}
+
+func (bp *BoardPosition) AllPiecesInBox() map[PieceType]int32 {
+	result := map[PieceType]int32{
+		PIECE_FU: 18,
+		PIECE_KY: 4,
+		PIECE_KE: 4,
+		PIECE_GI: 4,
+		PIECE_KI: 4,
+		PIECE_KA: 2,
+		PIECE_HI: 2,
+		PIECE_OU: 2,
+	}
+	for i := 0; i < 9; i++ {
+		for j := 0; j < 9; j++ {
+			if bp.BlackBoard[i][j] != PIECE_VACANCY {
+				piece := bp.BlackBoard[i][j] & ^PIECE_PROMOTE
+				result[piece] -= 1
+			}
+		}
+	}
+	for piece, cnt := range bp.BlackHands {
+		result[piece] -= cnt
+	}
+	for piece, cnt := range bp.WhiteHands {
+		result[piece] -= cnt
+	}
+	return result
 }
