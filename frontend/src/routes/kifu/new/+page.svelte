@@ -9,7 +9,7 @@
   // ----------------------------------------
   // データから作成
 
-  const ALLOWED_EXTENSIONS = ['.txt', '.kif', '.kifu', '.csa'];
+  const ALLOWED_FORMATS = ['KIF形式', 'CSA形式'];
 
   let kifuContent = '';
 
@@ -20,12 +20,6 @@
     if (!file) return;
 
     try {
-      const extension = '.' + file.name.split('.').pop()?.toLowerCase();
-      if (!ALLOWED_EXTENSIONS.includes(extension)) {
-        alert('対応していないファイル形式です。\n' + `対応形式: ${ALLOWED_EXTENSIONS.join(', ')}`);
-        return;
-      }
-
       kifuContent = await readTextFile(file);
     } catch (error) {
       console.error('ファイル読み込みエラー:', error);
@@ -84,10 +78,10 @@
           <input
             class="kifu-file-input"
             type="file"
-            accept={ALLOWED_EXTENSIONS.join(',')}
+            accept={ALLOWED_FORMATS.join(',')}
             on:change={handleFileSelect}
           />
-          <p>対応形式： {ALLOWED_EXTENSIONS.join(', ')}</p>
+          <p>対応形式： {ALLOWED_FORMATS.join(', ')}</p>
         </div>
       </div>
       <button type="submit" class="submit">棋譜データから作成</button>
