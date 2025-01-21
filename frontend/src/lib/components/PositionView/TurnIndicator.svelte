@@ -15,10 +15,10 @@
   role="button"
   tabindex="0"
 >
-  <rect width="800" height="160" rx="30" ry="30" fill="#666" />
-  <rect x="10" y="10" width="780" height="140" rx="20" ry="20" fill="#cfc" />
+  <rect width="670" height="160" rx="30" ry="30" fill="#666" />
+  <rect x="10" y="10" width="650" height="140" rx="20" ry="20" fill="#cfc" />
   <text
-    x="400"
+    x="335"
     y="90"
     dominant-baseline="middle"
     text-anchor="middle"

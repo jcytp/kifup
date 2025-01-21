@@ -129,7 +129,18 @@ export class BoardPosition {
             console.error('Number at end of hands section');
             return;
           }
-          count = parseInt(c);
+          const d = parts[2][i + 1];
+          if (/[0-9]/.test(d)) {
+            // 2桁の場合
+            i++;
+            if (i === parts[2].length - 1) {
+              console.error('Number at end of hands section');
+              return;
+            }
+            count = parseInt(c) * 10 + parseInt(d);
+          } else {
+            count = parseInt(c);
+          }
           continue;
         }
         const pieceType = PieceTypeOfSFEN.get(c);

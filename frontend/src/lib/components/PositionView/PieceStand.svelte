@@ -12,8 +12,8 @@
   export let onAreaClick: ((e: PieceClickEvent) => void) | undefined = undefined;
   export let onPieceClick: ((e: PieceClickEvent) => void) | undefined = undefined;
   export let pickedPiece: PieceClickEvent | undefined;
-  const w = 800;
-  const h = 1360;
+  const w = 670; // 5 + 30 + (240 + 60)*2 + 30 + 5
+  const h = 1075; // 260*4 + 5*3 + 10*2
   const pieceTypeList = [
     PieceType.FU,
     PieceType.VACANCY,
@@ -70,7 +70,7 @@
   {#each pieceTypeList as pieceType, i}
     {@const count = hands.get(pieceType) ?? 0}
     {#if count}
-      <g transform={`translate(${70 + (i % 2) * 360}, ${70 + Math.floor(i / 2) * 320})`}>
+      <g transform={`translate(${35 + (i % 2) * 300}, ${5 + Math.floor(i / 2) * 265})`}>
         <Piece
           {pieceType}
           {style}
