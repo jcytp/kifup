@@ -80,6 +80,10 @@
         position.whiteBoard[target.source.row][target.source.col] = moving.pieceType;
       }
     } else if (target.source.type === 'stand' || target.source.type === 'box') {
+      if (moving.pieceType == PieceType.OU) {
+        // 玉は駒箱に
+        target.source.type = 'box';
+      }
       const targetContainer =
         target.source.type === 'stand'
           ? target.source.isBlack
