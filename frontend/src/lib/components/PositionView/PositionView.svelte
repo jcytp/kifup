@@ -29,6 +29,7 @@
 
   // parameters
   export let mode: 'position' | 'moves' | 'replay' = 'position';
+  export let showNumbers: boolean = true;
   export let isBlackFirst: boolean | undefined = undefined;
   export let moveList: KifuMove[] = [];
   export let moveNumber: number = 0; // 現在の手数
@@ -248,6 +249,34 @@
       onRightClick={handleRightClick}
       {pickedPiece}
     />
+    {#if showNumbers}
+      {#each '１２３４５６７８９' as file, i}
+        <text
+          x={2940 - i * 245}
+          y={85}
+          dominant-baseline="middle"
+          text-anchor="middle"
+          fill="#666"
+          font-size={70}
+          style:font-size="70px"
+        >
+          {file}
+        </text>
+      {/each}
+      {#each '一二三四五六七八九' as file, i}
+        <text
+          x={3105}
+          y={260 + i * 265}
+          dominant-baseline="middle"
+          text-anchor="middle"
+          fill="#666"
+          font-size={70}
+          style:font-size="70px"
+        >
+          {file}
+        </text>
+      {/each}
+    {/if}
     <!-- y = 120 + 10 + 260*5 + 5*5 - 10 -->
     <PieceStand
       x={3190}
