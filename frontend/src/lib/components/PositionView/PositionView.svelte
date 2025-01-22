@@ -7,6 +7,7 @@
   import type { KifuMove } from '$lib/types/Kifu';
   import { PieceMovables, PiecePlace, PieceType, type PieceClickEvent } from '$lib/types/Piece';
   import Board from './Board.svelte';
+  import MoveComment from './MoveComment.svelte';
   import MoveList from './MoveList.svelte';
   import PieceBox from './PieceBox.svelte';
   import PieceStand from './PieceStand.svelte';
@@ -26,21 +27,25 @@
   ) => {};
   export let onAppendMove: (num: number, move: KifuMove) => void = (num, move) => {};
   export let onPromote: (promote: boolean) => void = (promote) => {};
+  export let onChangeComment: (comment: string) => void = (comment) => {};
 
   // parameters
   export let mode: 'position' | 'moves' | 'replay' = 'position';
   export let showNumbers: boolean = true;
+  export let showComment: boolean = true;
+  export let comment: string = '';
   export let isBlackFirst: boolean | undefined = undefined;
   export let moveList: KifuMove[] = [];
   export let moveNumber: number = 0; // 現在の手数
   export let sfen: string | undefined; // 現在の局面
   $: visibleMoveList = mode === 'moves' || mode === 'replay';
   $: visiblePieceBox = mode === 'position';
+  $: visibleMoveComment = mode === 'moves' || mode === 'replay';
   $: position = new BoardPosition(sfen);
   let promoteChoice: PieceType = PieceType.VACANCY;
 
   $: viewBoxWidth = 3920 + (visibleMoveList ? 860 : 0) + (visiblePieceBox ? 860 : 0);
-  const viewBoxHeight = 2640;
+  $: viewBoxHeight = 2640 + (visibleMoveComment ? (showComment ? 380 : 80) : 0);
 
   const handleToggleTurn = () => {
     if (mode === 'position') {
@@ -288,6 +293,17 @@
       {pickedPiece}
     />
     <TurnIndicator x={3190} y={120} isBlackTurn={position.isBlackTurn} onClick={handleToggleTurn} />
+    {#if visibleMoveComment}
+      <MoveComment
+        x={60}
+        y={2600}
+        {comment}
+        editable={mode === 'moves'}
+        closed={!showComment}
+        onCloseOpen={() => (showComment = !showComment)}
+        {onChangeComment}
+      />
+    {/if}
     {#if visiblePieceBox}
       <PieceBox
         x={3920}
