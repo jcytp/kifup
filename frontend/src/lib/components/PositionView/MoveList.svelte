@@ -12,10 +12,10 @@
   const w = 800;
   const h = 2400;
 
-  const testMoveList: KifuMove[] = [
-    { number: 1, piece: 0x0, from_place: 0x67, to_place: 0x57 },
-    { number: 2, piece: 0x0, from_place: 0x21, to_place: 0x31 },
-  ];
+  // const testMoveList: KifuMove[] = [
+  //   { number: 1, piece: 0x0, from_place: 0x67, to_place: 0x57 },
+  //   { number: 2, piece: 0x0, from_place: 0x21, to_place: 0x31 },
+  // ];
 
   const formatMove = (move: KifuMove, num: number): string => {
     const turnMark = (isBlackFirst && num % 2 == 1) || (!isBlackFirst && num % 2 == 0) ? '▲' : '△';

@@ -8,6 +8,7 @@
   export let initialSfen: string | undefined;
   export let moveList: KifuMove[];
   let moveNumber: number = 0;
+  $: comment = moveNumber >= 1 ? moveList[moveNumber - 1].comment || '' : '';
   $: currentSfen = generateMovedSfen(initialSfen, moveList, moveNumber);
   $: isBlackFirst = isBlackOfSfen(initialSfen);
 
@@ -26,7 +27,7 @@
 </script>
 
 <div class="kifu-player">
-  <PositionView mode="replay" {isBlackFirst} sfen={currentSfen} {moveList} {moveNumber} />
+  <PositionView mode="replay" {isBlackFirst} sfen={currentSfen} {comment} {moveList} {moveNumber} />
   <div class="controls">
     <button onclick={handleToStart}>|◀</button>
     <button onclick={handleToPrev}>◀</button>

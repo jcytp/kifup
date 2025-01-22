@@ -13,6 +13,7 @@
   export let initialSfen: string | undefined;
   export let moveList: KifuMove[];
   $: moveNumber = moveList.length;
+  $: comment = moveNumber >= 1 ? moveList[moveNumber - 1].comment || '' : '';
   $: currentSfen = generateMovedSfen(initialSfen, moveList, moveNumber);
   $: isBlackFirst = isBlackOfSfen(initialSfen);
 
@@ -48,6 +49,13 @@
       moveList[moveList.length - 1].piece = moveList[moveList.length - 1].piece | PieceType.PROMOTE;
     }
   };
+  const handleChangeComment = (comment: string) => {
+    if (moveNumber >= 1) {
+      moveList[moveNumber - 1].comment = comment;
+    } else {
+      // ToDo: initial comment
+    }
+  };
 </script>
 
 <div class="position-editor">
@@ -55,10 +63,12 @@
     mode="moves"
     {isBlackFirst}
     sfen={currentSfen}
+    {comment}
     {moveList}
     {moveNumber}
     onAppendMove={handleAppendMove}
     onPromote={handlePromote}
+    onChangeComment={handleChangeComment}
   />
   <div class="controls">
     <button onclick={handleToStart}>|◀</button>
