@@ -64,12 +64,14 @@ type requestCreateAccount struct {
 }
 
 func CreateAccount(c *gin.Context, req requestCreateAccount) (string, error) {
-	ev, err := dao.GetEmailVerification(req.Email)
-	if err != nil {
-		return "Failed to get verification", err
-	}
-	if !ev.IsValid(req.Code) {
-		return "Invalid verification code", fmt.Errorf("invalid verification code")
+	if !env.IsDevelopment() { // 開発環境ではメール認証なしでユーザー登録
+		ev, err := dao.GetEmailVerification(req.Email)
+		if err != nil {
+			return "Failed to get verification", err
+		}
+		if !ev.IsValid(req.Code) {
+			return "Invalid verification code", fmt.Errorf("invalid verification code")
+		}
 	}
 
 	passHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -86,8 +88,10 @@ func CreateAccount(c *gin.Context, req requestCreateAccount) (string, error) {
 		return "Failed to create account", err
 	}
 
-	if err := dao.MarkEmailVerificationAsUsed(req.Email); err != nil {
-		return "Failed to mark verification as used", err
+	if !env.IsDevelopment() {
+		if err := dao.MarkEmailVerificationAsUsed(req.Email); err != nil {
+			return "Failed to mark verification as used", err
+		}
 	}
 
 	return "", nil

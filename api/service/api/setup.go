@@ -31,6 +31,12 @@ func SetupTables() {
 	if err := dao.CreateKifuMoveTable(); err != nil {
 		log.Fatal("failed to create kifu move table")
 	}
+	if err := dao.CreateKifuLikeTable(); err != nil {
+		log.Fatal("failed to create kifu like table")
+	}
+	if err := dao.CreateKifuCommentTable(); err != nil {
+		log.Fatal("failed to create kifu comment table")
+	}
 }
 
 type GetServerStatusResponse struct {

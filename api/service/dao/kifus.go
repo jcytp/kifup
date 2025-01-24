@@ -32,6 +32,8 @@ func CreateKifuTable() error {
 			initial_position TEXT,
 			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 			updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            like_count INTEGER NOT NULL DEFAULT 0,
+            comment_count INTEGER NOT NULL DEFAULT 0,
 			FOREIGN KEY (account_id) REFERENCES accounts(id) ON DELETE CASCADE,
 			CHECK (LENGTH(title) >= 1 AND LENGTH(title) <= 100),
 			CHECK (LENGTH(black_player) <= 100),
@@ -52,14 +54,17 @@ func InsertKifu(kifu *model.Kifu) (string, error) {
 	now := time.Now()
 	kifu.CreatedAt = now
 	kifu.UpdatedAt = now
+	kifu.LikeCount = 0
+	kifu.CommentCount = 0
 
 	query := `
 		INSERT INTO kifus (
 			id, account_id, title, is_public,
 			black_player, white_player, started_at,
 			time_rule, initial_position,
-			created_at, updated_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+			created_at, updated_at,
+			like_count, comment_count
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 	_, err := db.Exec(
 		query,
@@ -67,6 +72,7 @@ func InsertKifu(kifu *model.Kifu) (string, error) {
 		kifu.BlackPlayer, kifu.WhitePlayer, kifu.StartedAt,
 		kifu.TimeRule, kifu.InitialPosition,
 		kifu.CreatedAt, kifu.UpdatedAt,
+		kifu.LikeCount, kifu.CommentCount,
 	)
 	return kifu.ID, err
 }
@@ -98,7 +104,10 @@ func UpdateKifu(kifu *model.Kifu) error {
 }
 
 func DeleteKifu(kifuID string, accountID string) error {
-	query := `DELETE FROM kifus WHERE id = ? AND account_id = ?`
+	query := `
+		DELETE FROM kifus
+		WHERE id = ? AND account_id = ?
+	`
 	res, err := db.Exec(query, kifuID, accountID)
 	if err != nil {
 		return err
@@ -107,13 +116,17 @@ func DeleteKifu(kifuID string, accountID string) error {
 }
 
 func GetKifu(kifuID string) (*model.Kifu, error) {
-	query := `SELECT * FROM kifus WHERE id = ?`
+	query := `
+		SELECT * FROM kifus
+		WHERE id = ?
+	`
 	kifu := &model.Kifu{}
 	err := db.QueryRow(query, kifuID).Scan(
 		&kifu.ID, &kifu.AccountID, &kifu.Title, &kifu.IsPublic,
 		&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
 		&kifu.TimeRule, &kifu.InitialPosition,
 		&kifu.CreatedAt, &kifu.UpdatedAt,
+		&kifu.LikeCount, &kifu.CommentCount,
 	)
 	if err != nil {
 		return nil, err
@@ -196,6 +209,7 @@ func ListPublicKifus(limit int, offset int) ([]*model.Kifu, error) {
 			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
 			&kifu.TimeRule, &kifu.InitialPosition,
 			&kifu.CreatedAt, &kifu.UpdatedAt,
+			&kifu.LikeCount, &kifu.CommentCount,
 		)
 		if err != nil {
 			return nil, err
@@ -238,6 +252,7 @@ func ListPublicKifusByAccountID(accountID string, limit int, offset int) ([]*mod
 			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
 			&kifu.TimeRule, &kifu.InitialPosition,
 			&kifu.CreatedAt, &kifu.UpdatedAt,
+			&kifu.LikeCount, &kifu.CommentCount,
 		)
 		if err != nil {
 			return nil, err
@@ -245,4 +260,43 @@ func ListPublicKifusByAccountID(accountID string, limit int, offset int) ([]*mod
 		kifus = append(kifus, kifu)
 	}
 	return kifus, nil
+}
+
+func IncrementKifuLikeCount(kifuID string) error {
+	query := `
+		UPDATE kifus
+		SET like_count = like_count + 1
+		WHERE id = ?
+	`
+	res, err := db.Exec(query, kifuID)
+	if err != nil {
+		return err
+	}
+	return db.CheckAffectedRows(res, 1)
+}
+
+func DecrementKifuLikeCount(kifuID string) error {
+	query := `
+		UPDATE kifus
+		SET like_count = like_count - 1
+		WHERE id = ? AND like_count > 0
+	`
+	res, err := db.Exec(query, kifuID)
+	if err != nil {
+		return err
+	}
+	return db.CheckAffectedRows(res, 1)
+}
+
+func IncrementKifuCommentCount(kifuID string) error {
+	query := `
+		UPDATE kifus
+		SET comment_count = comment_count + 1
+		WHERE id = ?
+	`
+	res, err := db.Exec(query, kifuID)
+	if err != nil {
+		return err
+	}
+	return db.CheckAffectedRows(res, 1)
 }
