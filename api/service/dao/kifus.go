@@ -167,6 +167,7 @@ func ListKifusByAccountID(accountID string, limit int, offset int) ([]*model.Kif
 			&kifu.BlackPlayer, &kifu.WhitePlayer, &kifu.StartedAt,
 			&kifu.TimeRule, &kifu.InitialPosition,
 			&kifu.CreatedAt, &kifu.UpdatedAt,
+			&kifu.LikeCount, &kifu.CommentCount,
 		)
 		if err != nil {
 			return nil, err
