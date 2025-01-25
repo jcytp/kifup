@@ -3,6 +3,14 @@
 import type { Account } from './Account';
 import type { PieceType } from './Piece';
 
+export interface KifuComment {
+  id: string;
+  kifu_id: string;
+  account: Account;
+  content: string;
+  created_at: string;
+}
+
 export interface KifuSummary {
   id: string;
   owner: Account;
@@ -11,6 +19,8 @@ export interface KifuSummary {
   updated_at: Date;
   game_info: { [key: string]: string };
   tags: string[];
+  like_count: number;
+  comment_count: number;
 }
 
 export interface KifuDetail {
@@ -24,6 +34,8 @@ export interface KifuDetail {
   game_info: { [key: string]: string };
   tags: string[];
   moves: KifuMove[];
+  like_count: number;
+  has_like: boolean;
 }
 
 export interface KifuMove {

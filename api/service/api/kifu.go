@@ -215,8 +215,14 @@ func GetKifu(c *gin.Context) (*model.KifuDetailResponse, string, error) {
 		}
 		branchesWithMoves = append(branchesWithMoves, branchWithMoves)
 	}
+	hasLike := false
+	if accountID != "" {
+		if like, err := dao.HasKifuLike(kifuID, accountID); err == nil {
+			hasLike = like
+		}
+	}
 
-	response := kifu.ToDetailResponse(owner, options, tags, branchesWithMoves)
+	response := kifu.ToDetailResponse(owner, options, tags, branchesWithMoves, hasLike)
 	return response, "", nil
 }
 

@@ -267,6 +267,93 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
+  /api/kifu/{kifuID}/like:
+    parameters:
+      - name: kifuID
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      summary: 棋譜にいいねをつける
+      tags: [Social]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+    delete:
+      summary: 棋譜のいいねを取り消す
+      tags: [Social]
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/kifu/{kifuID}/comments:
+    parameters:
+      - name: kifuID
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      summary: 棋譜のコメント一覧を取得
+      tags: [Social]
+      responses:
+        '200':
+          $ref: '#/components/responses/KifuCommentsResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/kifu/{kifuID}/comment:
+    parameters:
+      - name: kifuID
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      summary: 棋譜にコメントを投稿
+      tags: [Social]
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostCommentRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
 
 components:
   securitySchemes:
@@ -395,6 +482,20 @@ components:
                 example: true
               data:
                 $ref: '#/components/schemas/KifuDetail'
+    KifuCommentsResponse:
+      description: コメント一覧取得成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              ok:
+                type: boolean
+                example: true
+              data:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KifuComment'
   schemas:
     ServerStatus:
       type: object
@@ -561,6 +662,10 @@ components:
           type: array
           items:
             type: string
+        like_count:
+          type: integer
+        comment_count:
+          type: integer
     KifuDetail:
       type: object
       properties:
@@ -590,6 +695,12 @@ components:
             type: string
         moves:
           $ref: '#/components/schemas/KifuMoveLine'
+        like_count:
+          type: integer
+          description: いいね数
+        has_like:
+          type: boolean
+          description: いいね済みか
     KifuMoveLine:
       type: array
       items:
@@ -630,6 +741,29 @@ components:
         time_spent_ms:
           type: integer
           description: 消費時間（ミリ秒）
+    PostCommentRequest:
+      type: object
+      required: [content]
+      properties:
+        content:
+          type: string
+          minLength: 1
+          maxLength: 1000
+          description: コメント内容
+    KifuComment:
+      type: object
+      properties:
+        id:
+          type: string
+        kifu_id:
+          type: string
+        account:
+          $ref: '#/components/schemas/Account'
+        content:
+          type: string
+        created_at:
+          type: string
+          format: date-time
 
 
 

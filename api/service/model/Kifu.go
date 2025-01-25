@@ -20,6 +20,8 @@ type Kifu struct {
 	InitialPosition *SFEN           `db:"initial_position"` // 開始局面（平手初期局面はNULL）
 	CreatedAt       time.Time       `db:"created_at"`
 	UpdatedAt       time.Time       `db:"updated_at"`
+	LikeCount       int64           `db:"like_count"`    // いいね数
+	CommentCount    int64           `db:"comment_count"` // 感想コメント数
 }
 
 // table: `kifu_options`

@@ -92,5 +92,11 @@ func main() {
 	rSes.PUT("/kifu/:kifuID", handler.HandlerIn(api.UpdateKifuInfo))
 	rSes.PUT("/kifu/:kifuID/moves", handler.HandlerIn(api.UpdateKifuMoves))
 
+	// social api
+	rSes.POST("/kifu/:kifuID/like", handler.Handler(api.LikeKifu))
+	rSes.DELETE("/kifu/:kifuID/like", handler.Handler(api.UnlikeKifu))
+	rSes.POST("/kifu/:kifuID/comment", handler.HandlerIn(api.PostKifuComment))
+	rOpt.GET("/kifu/:kifuID/comments", handler.HandlerOut(api.ListKifuComments))
+
 	r.Run(":80") // default -> localhost:8080
 }

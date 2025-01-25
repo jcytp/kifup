@@ -60,7 +60,7 @@ func Initialize() {
 		}
 	case envDevelopment:
 		conf = &Config{
-			Environment:    envStaging,
+			Environment:    envDevelopment,
 			SecretKey:      []byte(secretKey),
 			AllowedOrigins: []string{"http://localhost", frontendOrigin},
 			DatabasePath:   "tmp/kifup.db",

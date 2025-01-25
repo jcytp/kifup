@@ -77,9 +77,21 @@
           >
             <div class="kifu-header">
               <h3>{kifu.title}</h3>
-              <span class={`kifu-status ${kifu.is_public ? 'public' : 'private'}`}>
-                {kifu.is_public ? '公開' : '非公開'}
-              </span>
+              <div class="kifu-header-status">
+                <span class="social-metrics">
+                  <span class="metric" title="いいね数">
+                    <span>★</span>
+                    <span>{kifu.like_count}</span>
+                  </span>
+                  <span class="metric" title="コメント数">
+                    <span>※</span>
+                    <span>{kifu.comment_count}</span>
+                  </span>
+                </span>
+                <span class={`kifu-status ${kifu.is_public ? 'public' : 'private'}`}>
+                  {kifu.is_public ? '公開' : '非公開'}
+                </span>
+              </div>
             </div>
             <div class="kifu-info">
               <span>対局日時: {formatDateTime(kifu.game_info.対局日時) || '--'}</span>
@@ -126,6 +138,18 @@
         <a href={`/kifu/view?id=${kifu.id}`} class="card kifu-card">
           <div class="kifu-header">
             <h3>{kifu.title}</h3>
+            <div class="kifu-header-status">
+              <span class="social-metrics">
+                <span class="metric" title="いいね数">
+                  <span>★</span>
+                  <span>{kifu.like_count}</span>
+                </span>
+                <span class="metric" title="コメント数">
+                  <span>※</span>
+                  <span>{kifu.comment_count}</span>
+                </span>
+              </span>
+            </div>
           </div>
           <div class="kifu-info">
             <span>対局日時: {formatDateTime(kifu.game_info.対局日時) || '--'}</span>
@@ -205,6 +229,25 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+
+        .kifu-header-status {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+
+          .social-metrics {
+            display: flex;
+            gap: 0.5rem;
+
+            .metric {
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 0.2rem;
+              color: var(--secondary-color);
+            }
+          }
+        }
 
         .kifu-status {
           font-size: 0.8rem;
