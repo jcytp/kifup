@@ -1,10 +1,11 @@
 <!-- src/routes/kifu/view/+page.svelte -->
 
 <script lang="ts">
-  import type { KifuDetail, KifuMove } from '$lib/types/Kifu';
+  import type { KifuComment, KifuDetail, KifuMove } from '$lib/types/Kifu';
   import { page } from '$app/stores';
   import { account } from '$lib/stores/session';
   import { getKifu } from '$lib/apis/kifu';
+  import { addKifuLike, removeKifuLike, getKifuComments, addKifuComment } from '$lib/apis/social';
   import { formatDateTime, formatTimeRule } from '$lib/utils/textFormat';
   import KifuPlayer from '$lib/components/KifuPlayer.svelte';
 
@@ -51,50 +52,52 @@
     content: string;
     createdAt: string;
   }> = [];
-  let likeCount = 0;
-  let isLiked = false;
   let newComment = '';
   let commentsError = false;
 
   const fetchKifuComments = async () => {
     commentsError = false;
+    if (!kifuId) return;
 
-    // ToDo: API実装後にデータ取得を実装
-    // comments = [
-    //   {
-    //     id: '1',
-    //     userId: 'user-2',
-    //     userName: '観戦者A',
-    //     content: '素晴らしい一手でした！',
-    //     createdAt: '2024-01-01 12:00',
-    //   },
-    // ];
-    // likeCount = 42;
-    // isLiked = false;
+    const result = await getKifuComments(kifuId);
+    if (result.ok && result.data) {
+      comments = result.data.map((comment: KifuComment) => ({
+        id: comment.id,
+        userId: comment.account.id,
+        userName: comment.account.name,
+        content: comment.content,
+        createdAt: formatDateTime(comment.created_at),
+      }));
+    } else {
+      console.error('Failed to fetch comments: ', result);
+      commentsError = true;
+    }
   };
 
-  const handleCommentSubmit = async () => {
-    if (!newComment.trim()) return;
+  const handleCommentSubmit = async (e: Event) => {
+    e.preventDefault();
+    if (!$account || !kifuId || !newComment.trim()) return;
 
-    // ToDo: API実装後にコメント投稿処理を実装
-    comments = [
-      ...comments,
-      {
-        id: String(Date.now()),
-        userId: $account ? $account.id : '',
-        userName: $account ? $account.name : 'anonymous',
-        content: newComment,
-        createdAt: formatDateTime(new Date()),
-      },
-    ];
-
-    newComment = '';
+    const result = await addKifuComment(kifuId, newComment.trim());
+    if (result.ok) {
+      // コメント投稿成功後、コメント一覧を再取得
+      await fetchKifuComments();
+      newComment = '';
+    } else {
+      console.error('Failed to post comment: ', result);
+    }
   };
 
   const toggleLike = async () => {
-    // ToDo: API実装後にいいね処理を実装
-    isLiked = !isLiked;
-    likeCount += isLiked ? 1 : -1;
+    if (!$account || !kifuId) return;
+
+    const result = await (kifu.has_like ? removeKifuLike(kifuId) : addKifuLike(kifuId));
+    if (result.ok) {
+      kifu.has_like = !kifu.has_like;
+      kifu.like_count += kifu.has_like ? 1 : -1;
+    } else {
+      console.error('Failed to toggle like: ', result);
+    }
   };
 
   // ----------------------------------------
@@ -147,9 +150,14 @@
       <KifuPlayer initialSfen={kifu.initial_position} moveList={moves} />
     </section>
 
-    <!-- <section class="basic">
-      <button class="like-button" class:liked={isLiked} onclick={toggleLike}>
-        {isLiked ? '★' : '☆'} いいね！ ({likeCount})
+    <section class="basic">
+      <button
+        class="like-button"
+        class:liked={kifu.has_like}
+        onclick={toggleLike}
+        disabled={!$account}
+      >
+        {kifu.has_like ? '★' : '☆'} いいね！ ({kifu.like_count})
       </button>
 
       <div class="comments-list">
@@ -168,15 +176,17 @@
         {/if}
       </div>
 
-      <form class="basic" onsubmit={handleCommentSubmit}>
-        <div class="form-group">
-          <label for="comment-input">コメント</label>
-          <textarea id="comment-input" bind:value={newComment} placeholder="コメントを入力..."
-          ></textarea>
-        </div>
-        <button type="submit" class="submit">{$account ? '' : '匿名で'}コメントを送信</button>
-      </form>
-    </section> -->
+      {#if $account}
+        <form class="basic" onsubmit={handleCommentSubmit}>
+          <div class="form-group">
+            <label for="comment-input">コメント</label>
+            <textarea id="comment-input" bind:value={newComment} placeholder="コメントを入力..."
+            ></textarea>
+          </div>
+          <button type="submit" class="submit">コメントを送信</button>
+        </form>
+      {/if}
+    </section>
   {/if}
 </div>
 

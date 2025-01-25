@@ -662,6 +662,10 @@ components:
           type: array
           items:
             type: string
+        like_count:
+          type: integer
+        comment_count:
+          type: integer
     KifuDetail:
       type: object
       properties:
