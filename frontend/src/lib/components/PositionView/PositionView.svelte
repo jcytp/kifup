@@ -14,6 +14,7 @@
   import PromoteIndicator from './PromoteIndicator.svelte';
   import TurnIndicator from './TurnIndicator.svelte';
 
+  // ------------------------------------------------------------
   // callbacks
   export let onToggleTurn: () => void = () => {};
   export let onRotatePiece: (row: number, col: number, isBlack: boolean) => void = (
@@ -29,6 +30,7 @@
   export let onPromote: (promote: boolean) => void = (promote) => {};
   export let onChangeComment: (comment: string) => void = (comment) => {};
 
+  // ------------------------------------------------------------
   // parameters
   export let mode: 'position' | 'moves' | 'replay' = 'position';
   export let showNumbers: boolean = true;
@@ -44,14 +46,15 @@
   $: position = new BoardPosition(sfen);
   let promoteChoice: PieceType = PieceType.VACANCY;
 
-  $: viewBoxWidth = 3920 + (visibleMoveList ? 860 : 0) + (visiblePieceBox ? 860 : 0);
-  $: viewBoxHeight = 2640 + (visibleMoveComment ? (showComment ? 380 : 80) : 0);
+  const printBoxWidth = 3920;
+  const printBoxHeight = 2640;
+  $: viewBoxWidth = printBoxWidth + (visibleMoveList ? 860 : 0) + (visiblePieceBox ? 860 : 0);
+  $: viewBoxHeight = printBoxHeight + (visibleMoveComment ? (showComment ? 380 : 80) : 0);
 
-  const handleToggleTurn = () => {
-    if (mode === 'position') {
-      onToggleTurn();
-    }
-  };
+  // ------------------------------------------------------------
+  // action
+
+  $: handleToggleTurn = mode === 'position' ? () => onToggleTurn() : undefined;
 
   const handleRightClick = (event: PieceClickEvent) => {
     if (mode === 'position') {
@@ -127,11 +130,6 @@
         onAppendMove(moveNumber + 1, move);
       }
     }
-  };
-
-  const handleSelectPoromote = (promote: boolean) => {
-    promoteChoice = PieceType.VACANCY;
-    onPromote(promote);
   };
 
   // 駒の動きの合法性を確認する
@@ -223,6 +221,49 @@
     return place.val;
   };
 
+  const handleSelectPoromote = (promote: boolean) => {
+    promoteChoice = PieceType.VACANCY;
+    onPromote(promote);
+  };
+
+  // ------------------------------------------------------------
+  // 画像出力
+  let printTargetSvg: SVGSVGElement; // 印刷対象のSVG要素への参照
+
+  export const exportAsPng = async () => {
+    if (!printTargetSvg) return;
+
+    const w = printBoxWidth / 4;
+    const h = printBoxHeight / 4;
+
+    // svgを画像として読み込み
+    const svgData = new XMLSerializer().serializeToString(printTargetSvg);
+    const svgBlob = new Blob([svgData], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svgBlob);
+    const img = new Image();
+    await new Promise((resolve, reject) => {
+      img.onload = resolve;
+      img.onerror = reject;
+      img.src = url;
+    });
+
+    // Canvas要素に描画
+    const canvas = document.createElement('canvas');
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.fillStyle = 'white';
+    ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, printBoxWidth, printBoxHeight, 0, 0, w, h);
+
+    // PNGファイルとしてダウンロード
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = `局面図_#${moveNumber}.png`;
+    a.click();
+  };
+
   $: if (sfen) {
     pickedPiece = undefined;
     console.debug(sfen);
@@ -236,63 +277,79 @@
     <MoveList x={60} y={120} {isBlackFirst} {moveList} {moveNumber} />
   {/if}
   <g transform={`translate(${visibleMoveList ? 860 : 0}, 0)`}>
-    <PieceStand
-      x={60}
-      y={120}
-      isBlack={false}
-      hands={position.whiteHands}
-      onAreaClick={handlePieceClick}
-      onPieceClick={handlePieceClick}
-      {pickedPiece}
-    />
-    <Board
-      x={850}
-      y={120}
-      blackBoard={position.blackBoard}
-      whiteBoard={position.whiteBoard}
-      onCellClick={handlePieceClick}
-      onRightClick={handleRightClick}
-      {pickedPiece}
-    />
-    {#if showNumbers}
-      {#each '１２３４５６７８９' as file, i}
-        <text
-          x={2940 - i * 245}
-          y={85}
-          dominant-baseline="middle"
-          text-anchor="middle"
-          fill="#666"
-          font-size={70}
-          style:font-size="70px"
-        >
-          {file}
-        </text>
-      {/each}
-      {#each '一二三四五六七八九' as file, i}
-        <text
-          x={3105}
-          y={260 + i * 265}
-          dominant-baseline="middle"
-          text-anchor="middle"
-          fill="#666"
-          font-size={70}
-          style:font-size="70px"
-        >
-          {file}
-        </text>
-      {/each}
-    {/if}
-    <!-- y = 120 + 10 + 260*5 + 5*5 - 10 -->
-    <PieceStand
-      x={3190}
-      y={1445}
-      isBlack={true}
-      hands={position.blackHands}
-      onAreaClick={handlePieceClick}
-      onPieceClick={handlePieceClick}
-      {pickedPiece}
-    />
-    <TurnIndicator x={3190} y={120} isBlackTurn={position.isBlackTurn} onClick={handleToggleTurn} />
+    <svg
+      bind:this={printTargetSvg}
+      class="print-target"
+      width={printBoxWidth}
+      height={printBoxHeight}
+    >
+      <PieceStand
+        x={60}
+        y={120}
+        isBlack={false}
+        hands={position.whiteHands}
+        onAreaClick={handlePieceClick}
+        onPieceClick={handlePieceClick}
+        {pickedPiece}
+      />
+      <Board
+        x={850}
+        y={120}
+        blackBoard={position.blackBoard}
+        whiteBoard={position.whiteBoard}
+        onCellClick={handlePieceClick}
+        onRightClick={handleRightClick}
+        {pickedPiece}
+      />
+      {#if showNumbers}
+        <g transform={`translate(860, 50)`}>
+          {#each '１２３４５６７８９' as file, i}
+            <text
+              x={2080 - i * 245}
+              y={35}
+              dominant-baseline="middle"
+              text-anchor="middle"
+              fill="#666"
+              font-size={70}
+              style:font-size="70px"
+            >
+              {file}
+            </text>
+          {/each}
+        </g>
+        <g transform={`translate(3070, 130)`}>
+          {#each '一二三四五六七八九' as file, i}
+            <text
+              x={35}
+              y={130 + i * 265}
+              dominant-baseline="middle"
+              text-anchor="middle"
+              fill="#666"
+              font-size={70}
+              style:font-size="70px"
+            >
+              {file}
+            </text>
+          {/each}
+        </g>
+      {/if}
+      <!-- y = 120 + 10 + 260*5 + 5*5 - 10 -->
+      <PieceStand
+        x={3190}
+        y={1445}
+        isBlack={true}
+        hands={position.blackHands}
+        onAreaClick={handlePieceClick}
+        onPieceClick={handlePieceClick}
+        {pickedPiece}
+      />
+      <TurnIndicator
+        x={3190}
+        y={120}
+        isBlackTurn={position.isBlackTurn}
+        onClick={handleToggleTurn}
+      />
+    </svg>
     {#if visibleMoveComment}
       <MoveComment
         x={60}

@@ -11,6 +11,7 @@
   $: comment = moveNumber >= 1 ? moveList[moveNumber - 1].comment || '' : '';
   $: currentSfen = generateMovedSfen(initialSfen, moveList, moveNumber);
   $: isBlackFirst = isBlackOfSfen(initialSfen);
+  let positionView: PositionView;
 
   let handleToStart = () => {
     moveNumber = 0;
@@ -24,15 +25,29 @@
   let handleToEnd = () => {
     moveNumber = moveList.length;
   };
+  let handleDownloadPng = async () => {
+    if (positionView) {
+      await positionView.exportAsPng();
+    }
+  };
 </script>
 
 <div class="kifu-player">
-  <PositionView mode="replay" {isBlackFirst} sfen={currentSfen} {comment} {moveList} {moveNumber} />
+  <PositionView
+    bind:this={positionView}
+    mode="replay"
+    {isBlackFirst}
+    sfen={currentSfen}
+    {comment}
+    {moveList}
+    {moveNumber}
+  />
   <div class="controls">
     <button onclick={handleToStart}>|◀</button>
     <button onclick={handleToPrev}>◀</button>
     <button onclick={handleToNext}>▶</button>
     <button onclick={handleToEnd}>▶|</button>
+    <button onclick={handleDownloadPng}>📷</button>
   </div>
 </div>
 
