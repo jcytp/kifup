@@ -4,13 +4,13 @@
   import '$lib/styles/default.scss';
   import { account, sessionToken } from '$lib/stores/session';
   import { onMount } from 'svelte';
-  import { navigating } from '$app/stores';
-  import { page } from '$app/stores';
+  import { afterNavigate } from '$app/navigation';
+  import { page } from '$app/state';
   import { goto } from '$app/navigation';
   import { Menu } from 'lucide-svelte';
 
   const isCurrentPath = (path: string) => {
-    const currentPath = $page.url.pathname;
+    const currentPath = page.url.pathname;
     return path.endsWith('*') ? currentPath.startsWith(path.slice(0, -1)) : currentPath === path;
   };
 
@@ -25,7 +25,7 @@
   const logoutMove = () => {
     // pageのurlがvisitorUrlsのいずれかに一致しない場合、"/"に遷移する
     const visitorUrls = ['/', '/kifu/search/', '/kifu/view/', '/account/*'];
-    const currentPath = $page.url.pathname;
+    const currentPath = page.url.pathname;
     const isVisitorUrl = visitorUrls.some((pattern) => {
       if (pattern.endsWith('*')) {
         const basePattern = pattern.slice(0, -1);
@@ -51,10 +51,10 @@
     isMenuOpen = !isMenuOpen;
   };
 
-  $: if ($navigating) {
+  afterNavigate(() => {
     // ページ遷移が発生したらメニューを閉じる
     isMenuOpen = false;
-  }
+  });
 </script>
 
 <div class="app">
