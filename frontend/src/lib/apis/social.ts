@@ -21,7 +21,7 @@ export const removeKifuLike = async (kifuId: string): Promise<ApiResult> => {
 };
 
 export const getKifuComments = async (kifuId: string): Promise<ApiResult> => {
-  const result = await API.get(`/api/kifu/${kifuId}/comments`, null, true);
+  const result = await API.get(`/api/kifu/${kifuId}/comments`, null, false);
   if (!result.data) {
     console.error('get kifu comments error: no data');
     result.ok = false;

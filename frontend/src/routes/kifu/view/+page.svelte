@@ -191,13 +191,20 @@
 </div>
 
 <style lang="scss">
+  @import '../../../lib/styles/mixins.scss';
+
   .kifu-info {
     display: flex;
     flex-wrap: wrap;
 
     .kifu-info-block {
+      @include sp {
+        min-width: 100%;
+      }
+      @include pc {
+        min-width: 35%;
+      }
       flex: 1;
-      min-width: 35%;
     }
 
     .tags {
