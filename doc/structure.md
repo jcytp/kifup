@@ -72,7 +72,7 @@ kifup/api/
 ### apiソースコードツリー
 
 ```text
-kifup/api$ tree -F -I "tmp|build|.*" --dirsfirst
+kifup/api$ tree -F -I "tmp|build|.*" --dirsfirst --noreport
 
 ```
 
@@ -87,7 +87,7 @@ kifup/api$ tree -F -I "tmp|build|.*" --dirsfirst
 ### frontendソースコードツリー
 
 ```text
-kifup/frontend$ tree -F -I "node_modules|build|.*" --dirsfirst
+kifup/frontend$ tree -F -I "node_modules|build|.*" --dirsfirst --noreport
 
 ```
 

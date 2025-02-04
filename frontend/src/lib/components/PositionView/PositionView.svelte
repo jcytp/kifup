@@ -13,6 +13,7 @@
   import PieceStand from './PieceStand.svelte';
   import PromoteIndicator from './PromoteIndicator.svelte';
   import TurnIndicator from './TurnIndicator.svelte';
+  import { viewport } from '$lib/stores/viewport';
 
   // ------------------------------------------------------------
   // callbacks
@@ -40,7 +41,7 @@
   export let moveList: KifuMove[] = [];
   export let moveNumber: number = 0; // 現在の手数
   export let sfen: string | undefined; // 現在の局面
-  $: visibleMoveList = mode === 'moves' || mode === 'replay';
+  $: visibleMoveList = !$viewport.isMobile && (mode === 'moves' || mode === 'replay');
   $: visiblePieceBox = mode === 'position';
   $: visibleMoveComment = mode === 'moves' || mode === 'replay';
   $: position = new BoardPosition(sfen);
@@ -264,6 +265,8 @@
     a.click();
   };
 
+  // ------------------------------------------------------------
+  // 表示局面が変更されたとき
   $: if (sfen) {
     pickedPiece = undefined;
     console.debug(sfen);
