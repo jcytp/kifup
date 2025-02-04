@@ -64,6 +64,9 @@ type requestCreateAccount struct {
 }
 
 func CreateAccount(c *gin.Context, req requestCreateAccount) (string, error) {
+	if env.IsProduction() { // Alpha version
+		return "", fmt.Errorf("not allowed operation in the alpha version")
+	}
 	if !env.IsDevelopment() { // 開発環境ではメール認証なしでユーザー登録
 		ev, err := dao.GetEmailVerification(req.Email)
 		if err != nil {

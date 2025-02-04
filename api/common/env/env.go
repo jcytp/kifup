@@ -74,7 +74,7 @@ func Initialize() {
 	}
 }
 
-func IsProductionn() bool {
+func IsProduction() bool {
 	return conf.Environment == envProduction
 }
 
