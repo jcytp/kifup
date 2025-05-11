@@ -36,9 +36,10 @@ s3-kifup/
   - POST /api/account/verify-code ... 認証コードの検証
   - POST /api/account ... アカウント新規作成
   - GET /api/account ... アカウント情報取得
-  - PUT /api/account ... アカウント情報変更
   - DELETE /api/account ... アカウント削除
+  - POST /api/account/reset-password ... パスワードリセット
   - PUT /api/account/password ... パスワード変更
+  - PUT /api/account/info ... アカウント情報変更
   - GET /api/account/{accountID} ... アカウント情報取得（他者）
 - セッション管理
   - POST /api/session/login ... ログイン

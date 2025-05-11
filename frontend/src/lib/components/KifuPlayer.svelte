@@ -70,15 +70,6 @@
     margin-top: 0.5rem;
 
     button {
-      @include sp {
-        width: 4rem;
-        font-size: small;
-        padding: 0.2rem 0;
-      }
-      @include pc {
-        width: 6rem;
-        padding: 0.4rem 0;
-      }
       display: flex;
       justify-content: center;
       align-items: center;
@@ -88,6 +79,16 @@
       border: none;
       border-radius: 4px;
       cursor: pointer;
+
+      @include sp {
+        width: 4rem;
+        font-size: small;
+        padding: 0.2rem 0;
+      }
+      @include pc {
+        width: 6rem;
+        padding: 0.4rem 0;
+      }
 
       &:hover {
         opacity: 0.9;

@@ -27,6 +27,16 @@ export const register = async (
   return result;
 };
 
+export const resetPassword = async (
+  email: string,
+  password: string,
+  code: string
+): Promise<ApiResult> => {
+  const params = { email, password, code };
+  const result = await API.post('/api/account/reset-password', params, false);
+  return result;
+};
+
 export const getAccount = async (): Promise<ApiResult> => {
   const result = await API.get('/api/account', null, true);
   if (!result.data) {
