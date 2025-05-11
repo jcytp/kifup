@@ -7,10 +7,10 @@
 |ドメイン|URL|CloudFront|制限|メソッド|ALB|ECS|S3|
 |---|---|---|---|---|---|---|---|
 |prd|`/api/*`|`cf-kifup`|なし|GET/HEAD/PUT/POST/DELETE|`alb-main`|`ecssvc-kifup-api`|-|
-|prd|`/file/private/*`|`cf-kifup`|署名・OAC|GET/HEAD|-|-|`s3-kifup/private/*`|
-|prd|`/file/private-upload/*`|`cf-kifup`|署名・OAC|GET/HEAD/PUT/POST/DELETE|-|-|`s3-kifup/private/*`|
+|prd|`/file/private/*`|`cf-kifup`|署名付きURL・OAC|GET/HEAD|-|-|`s3-kifup/private/*`|
+|prd|`/file/private-upload/*`|`cf-kifup`|署名付きURL・OAC|GET/HEAD/PUT/POST/DELETE|-|-|`s3-kifup/private/*`|
 |prd|`/file/public/*`|`cf-kifup`|OAC|GET/HEAD|-|-|`s3-kifup/public/*`|
-|prd|`/file/public-upload/*`|`cf-kifup`|署名・OAC|GET/HEAD/PUT/POST/DELETE|-|-|`s3-kifup/public/*`|
+|prd|`/file/public-upload/*`|`cf-kifup`|署名付きURL・OAC|GET/HEAD/PUT/POST/DELETE|-|-|`s3-kifup/public/*`|
 |prd|その他|`cf-kifup`|なし|GET/HEAD|-|-|`s3-kifup/web/*`|
 |stg|`/api/*`|`cf-kifup-stg`|なし|GET/HEAD/PUT/POST/DELETE|`alb-main`|`ecssvc-kifup-stg-api`|-|
 |stg|`/swagger/*`|`cf-kifup-stg`|BASIC認証|GET/HEAD|`alb-main`|`ecssvc-kifup-stg-api`|-|

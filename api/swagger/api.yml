@@ -93,6 +93,22 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
+  /api/account/reset-password:
+    post:
+      summary: パスワードリセット
+      tags: [Account]
+      description: メール認証コードを検証してパスワードをリセットします。
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
   /api/account/password:
     put:
       summary: パスワード変更
@@ -547,6 +563,23 @@ components:
           type: string
           format:  password
           example: "password123"
+        code:
+          type: string
+          minLength: 6
+          maxLength: 6
+          example: "123456"
+    ResetPasswordRequest:
+      type: object
+      required: [email, password, code]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "caocao@example.com"
+        password:
+          type: string
+          format: password
+          example: "newPassword123"
         code:
           type: string
           minLength: 6

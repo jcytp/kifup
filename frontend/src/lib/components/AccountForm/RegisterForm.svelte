@@ -9,6 +9,9 @@
 
   export let switchToLogin: () => void;
 
+  // アルファ版対応
+  const isAlphaVersion = true;
+
   // 新規登録の各ステップ
   type Step = 'email' | 'verify' | 'info';
   let currentStep: Step = 'email';
@@ -76,7 +79,14 @@
   >
     <h2>新規登録</h2>
 
-    {#if currentStep === 'email'}
+    {#if isAlphaVersion}
+      <p>現在はアルファ版のため、アカウント作成を制限しています。</p>
+      <p>
+        使ってみたい方は開発者の<a href="https://x.com/FuegoPalabra">X(twitter)</a>または<a
+          href="mailto:toshiki.jcytp@gmail.com">メール</a
+        >までご連絡ください。
+      </p>
+    {:else if currentStep === 'email'}
       <!-- メールアドレス入力 -->
       <div class="form-group">
         <label for="register-email">メールアドレス</label>
@@ -173,6 +183,16 @@
         font-size: 1.4rem;
         line-height: 2rem;
         margin-bottom: 1rem;
+      }
+
+      a:link,
+      a:visited {
+        color: #06c;
+        text-decoration: underline;
+
+        &:hover {
+          color: #09f;
+        }
       }
 
       .error-message {

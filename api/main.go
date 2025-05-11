@@ -76,6 +76,7 @@ func main() {
 	rPub.POST("/account", handler.HandlerIn(api.CreateAccount))
 	rSes.GET("/account", handler.HandlerOut(api.GetAccount))
 	rSes.DELETE("/account", handler.Handler(api.DeleteAccount))
+	rPub.POST("/account/reset-password", handler.HandlerIn(api.ResetPassword))
 	rSes.PUT("/account/password", handler.HandlerIn(api.ChangePassword))
 	rSes.PUT("/account/info", handler.HandlerIn(api.UpdateAccountInfo))
 	rPub.GET("/account/:accountID", handler.HandlerOut(api.GetAccountByID))

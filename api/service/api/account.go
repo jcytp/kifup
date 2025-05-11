@@ -21,14 +21,6 @@ type requestSendVerificationEmail struct {
 }
 
 func SendVerificationEmail(c *gin.Context, req requestSendVerificationEmail) (string, error) {
-	account, err := dao.GetAccountByEmail(req.Email)
-	if err != nil && err != sql.ErrNoRows {
-		return "Failed to check existing account", err
-	}
-	if account != nil {
-		return "Email already registered", fmt.Errorf("email already registered")
-	}
-
 	ev := model.NewEmailVerification(req.Email)
 	if err := dao.InsertEmailVerification(ev); err != nil {
 		return "Failed to create verification", err
@@ -64,6 +56,9 @@ type requestCreateAccount struct {
 }
 
 func CreateAccount(c *gin.Context, req requestCreateAccount) (string, error) {
+	if env.IsProduction() { // Alpha version
+		return "", fmt.Errorf("not allowed operation in the alpha version")
+	}
 	if !env.IsDevelopment() { // 開発環境ではメール認証なしでユーザー登録
 		ev, err := dao.GetEmailVerification(req.Email)
 		if err != nil {
@@ -72,6 +67,14 @@ func CreateAccount(c *gin.Context, req requestCreateAccount) (string, error) {
 		if !ev.IsValid(req.Code) {
 			return "Invalid verification code", fmt.Errorf("invalid verification code")
 		}
+	}
+
+	account_check, err := dao.GetAccountByEmail(req.Email)
+	if err != nil && err != sql.ErrNoRows {
+		return "Failed to check existing account", err
+	}
+	if account_check != nil {
+		return "Email already registered", fmt.Errorf("email already registered")
 	}
 
 	passHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
@@ -120,6 +123,45 @@ func DeleteAccount(c *gin.Context) (string, error) {
 
 	if err := dao.DeleteAccount(aid); err != nil {
 		return "Failed to delete account", err
+	}
+
+	return "", nil
+}
+
+type requestResetPassword struct {
+	Email    string `json:"email" binding:"required,email,max=255"`
+	Password string `json:"password" binding:"required,min=6"`
+	Code     string `json:"code" binding:"required,len=6"`
+}
+
+func ResetPassword(c *gin.Context, req requestResetPassword) (string, error) {
+	if !env.IsDevelopment() { // 開発環境ではメール認証なしでパスワード変更
+		ev, err := dao.GetEmailVerification(req.Email)
+		if err != nil {
+			return "Failed to get verification", err
+		}
+		if !ev.IsValid(req.Code) {
+			return "Invalid verification code", fmt.Errorf("invalid verification code")
+		}
+	}
+
+	account, err := dao.GetAccountByEmail(req.Email)
+	if err != nil {
+		return "Failed to get account", err
+	}
+	passHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		return "Failed to process password", err
+	}
+	account.PassHash = string(passHash)
+	if err = dao.UpdateAccount(account); err != nil {
+		return "Failed to update password", err
+	}
+
+	if !env.IsDevelopment() {
+		if err := dao.MarkEmailVerificationAsUsed(req.Email); err != nil {
+			return "Failed to mark verification as used", err
+		}
 	}
 
 	return "", nil
